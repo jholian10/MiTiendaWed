@@ -1,8 +1,8 @@
 import os
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from werkzeug.utils import secure_filename
-# Se añade la importación de buscar_productos_por_nombre para gestionar los filtros
-from models.product_model import listar_productos, buscar_productos_por_nombre 
+# Se añade la importación de obtener_producto_por_id para la nueva vista de detalle
+from models.product_model import listar_productos, buscar_productos_por_nombre, obtener_producto_por_id 
 from models.user_model import actualizar_perfil_usuario 
 
 # CRÍTICO: Dejar sin url_prefix para que controle la página de inicio principal
@@ -34,6 +34,25 @@ def index():
         productos=bolsos, 
         usuario_sesion=obtener_usuario_sesion(),
         busqueda=termino_busqueda  # Mantiene el texto dentro del input del buscador
+    )
+
+# ==========================================
+# NUEVA VISTA: VER DETALLE DEL PRODUCTO
+# ==========================================
+@product_blueprint.route('/producto/<int:producto_id>')
+def ver_producto(producto_id):
+    # Busca el producto específico en la base de datos usando su ID
+    producto = obtener_producto_por_id(producto_id)
+    
+    # Si el producto no existe o el ID es inválido, redirige al catálogo
+    if not producto:
+        flash('El producto solicitado no está disponible o no existe.', 'warning')
+        return redirect(url_for('products.index'))
+        
+    return render_template(
+        'ver_producto.html', 
+        producto=producto, 
+        usuario_sesion=obtener_usuario_sesion()
     )
 
 # ==========================================
@@ -81,7 +100,7 @@ def editar_perfil():
         try:
             # CORRECCIÓN AQUÍ: Se pasa 'ciudad' correctamente a tu modelo de base de datos
             datos_nuevos = actualizar_perfil_usuario(
-                usuario_datos['id'], nombre, correo, telefono, direccion, ciudad, foto_url
+                usuario_datos['id'], nombre, correo, telefono, direccion, city=ciudad, foto_url=foto_url
             )
             
             # Actualiza los datos de la sesión de Flask inmediatamente

@@ -1,12 +1,15 @@
-from flask import Blueprint, session, redirect, url_for, flash
-import stripe
+from flask import Blueprint, session, redirect, url_for, flash, render_template_string, request
+import hashlib
+import time
+import requests
+
 from models.cart_model import obtener_detalles_carrito
 
-# Definición del Blueprint exclusivo para pagos
 payment_blueprint = Blueprint('payment', __name__, url_prefix='/pago')
 
-# Tu clave secreta de desarrollo de Stripe (sk_test_...)
-stripe.api_key = "sk_test_TU_CLAVE_SECRETA_AQUI"
+WOMPI_PUBLIC_KEY = "pub_test_GHpuOWhHiYzNcAX5EZX9Fy4lTKxfBTWT"
+# Asegúrate de limpiar espacios raros usando .strip()
+WOMPI_INTEGRITY_SECRET = "test_integrity_P0flJ5cCmnqd6LtVHARxwxVSFy6rI6Ft".strip() 
 
 @payment_blueprint.route('/checkout', methods=['POST'])
 def procesar_pago():
@@ -21,49 +24,82 @@ def procesar_pago():
         flash('Tu carrito está vacío.', 'warning')
         return redirect(url_for('cart.ver_carrito'))
 
-    # Estructurar carrito al formato nativo de Stripe
-    line_items = []
+    total_cop = 0
     for item in items_carrito:
-        line_items.append({
-            'price_data': {
-                'currency': 'usd',  # Cambia a 'cop', 'mxn', etc. según tu moneda
-                'product_data': {
-                    'name': item['nombre'],
-                },
-                # Stripe procesa en centavos enteros (Ej: $10.50 -> 1050)
-                'unit_amount': int(float(item['precio_venta']) * 100),
-            },
-            'quantity': int(item['cantidad']),
-        })
+        total_cop += float(item['precio_venta']) * int(item['cantidad'])
+    
+    monto_en_centavos = int(total_cop * 100)
+    referencia_pago = f"MITIENDA_{usuario_id}_{int(time.time())}"
 
-    try:
-        # Crear la pasarela de Checkout externa
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=line_items,
-            mode='payment',
-            customer_email=session['usuario'].get('correo'),
-            success_url='http://127.0.0.1:5000/pago/exitoso',
-            cancel_url='http://127.0.0.1:5000/pago/fallido',
-        )
-        # Redirección directa hacia la pasarela de Stripe
-        return redirect(checkout_session.url, code=303)
+    # Construcción limpia de la firma
+    moneda = "COP"
+    cadena_firma = f"{referencia_pago}{monto_en_centavos}{moneda}{WOMPI_INTEGRITY_SECRET}"
+    firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
+
+    redirect_url = 'http://127.0.0.1:5000/pago/resultado'
+
+    # Agregamos 'id="wompi_form"' al tag HTML del formulario
+    html_form = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Redireccionando a Pasarela de Pago</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; text-align: center; margin-top: 100px; background-color: #f4f6f9; }}
+            .loader {{ border: 6px solid #f3f3f3; border-top: 6px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }}
+            @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
+        </style>
+    </head>
+    <body onload="document.getElementById('wompi_form').submit()">
+        <div class="loader"></div>
+        <h2>Conectando de forma segura con Wompi...</h2>
+        <p>Por favor, no cierres ni recargues esta ventana.</p>
         
-    except Exception as e:
-        flash(f'Error de comunicación con la pasarela: {str(e)}', 'danger')
+        <form id="wompi_form" name="wompi_form" action="https://checkout.wompi.co/p/" method="GET">
+            <input type="hidden" name="public-key" value="{WOMPI_PUBLIC_KEY}" />
+            <input type="hidden" name="currency" value="{moneda}" />
+            <input type="hidden" name="amount-in-cents" value="{monto_en_centavos}" />
+            <input type="hidden" name="reference" value="{referencia_pago}" />
+            <input type="hidden" name="signature:integrity" value="{firma_checksum}" />
+            <input type="hidden" name="redirect-url" value="{redirect_url}" />
+            <input type="hidden" name="customer-data:email" value="{session['usuario'].get('correo')}" />
+        </form>
+    </body>
+    </html>
+    """
+    return render_template_string(html_form)
+
+
+@payment_blueprint.route('/resultado', methods=['GET'])
+def pago_resultado():
+    transaccion_id = request.args.get('id')
+    
+    if not transaccion_id:
+        flash('No se recibió un identificador válido de transacción.', 'warning')
         return redirect(url_for('cart.ver_carrito'))
 
+    try:
+        url_api = f"https://sandbox.wompi.co/v1/transactions/{transaccion_id}"
+        
+        # Agregamos Headers simulando un navegador para burlar el bloqueo de CloudFront en la API
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        
+        respuesta = requests.get(url_api, headers=headers).json()
+        estado = respuesta['data']['status'] 
 
-@payment_blueprint.route('/exitoso')
-def pago_exitoso():
-    """Ruta de aterrizaje cuando el cobro en Sandbox fue aprobado."""
-    # NOTA: Aquí puedes ejecutar lógica extra como vaciar el carrito en la BD
-    flash('¡Pago de prueba recibido con éxito en Stripe!', 'success')
-    return redirect(url_for('cart.ver_carrito'))
+        if estado == "APPROVED":
+            flash('¡Excelente! El pago simulado fue APROBADO con éxito.', 'success')
+        elif estado == "DECLINED":
+            flash('El pago simulado fue RECHAZADO por la pasarela.', 'danger')
+        elif estado == "PENDING":
+            flash('El pago se encuentra PENDIENTE.', 'info')
+        else:
+            flash(f'La transacción finalizó con el estado: {estado}', 'warning')
 
+    except Exception as e:
+        flash('El pago se procesó, pero ocurrió un problema al validar su estado.', 'info')
 
-@payment_blueprint.route('/fallido')
-def pago_fallido():
-    """Ruta de aterrizaje si el usuario cancela o la tarjeta es rechazada."""
-    flash('El proceso de pago simulado ha sido cancelado.', 'warning')
     return redirect(url_for('cart.ver_carrito'))
