@@ -1,0 +1,5 @@
+Flask==3.0.3
+Werkzeug==3.0.3
+Jinja2==3.1.4
+mysql-connector-python==9.0.0
+stripe==9.9.0

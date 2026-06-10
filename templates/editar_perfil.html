@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualizar Perfil - MiTiendaWeb</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --border: #d1d5db;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .edit-container {
+            background: var(--card-bg);
+            max-width: 550px;
+            width: 100%;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .avatar-preview {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            background-color: #e5e7eb;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .btn-upload {
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            background-color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-upload:hover {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .form-group input {
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #f9fafb;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-back {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: var(--text-main);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="edit-container">
+        <h2>Modificar Información</h2>
+        <p class="subtitle">Actualiza tus credenciales personales y datos de envío de paquetes</p>
+        
+        <form action="{{ url_for('products.editar_perfil') }}" method="POST" enctype="multipart/form-data">
+            
+            <div class="avatar-section">
+                <img id="preview" src="{{ usuario.foto_perfil_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80' }}" class="avatar-preview" alt="Previsualización">
+                <div class="file-input-wrapper">
+                    <button type="button" class="btn-upload">Seleccionar nueva foto</button>
+                    <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previsualizarImagen(this)">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" required placeholder="Tu nombre y apellido">
+            </div>
+
+            <div class="form-group">
+                <label for="correo">Correo Electrónico</label>
+                <input type="email" id="correo" name="correo" value="{{ usuario.correo }}" required placeholder="ejemplo@correo.com">
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono / Celular</label>
+                <input type="text" id="telefono" name="telefono" value="{{ usuario.telefono or '' }}" placeholder="Número de contacto móvil">
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección de Destino</label>
+                <input type="text" id="direccion" name="direccion" value="{{ usuario.direccion or '' }}" placeholder="Calle, nomenclatura, apartamento o negocio">
+            </div>
+
+            <div class="form-group">
+                <label for="ciudad">Ciudad / Departamento</label>
+                <input type="text" id="ciudad" name="ciudad" value="{{ usuario.ciudad or '' }}" placeholder="Municipio o ciudad principal">
+            </div>
+
+            <button type="submit" class="btn-submit">Guardar Cambios</button>
+            <a href="{{ url_for('products.perfil') }}" class="btn-back">Cancelar y regresar al perfil</a>
+        </form>
+    </div>
+
+    <script>
+        // Función nativa para previsualizar la foto antes de enviarla mediante POST
+        function previsualizarImagen(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
