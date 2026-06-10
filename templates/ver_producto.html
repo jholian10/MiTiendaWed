@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dunaka - {{ producto.nombre }}</title>
+    <title>{{ producto.nombre }} - Dunaka</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
@@ -12,7 +12,9 @@
             --bg-arena: #f8f7f4;
             --grafito: #1e2522;
             --coral-accion: #ff6f61;
+            --coral-dark: #e55e51;
             --borde-suave: rgba(30, 37, 34, 0.08);
+            --oro-resena: #ffb703;
         }
         
         body {
@@ -30,6 +32,7 @@
         .custom-navbar {
             background-color: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--borde-suave);
         }
         
@@ -39,7 +42,10 @@
             font-size: 1.2rem;
             transition: all 0.2s ease;
         }
-        .nav-icon-btn:hover { color: var(--coral-accion); }
+        .nav-icon-btn:hover {
+            color: var(--coral-accion);
+            transform: translateY(-1px);
+        }
         
         .nav-badge {
             position: absolute;
@@ -52,249 +58,455 @@
             font-weight: 600;
         }
 
-        /* DISEÑO DE DETALLE PRO */
         .product-detail-container {
             background: #ffffff;
-            border-radius: 32px;
-            border: 1px solid var(--borde-suave);
-            padding: 40px;
-            box-shadow: 0 15px 35px rgba(30, 37, 34, 0.03);
-        }
-
-        .detail-img-wrapper {
-            background-color: #faf9f6;
             border-radius: 24px;
-            overflow: hidden;
             border: 1px solid var(--borde-suave);
-            position: relative;
+            overflow: hidden;
         }
 
         .detail-img {
             width: 100%;
-            height: auto;
-            max-height: 500px;
+            height: 500px;
             object-fit: cover;
+            background-color: #faf9f6;
         }
 
-        .detail-placeholder {
-            height: 450px;
+        .img-placeholder-detail {
+            height: 500px;
             background-color: #f3f2ee;
             color: #8c9691;
             font-family: 'Playfair Display', serif;
             font-style: italic;
-            border-radius: 24px;
         }
 
-        .btn-dunaka-action {
-            background-color: var(--grafito);
-            color: white;
+        /* CONTADOR DE CANTIDAD COMPACTO */
+        .quantity-selector {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg-arena);
+            border: 1px solid var(--borde-suave);
+            border-radius: 12px;
+            padding: 4px;
+            max-width: 140px;
+        }
+
+        .quantity-btn {
+            background: transparent;
             border: none;
-            border-radius: 14px;
-            padding: 14px 24px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .btn-dunaka-action:hover { background-color: var(--coral-accion); }
-        
-        .btn-dunaka-buy {
-            background-color: transparent;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--grafito);
-            border: 1px solid var(--grafito);
-            border-radius: 14px;
-            padding: 14px 24px;
-            font-weight: 500;
-            transition: all 0.2s;
+            border-radius: 8px;
+            transition: background 0.2s;
         }
-        .btn-dunaka-buy:hover { background-color: #f4f3ef; }
+
+        .quantity-btn:hover:not(:disabled) {
+            background: rgba(30, 37, 34, 0.05);
+        }
+
+        .quantity-input {
+            width: 45px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--grafito);
+        }
+
+        .quantity-input::-webkit-outer-spin-button,
+        .quantity-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* SECCIÓN DE RESEÑAS */
+        .review-card {
+            background: #ffffff;
+            border: 1px solid var(--borde-suave);
+            border-radius: 16px;
+        }
+
+        .review-comment-box {
+            border-radius: 12px;
+            border: 1px solid var(--borde-suave);
+            resize: none;
+            transition: border-color 0.2s;
+        }
+
+        .review-comment-box:focus {
+            border-color: var(--grafito);
+            box-shadow: none;
+        }
+
+        /* ESTRELLAS INTERACTIVAS */
+        .stars-rating-container {
+            display: inline-flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        .star-item {
+            font-size: 1.8rem;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: color 0.15s ease, transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .star-item:hover,
+        .star-item:hover ~ .star-item {
+            color: var(--oro-resena);
+            transform: scale(1.15);
+        }
+
+        .star-item.selected,
+        .star-item.selected ~ .star-item {
+            color: var(--oro-resena);
+        }
+
+        .text-oro {
+            color: var(--oro-resena);
+        }
+
+        /* BOTÓN DE FAVORITO EN DETALLE */
+        .btn-fav-detail {
+            border: 1px solid var(--borde-suave);
+            background: white;
+            color: var(--grafito);
+            transition: all 0.2s ease;
+        }
+        .btn-fav-detail:hover {
+            background: #fff5f5;
+            color: var(--coral-accion);
+            border-color: var(--coral-accion);
+        }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-    <!-- NAVBAR IDENTICA PARA MANTENER LA EXPERIENCIA -->
+    <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg sticky-top custom-navbar py-3 shadow-sm">
         <div class="container">
             <a class="navbar-brand brand-title fs-2 m-0" href="{{ url_for('products.index') }}">Dunaka</a>
-            
-            <div class="d-flex align-items-center gap-3 gap-md-4 ms-auto">
-                {% if usuario_sesion %}
-                    <span class="fs-6 fw-medium text-muted"><i class="bi bi-person-check-fill text-success me-1"></i>{{ usuario_sesion.nombre.split(' ')[0] }}</span>
-                {% endif %}
-                <a href="{{ url_for('favorites.ver_favoritos') }}" class="nav-icon-btn"><i class="bi bi-heart"></i><span class="badge rounded-pill nav-badge" id="fav-count">0</span></a>
-                <a href="{{ url_for('cart.ver_carrito') }}" class="nav-icon-btn" id="cartButton"><i class="bi bi-bag-heart"></i><span class="badge rounded-pill nav-badge" id="cart-count">0</span></a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list fs-3"></i>
+            </button>
+
+            <div class="collapse navbar-collapse flex-grow-0 mt-3 mt-lg-0" id="navbarContent">
+                <div class="d-flex align-items-center justify-content-start justify-content-lg-end gap-4">
+                    {% if usuario_sesion %}
+                        <div class="dropdown">
+                            <a class="nav-icon-btn text-decoration-none dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-check-fill text-success"></i>
+                                <span class="fs-6 fw-medium" style="font-size: 0.85rem !important; color: var(--grafito);">
+                                    {{ usuario_sesion.nombre.split(' ')[0] }}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-2" aria-labelledby="userMenu">
+                                <li><a class="dropdown-item small" href="{{ url_for('products.perfil') }}"><i class="bi bi-sliders2 me-2"></i>Mi Perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item small text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="nav-icon-btn d-flex align-items-center gap-2 text-decoration-none">
+                            <i class="bi bi-person-circle"></i>
+                            <span class="fs-6" style="font-size: 0.85rem !important;">Ingresar</span>
+                        </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('favorites.ver_favoritos') }}" class="nav-icon-btn d-flex align-items-center">
+                        <i class="bi bi-heart"></i>
+                        <span class="badge rounded-pill nav-badge" id="fav-count">0</span>
+                    </a>
+
+                    <a href="{{ url_for('cart.ver_carrito') }}" class="btn p-0 nav-icon-btn d-flex align-items-center" id="cartButton">
+                        <i class="bi bi-bag-heart"></i>
+                        <span class="badge rounded-pill nav-badge" id="cart-count">0</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- CUERPO DE DETALLE DE PRODUCTO -->
-    <main class="container my-5">
-        <div class="mb-4">
-            <a href="{{ url_for('products.index') }}" class="text-decoration-none text-muted small fw-medium">
-                <i class="bi bi-arrow-left me-1"></i> Volver al catálogo
-            </a>
-        </div>
-
-        <div class="product-detail-container">
-            <div class="row g-5">
-                <!-- COLUMNA IZQUIERDA: IMAGEN -->
-                <div class="col-md-6">
-                    <div class="detail-img-wrapper">
-                        {% if producto.imagen_url %}
-                            <img src="{{ producto.imagen_url }}" class="detail-img" alt="{{ producto.nombre }}">
-                        {% else %}
-                            <div class="d-flex align-items-center justify-content-center detail-placeholder fs-3 px-3">
-                                Dunaka Taller de Origen
-                            </div>
-                        {% endif %}
+    <!-- FLASH MESSAGES -->
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show rounded-4 shadow-sm border-0" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- MAIN PRODUCT DETAIL -->
+    <main class="container my-4 flex-grow-1">
+        <div class="product-detail-container shadow-sm bg-white p-4 p-lg-5">
+            <div class="row g-5">
+                <!-- Zona Izquierda: Imagen -->
+                <div class="col-md-6 position-relative">
+                    {% if producto.stock == 0 %}
+                        <span class="badge bg-dark px-3 py-2 position-absolute top-3 start-3 rounded-pill" style="z-index: 5;">Agotado</span>
+                    {% endif %}
+                    
+                    {% if producto.imagen_url %}
+                        <img src="{{ producto.imagen_url }}" class="detail-img rounded-4 shadow-sm" alt="{{ producto.nombre }}">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center img-placeholder-detail rounded-4 fs-3">
+                            Dunaka Taller Artesanal
+                        </div>
+                    {% endif %}
                 </div>
 
-                <!-- COLUMNA DERECHA: TEXTOS Y COMPRA -->
-                <div class="col-md-6 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h1 class="brand-title h2 m-0">{{ producto.nombre }}</h1>
-                        </div>
-
-                        <span class="fs-3 fw-bold text-dark d-block mb-4">${{ "{:,.0f}".format(producto.precio_venta | float) }}</span>
-                        
-                        <hr class="my-4 opacity-50">
-                        
-                        <h6 class="text-uppercase tracking-wider small fw-bold text-muted mb-2">Descripción del Producto</h6>
-                        <p class="text-muted leading-relaxed" style="font-size: 0.95rem; text-align: justify;">
-                            {{ producto.descripcion or 'Esta pieza artesanal exclusiva ha sido elaborada a mano por talentosos artesanos, utilizando materiales seleccionados de la más alta calidad y técnicas tradicionales que aseguran un acabado único y perdurable en el tiempo.' }}
-                        </p>
-
-                        <div class="mt-4">
-                            {% if producto.stock > 0 %}
-                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 small">
-                                    <i class="bi bi-check-circle-fill me-1"></i> Disponible en Taller (Stock: {{ producto.stock }})
-                                </span>
-                            {% else %}
-                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 small">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Temporalmente Agotado
-                                </span>
-                            {% endif %}
-                        </div>
+                <!-- Zona Derecha: Metadatos y Gestión de Compra -->
+                <div class="col-md-6 d-flex flex-column justify-content-center">
+                    <span class="text-uppercase text-muted font-monospace small mb-2 d-block" style="letter-spacing: 1px;">Producto Original</span>
+                    <h1 class="brand-title display-5 mb-3">{{ producto.nombre }}</h1>
+                    <h2 class="fs-2 fw-bold text-dark mb-4">${{ "{:,.0f}".format(producto.precio_venta | float) }}</h2>
+                    
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-uppercase text-secondary small mb-2" style="letter-spacing: 0.5px;">Descripción del Artista</h6>
+                        <p class="text-muted lh-lg m-0">{{ producto.descripcion or 'Esta pieza única representa los valores estéticos de nuestra marca, confeccionada totalmente a mano.' }}</p>
                     </div>
 
-                    <!-- BOTONES DE COMPRA DIRECTA -->
-                    <div class="mt-5">
-                        {% if producto.stock > 0 %}
-                            <div class="d-grid d-sm-flex gap-3">
-                                <button class="btn btn-dunaka-buy flex-grow-1 py-3" onclick="comprarProducto('{{ producto.id }}')">
-                                    Comprar Ahora
+                    <div class="mb-4">
+                        <span class="small fw-medium {{ 'text-success' if producto.stock > 0 else 'text-danger' }}">
+                            <i class="bi bi-circle-fill me-1" style="font-size: 0.6rem;"></i> 
+                            {{ 'Disponibilidad inmediata (' ~ producto.stock ~ ' unidades)' if producto.stock > 0 else 'Sin existencias disponibles' }}
+                        </span>
+                    </div>
+
+                    <!-- FORMULARIO INTEGRADO CON SELECTOR DE CANTIDAD -->
+                    {% if producto.stock > 0 %}
+                    <form action="{{ url_for('cart.agregar', producto_id=producto.id) }}" method="POST" class="mt-2">
+                        
+                        <!-- Selector de Cantidad (Sumar / Restar) -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider d-block" style="font-size: 0.75rem;">Cantidad</label>
+                            <div class="quantity-selector">
+                                <button type="button" class="quantity-btn" id="btn-menos">
+                                    <i class="bi bi-dash-lg"></i>
                                 </button>
-                                <button class="btn btn-dunaka-action flex-grow-1 py-3" onclick="agregarAlCarrito('{{ producto.id }}')">
-                                    <i class="bi bi-cart-plus me-1"></i> Añadir al Carrito
+                                <input type="number" name="cantidad" id="input-cantidad" class="quantity-input" value="1" min="1" max="{{ producto.stock }}" readonly>
+                                <button type="button" class="quantity-btn" id="btn-mas">
+                                    <i class="bi bi-plus-lg"></i>
                                 </button>
                             </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="row g-2">
+                            <div class="col-12 col-md-5">
+                                <button type="submit" class="btn btn-outline-dark w-100 py-3 rounded-3 fw-medium text-uppercase tracking-wider" style="font-size: 0.85rem;">
+                                    <i class="bi bi-bag-plus me-2"></i>Añadir al carrito
+                                </button>
+                            </div>
+                            <div class="col-10 col-md-5">
+                                <button type="submit" name="comprar_ahora" value="true" class="btn btn-dark w-100 py-3 rounded-3 fw-medium text-uppercase tracking-wider" style="font-size: 0.85rem; background-color: var(--grafito);">
+                                    Comprar ya
+                                </button>
+                            </div>
+                            <div class="col-2 col-md-2">
+                                <a href="{{ url_for('favorites.agregar', producto_id=producto.id) }}" class="btn btn-fav-detail w-100 py-3 rounded-3 d-flex align-items-center justify-content-center" title="Añadir a Favoritos">
+                                    <i class="bi bi-heart-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="mt-2">
+                        <button class="btn btn-secondary w-100 py-3 rounded-3 fw-medium text-uppercase tracking-wider" style="font-size: 0.85rem;" disabled>
+                            Agotado temporalmente
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SISTEMA DE RESEÑAS -->
+        <div class="row mt-5 pt-4">
+            <div class="col-lg-8 mx-auto">
+                <h3 class="brand-title mb-4">Opiniones de la comunidad</h3>
+
+                {% if usuario_sesion %}
+                <div class="review-card bg-white p-4 mb-5 shadow-sm">
+                    <h5 class="fw-bold mb-1" style="font-size: 1rem;">Cuéntanos tu experiencia</h5>
+                    <p class="text-muted small mb-3">Pasa el cursor sobre las estrellas para calificar el producto.</p>
+                    
+                    <form action="{{ url_for('products.enviar_reseña', producto_id=producto.id) }}" method="POST">
+                        <input type="hidden" name="calificacion" id="input-calificacion" value="5" required>
+
+                        <div class="mb-4">
+                            <div class="stars-rating-container">
+                                <i class="bi bi-star-fill star-item" data-value="5"></i>
+                                <i class="bi bi-star-fill star-item" data-value="4"></i>
+                                <i class="bi bi-star-fill star-item" data-value="3"></i>
+                                <i class="bi bi-star-fill star-item" data-value="2"></i>
+                                <i class="bi bi-star-fill star-item" data-value="1"></i>
+                            </div>
+                            <span id="label-rating" class="ms-3 small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px;">Excelente (5/5)</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Comentario escrito (Opcional)</label>
+                            <textarea name="comentario" class="form-control review-comment-box" rows="3" placeholder="Escribe tu reseña sobre el tejido, acabados o tamaño..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-dark rounded-3 px-4 py-2 small fw-medium">Enviar comentario</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="alert alert-light border rounded-4 p-3 mb-5 d-flex align-items-center gap-2 shadow-sm">
+                    <i class="bi bi-info-circle text-secondary fs-5"></i>
+                    <span>¿Adquiriste este bolso? <a href="{{ url_for('auth.login') }}" class="fw-bold text-dark decoration-none">Inicia sesión</a> para dejar tu opinión.</span>
+                </div>
+                {% endif %}
+
+                <!-- Feed o listado de comentarios -->
+                <div class="reviews-feed">
+                    {% for r in reseñas %}
+                    <div class="bg-white p-4 rounded-4 mb-3 border border-light shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong class="text-dark d-block mb-1" style="font-size: 0.95rem;">{{ r.usuario_nombre }}</strong>
+                                <span class="text-oro small">
+                                    {% for i in range(r.calificacion) %}<i class="bi bi-star-fill me-1"></i>{% endfor %}{% for i in range(5 - r.calificacion) %}<i class="bi bi-star text-muted text-opacity-25 me-1"></i>{% endfor %}
+                                </span>
+                            </div>
+                            <span class="text-muted font-monospace" style="font-size: 0.75rem;">
+                                {{ r.fecha_creacion.strftime('%d/%m/%Y') if r.fecha_creacion.strftime else r.fecha_creacion }}
+                            </span>
+                        </div>
+                        {% if r.comentario %}
+                            <p class="text-muted m-0 small lh-lg mt-2">{{ r.comentario }}</p>
                         {% else %}
-                            <button class="btn btn-light w-100 py-3 text-muted rounded-3" disabled>Producto No Disponible</button>
+                            <p class="text-muted m-0 small lh-lg mt-2 fst-italic text-black-50">El usuario no dejó un comentario escrito.</p>
                         {% endif %}
                     </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-chat-square-heart display-6 d-block mb-2 text-opacity-20"></i>
+                        <p class="small m-0">Ningún comprador ha calificado este bolso todavía. ¡Sé el primero!</p>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- TOAST DE NOTIFICACIÓN FLOTANTE -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-        <div id="liveToast" class="toast align-items-center text-white border-0 rounded-4" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="toastMessage"></div>
-                <button type="button" class="btn-close btn-close-white m-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
+    <!-- FOOTER -->
+    <footer class="bg-white border-top py-4 mt-auto text-center text-muted small">
+        <div class="container">
+            <p class="mb-0">&copy; 2026 Dunaka. Identidad y Confección Tradicional. Todos los derechos reservados.</p>
         </div>
-    </div>
+    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- LÓGICA JAVASCRIPT -->
     <script>
-        const toastElement = document.getElementById('liveToast');
-        const toast = new bootstrap.Toast(toastElement);
+        document.addEventListener("DOMContentLoaded", () => {
+            actualizarContadores();
 
-        function mostrarNotificacion(mensaje, tipo = 'success') {
-            const bgClass = tipo === 'success' ? 'bg-dark' : (tipo === 'warning' ? 'bg-warning text-dark' : 'bg-danger');
-            toastElement.className = `toast align-items-center text-white border-0 rounded-4 ${bgClass}`;
-            document.getElementById('toastMessage').innerText = mensaje;
-            toast.show();
-        }
+            // ==========================================
+            // CONTROLADOR DEL SELECTOR DE CANTIDAD (+ / -)
+            // ==========================================
+            const btnMenos = document.getElementById("btn-menos");
+            const btnMas = document.getElementById("btn-mas");
+            const inputCantidad = document.getElementById("input-cantidad");
 
-        async function inicializarEstados() {
+            if (btnMenos && btnMas && inputCantidad) {
+                const maxStock = parseInt(inputCantidad.getAttribute("max")) || 1;
+
+                btnMenos.addEventListener("click", () => {
+                    let actual = parseInt(inputCantidad.value);
+                    if (actual > 1) {
+                        inputCantidad.value = actual - 1;
+                    }
+                });
+
+                btnMas.addEventListener("click", () => {
+                    let actual = parseInt(inputCantidad.value);
+                    if (actual < maxStock) {
+                        inputCantidad.value = actual + 1;
+                    }
+                });
+            }
+
+            // ==========================================
+            // LOGICA DEL SISTEMA DE ESTRELLAS ANIMADAS
+            // ==========================================
+            const estrellas = document.querySelectorAll(".star-item");
+            const inputCalificacion = document.getElementById("input-calificacion");
+            const labelRating = document.getElementById("label-rating");
+
+            const textosCalificaciones = {
+                "1": "Insatisfactorio (1/5)",
+                "2": "Deficiente (2/5)",
+                "3": "Regular (3/5)",
+                "4": "Muy Bueno (4/5)",
+                "5": "Excelente (5/5)"
+            };
+
+            if(estrellas.length > 0) {
+                let valorFijado = 5;
+                marcarEstrellas(valorFijado);
+
+                estrellas.forEach(estrella => {
+                    estrella.addEventListener("click", () => {
+                        valorFijado = estrella.getAttribute("data-value");
+                        inputCalificacion.value = valorFijado;
+                        labelRating.innerText = textosCalificaciones[valorFijado];
+                        marcarEstrellas(valorFijado);
+                    });
+
+                    estrella.addEventListener("mouseover", () => {
+                        const valorHover = estrella.getAttribute("data-value");
+                        marcarEstrellas(valorHover);
+                    });
+
+                    estrella.addEventListener("mouseout", () => {
+                        marcarEstrellas(valorFijado);
+                    });
+                });
+            }
+
+            function marcarEstrellas(valor) {
+                estrellas.forEach(est => {
+                    const estValue = parseInt(est.getAttribute("data-value"));
+                    if (estValue <= parseInt(valor)) {
+                        est.classList.add("selected");
+                    } else {
+                        est.classList.remove("selected");
+                    }
+                });
+            }
+        });
+
+        // Sincronizar dinámicamente badges numéricos de la Navbar
+        async function actualizarContadores() {
             try {
                 const resCart = await fetch("{{ url_for('cart.obtener_cantidad_api') }}");
                 if (resCart.ok) {
                     const dataCart = await resCart.json();
                     document.getElementById('cart-count').innerText = dataCart.cantidad;
                 }
-
                 const resFav = await fetch("{{ url_for('favorites.obtener_cantidad_api') }}");
                 if (resFav.ok) {
                     const dataFav = await resFav.json();
                     document.getElementById('fav-count').innerText = dataFav.cantidad;
                 }
-            } catch (error) {
-                console.error("Error al inicializar contadores:", error);
-            }
+            } catch (e) { console.error("Error sincronizando contadores:", e); }
         }
-
-        async function agregarAlCarrito(productoId) {
-            try {
-                const url = "{{ url_for('cart.agregar', producto_id=0) }}".replace('0', productoId);
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.status === 401) {
-                    mostrarNotificacion("Debes iniciar sesión para añadir productos.", "warning");
-                    setTimeout(() => window.location.href = "{{ url_for('auth.login') }}", 1500);
-                    return;
-                }
-
-                if (response.ok) {
-                    const data = await response.json();
-                    mostrarNotificacion(data.message, "success");
-                    
-                    const resCart = await fetch("{{ url_for('cart.obtener_cantidad_api') }}");
-                    if (resCart.ok) {
-                        const dataCart = await resCart.json();
-                        document.getElementById('cart-count').innerText = dataCart.cantidad;
-                    }
-                }
-            } catch (error) {
-                mostrarNotificacion("Error de comunicación.", "danger");
-            }
-        }
-
-        async function comprarProducto(productoId) {
-            try {
-                const url = "{{ url_for('cart.agregar', producto_id=0) }}".replace('0', productoId);
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.status === 401) {
-                    mostrarNotificacion("Debes iniciar sesión para realizar la compra.", "warning");
-                    setTimeout(() => window.location.href = "{{ url_for('auth.login') }}", 1500);
-                    return;
-                }
-
-                if (response.ok) {
-                    window.location.href = "{{ url_for('cart.ver_carrito') }}";
-                }
-            } catch (error) {
-                mostrarNotificacion("Error al procesar la compra.", "danger");
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", inicializarEstados);
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

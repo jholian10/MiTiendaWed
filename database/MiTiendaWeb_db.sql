@@ -58,6 +58,17 @@ CREATE TABLE IF NOT EXISTS carrito_detalles (
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS reseñas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    calificacion INT NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
+    comentario TEXT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
 
 -- =========================================================================
 -- INSERCIÓN DE 10 PRODUCTOS (BOLSOS Y ACCESORIOS)
