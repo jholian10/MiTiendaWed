@@ -80,7 +80,10 @@ def google_login():
 @auth_blueprint.route('/login/google/callback')
 def google_callback():
     token = oauth.google.authorize_access_token()
-    user_info = oauth.google.parse_id_token(token)
+    user_info = token.get('userinfo')
+    if not user_info:
+        user_info = oauth.google.parse_id_token(token, nonce=token.get('nonce'))
+    
     email = user_info.get('email')
     usuario = obtener_usuario_por_correo(email)
     if not usuario:
