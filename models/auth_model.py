@@ -4,7 +4,6 @@ from werkzeug.security import generate_password_hash
 def obtener_usuario_por_correo(correo):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    # Se añaden las nuevas columnas para que el login cargue el perfil completo en la sesión
     query = """
         SELECT id, nombre, correo, password_hash, rol, activo, telefono, direccion, ciudad, foto_perfil_url 
         FROM usuarios 
@@ -17,9 +16,7 @@ def obtener_usuario_por_correo(correo):
     return usuario
 
 def registrar_usuario(nombre, correo, password_plana, rol='cliente'):
-    """Encripta la contraseña e inserta el usuario directamente en la base de datos."""
     password_encriptada = generate_password_hash(password_plana, method='scrypt')
-    
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     query = """
@@ -40,9 +37,8 @@ def registrar_usuario(nombre, correo, password_plana, rol='cliente'):
     return resultado
 
 def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, ciudad, foto_perfil_url=None):
-    """Actualiza los datos personales, de envío y opcionalmente la foto de perfil del usuario."""
     conexion = obtener_conexion()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(dictionary=True)
     
     if foto_perfil_url:
         query = """
@@ -62,7 +58,6 @@ def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, c
     cursor.execute(query, params)
     conexion.commit()
     
-    # Recupera la fila modificada estructurada como lista/tupla para la función de sincronización de sesión
     cursor.execute("""
         SELECT id, nombre, correo, rol, telefono, direccion, ciudad, foto_perfil_url 
         FROM usuarios 

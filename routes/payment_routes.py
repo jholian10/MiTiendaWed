@@ -1,15 +1,14 @@
-from flask import Blueprint, session, redirect, url_for, flash, render_template_string, request
+import os
 import hashlib
 import time
 import requests
-
+from flask import Blueprint, session, redirect, url_for, flash, render_template_string, request
 from models.cart_model import obtener_detalles_carrito
 
 payment_blueprint = Blueprint('payment', __name__, url_prefix='/pago')
 
-WOMPI_PUBLIC_KEY = "pub_test_GHpuOWhHiYzNcAX5EZX9Fy4lTKxfBTWT"
-# Asegúrate de limpiar espacios raros usando .strip()
-WOMPI_INTEGRITY_SECRET = "test_integrity_P0flJ5cCmnqd6LtVHARxwxVSFy6rI6Ft".strip() 
+WOMPI_PUBLIC_KEY = os.getenv('WOMPI_PUBLIC_KEY', 'pub_test_GHpuOWhHiYzNcAX5EZX9Fy4lTKxfBTWT').strip()
+WOMPI_INTEGRITY_SECRET = os.getenv('WOMPI_INTEGRITY_SECRET', 'test_integrity_P0flJ5cCmnqd6LtVHARxwxVSFy6rI6Ft').strip()
 
 @payment_blueprint.route('/checkout', methods=['POST'])
 def procesar_pago():
@@ -30,15 +29,17 @@ def procesar_pago():
     
     monto_en_centavos = int(total_cop * 100)
     referencia_pago = f"MITIENDA_{usuario_id}_{int(time.time())}"
-
-    # Construcción limpia de la firma
     moneda = "COP"
     cadena_firma = f"{referencia_pago}{monto_en_centavos}{moneda}{WOMPI_INTEGRITY_SECRET}"
     firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
 
-    redirect_url = 'http://127.0.0.1:5000/pago/resultado'
+    webhook_url = os.getenv('WOMPI_WEBHOOK_URL', '')
+    if 'ngrok-free.app' in webhook_url:
+        base_url = webhook_url.split('/api/')[0]
+        redirect_url = f"{base_url}/pago/resultado"
+    else:
+        redirect_url = 'http://localhost:3000/pago/resultado'
 
-    # Agregamos 'id="wompi_form"' al tag HTML del formulario
     html_form = f"""
     <!DOCTYPE html>
     <html lang="es">
@@ -70,7 +71,6 @@ def procesar_pago():
     """
     return render_template_string(html_form)
 
-
 @payment_blueprint.route('/resultado', methods=['GET'])
 def pago_resultado():
     transaccion_id = request.args.get('id')
@@ -81,10 +81,10 @@ def pago_resultado():
 
     try:
         url_api = f"https://sandbox.wompi.co/v1/transactions/{transaccion_id}"
-        
-        # Agregamos Headers simulando un navegador para burlar el bloqueo de CloudFront en la API
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "application/json",
+            "Accept-Language": "es-ES,es;q=0.9"
         }
         
         respuesta = requests.get(url_api, headers=headers).json()
@@ -99,7 +99,7 @@ def pago_resultado():
         else:
             flash(f'La transacción finalizó con el estado: {estado}', 'warning')
 
-    except Exception as e:
+    except Exception:
         flash('El pago se procesó, pero ocurrió un problema al validar su estado.', 'info')
 
     return redirect(url_for('cart.ver_carrito'))

@@ -3,8 +3,6 @@ from database.db import obtener_conexion
 def conmutar_favorito(usuario_id, producto_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    
-    # Comprobar si el producto ya es favorito de este usuario
     query_check = "SELECT 1 FROM favoritos WHERE usuario_id = %s AND producto_id = %s"
     cursor.execute(query_check, (usuario_id, producto_id))
     existe = cursor.fetchone()
@@ -26,11 +24,9 @@ def conmutar_favorito(usuario_id, producto_id):
 def obtener_ids_favoritos(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    
     query = "SELECT producto_id FROM favoritos WHERE usuario_id = %s"
     cursor.execute(query, (usuario_id,))
     resultados = cursor.fetchall()
-    
     cursor.close()
     conexion.close()
     return [r[0] for r in resultados]
@@ -38,7 +34,6 @@ def obtener_ids_favoritos(usuario_id):
 def obtener_productos_favoritos(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    
     query = """
         SELECT p.* FROM productos p
         INNER JOIN favoritos f ON p.id = f.producto_id
@@ -46,7 +41,6 @@ def obtener_productos_favoritos(usuario_id):
     """
     cursor.execute(query, (usuario_id,))
     productos = cursor.fetchall()
-    
     cursor.close()
     conexion.close()
     return productos

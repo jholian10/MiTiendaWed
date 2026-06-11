@@ -14,6 +14,7 @@
             --coral-accion: #ff6f61;
             --coral-dark: #e55e51;
             --borde-suave: rgba(30, 37, 34, 0.08);
+            --oro-estrella: #ffb300;
         }
         
         body {
@@ -93,12 +94,10 @@
             box-shadow: 0 20px 40px rgba(30, 37, 34, 0.065) !important;
         }
         
-        /* Enlace limpio que envuelve y hace clicable toda la tarjeta */
         .product-card-link {
             text-decoration: none;
             color: inherit;
             display: flex;
-            flex-column: inherit;
             flex-direction: column;
             height: 100%;
         }
@@ -126,7 +125,7 @@
             font-style: italic;
         }
 
-        /* BOTÓN DE FAVORITOS EN LA ESQUINA */
+        /* BOTÓN DE FAVORITOS */
         .btn-fav-toggle {
             position: absolute;
             top: 16px;
@@ -169,6 +168,63 @@
             letter-spacing: 0.3px;
             z-index: 9;
         }
+
+        /* SISTEMA DE ESTRELLAS REALES */
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .stars-wrapper {
+            color: var(--oro-estrella);
+            display: flex;
+            gap: 1px;
+        }
+        .rating-value {
+            font-weight: 600;
+            color: var(--grafito);
+            font-size: 0.85rem;
+        }
+        .review-count {
+            color: #7a8680;
+            font-size: 0.8rem;
+        }
+
+        /* BARRA DE ACCIÓN (ÚNICO BOTÓN REDISEÑADO) */
+        .card-action-bar {
+            margin-top: 12px;
+            z-index: 15;
+            position: relative;
+        }
+
+        .btn-action-cart {
+            width: 100%;
+            background-color: transparent;
+            color: var(--grafito);
+            border: 1px solid var(--grafito);
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-cart:hover:not(:disabled) {
+            background-color: var(--grafito);
+            color: white;
+        }
+        
+        .btn-action-cart:disabled {
+            border-color: var(--borde-suave);
+            color: #b5bfba;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -177,7 +233,6 @@
         <div class="container">
             <a class="navbar-brand brand-title fs-2 m-0" href="{{ url_for('products.index') }}">Dunaka</a>
 
-            <!-- Buscador para pantallas medianas y grandes -->
             <form class="d-none d-lg-flex mx-auto" style="width: 35%;" action="{{ url_for('products.index') }}" method="GET">
                 <div class="input-group position-relative w-100">
                     <input type="text" name="q" class="form-control search-box" placeholder="Buscar bolsos artesanales..." value="{{ busqueda or '' }}">
@@ -192,7 +247,6 @@
             </button>
 
             <div class="collapse navbar-collapse flex-grow-0 mt-3 mt-lg-0" id="navbarContent">
-                <!-- Buscador exclusivo para móviles dentro del colapsable -->
                 <form class="d-flex d-lg-none mb-3" action="{{ url_for('products.index') }}" method="GET">
                     <div class="input-group position-relative w-100">
                         <input type="text" name="q" class="form-control search-box" placeholder="Buscar bolsos..." value="{{ busqueda or '' }}">
@@ -212,7 +266,7 @@
                                 </span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-2" aria-labelledby="userMenu">
-                                <li><a class="dropdown-item small" href="{{ url_for('products.perfil') }}"><i class="bi bi-sliders2 me-2"></i>Mi Perfil</a></li>
+                                <li><a class="dropdown-item small" href="{{ url_for('profile.ver_perfil') }}"><i class="bi bi-sliders2 me-2"></i>Mi Perfil</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item small text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
                             </ul>
@@ -243,7 +297,7 @@
             <div class="col-md-8">
                 <span class="text-uppercase text-muted small fw-semibold tracking-wider mb-2 d-block" style="letter-spacing: 1px;">Colección Exclusiva</span>
                 <h1 class="display-5 brand-title mb-2">Colección Hecha a Mano</h1>
-                <p class="text-muted mb-0">Cada hilo entrelaza técnicas ancestrales y moda contemporánea. Conoce piezas únicas hechas para perdurar.</p>
+                <p class="text-muted mb-0">Cada hilo entrelaza técnicas ancestrales y moda contemporánea. Conoce piezas uniques hechas para perdurar.</p>
             </div>
             <div class="col-md-4 text-md-end d-none d-md-block">
                 <span class="badge bg-dark bg-opacity-10 text-dark rounded-pill px-4 py-2 border border-dark border-opacity-10">
@@ -252,7 +306,6 @@
             </div>
         </div>
 
-        <!-- ENTORNO DE NOTIFICACIONES FLASH -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="mt-4">
@@ -284,12 +337,10 @@
             <div class="col">
                 <div class="card product-card h-100 shadow-sm">
                     
-                    <!-- Botón de favorito protegido (Se queda afuera para no romper el clic del enlace) -->
                     <button class="btn-fav-toggle" data-id="{{ p.id }}" onclick="toggleFavorito(this, '{{ p.id }}')">
                         <i class="bi bi-heart-fill"></i>
                     </button>
 
-                    <!-- TODA LA TARJETA REDIRIGE AL DETALLE DEL PRODUCTO -->
                     <a href="{{ url_for('products.ver_producto', producto_id=p.id) }}" class="product-card-link">
                         <div class="product-img-wrapper">
                             {% if p.stock == 0 %}
@@ -306,21 +357,59 @@
                         </div>
 
                         <div class="card-body d-flex flex-column justify-content-between p-3">
-                            <div class="mb-2">
+                            <div class="mb-1">
                                 <h5 class="card-title fs-6 fw-bold mb-1 text-dark">{{ p.nombre }}</h5>
-                                <span class="fs-5 fw-bold text-dark d-block mb-2">${{ "{:,.0f}".format(p.precio_venta | float) }}</span>
+                                <span class="fs-5 fw-bold text-dark d-block mb-1">${{ "{:,.0f}".format(p.precio_venta | float) }}</span>
+                                
+                                <!-- MATRIZ REAL DE RATING -->
+                                <div class="rating-container">
+                                    {% if p.total_resenas and p.total_resenas > 0 %}
+                                        {% set rating = p.promedio_estrellas | float %}
+                                        <span class="rating-value">{{ "%.1f"|format(rating) }}</span>
+                                        <div class="stars-wrapper">
+                                            {% for i in range(rating | int) %}
+                                                <i class="bi bi-star-fill"></i>
+                                            {% endfor %}
+                                            
+                                            {% set decimales = rating - (rating | int) %}
+                                            {% if decimales >= 0.4 and decimales < 0.9 %}
+                                                <i class="bi bi-star-half"></i>
+                                                {% set estrellas_pintadas = (rating | int) + 1 %}
+                                            {% elif decimales >= 0.9 %}
+                                                <i class="bi bi-star-fill"></i>
+                                                {% set estrellas_pintadas = (rating | int) + 1 %}
+                                            {% else %}
+                                                {% set estrellas_pintadas = rating | int %}
+                                            {% endif %}
+                                            
+                                            {% for i in range(5 - estrellas_pintadas) %}
+                                                <i class="bi bi-star"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span class="review-count">({{ p.total_resenas }})</span>
+                                    {% else %}
+                                        <div class="stars-wrapper text-muted opacity-50">
+                                            <i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                                        </div>
+                                        <span class="review-count">(Sin reseñas)</span>
+                                    {% endif %}
+                                </div>
+
                                 <p class="text-muted small m-0" style="height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem;">
-                                    {{ p.descripcion or 'Bolso exclusivo confeccionado artesanalmente.' }}
+                                    {{ p.descripcion or 'Bolso exclusive confeccionado artesanalmente.' }}
                                 </p>
-                            </div>
-                            
-                            <div class="mt-2 text-end">
-                                <span class="text-uppercase tracking-wider font-monospace fw-semibold text-muted" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                                    Ver detalles <i class="bi bi-arrow-right ms-1"></i>
-                                </span>
                             </div>
                         </div>
                     </a>
+
+                    <!-- BARRA DE ACCIÓN: SOLO AGREGAR AL CARRITO INTERACTIVO -->
+                    <div class="px-3 pb-3">
+                        <div class="card-action-bar">
+                            <button type="button" class="btn-action-cart" onclick="agregarAlCarritoAsincrono(this, '{{ p.id }}')" {% if p.stock == 0 %}disabled{% endif %}>
+                                <i class="bi bi-bag-plus"></i> Agregar al carrito
+                            </button>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -337,9 +426,8 @@
         <div class="container">
             <p class="mb-0">&copy; 2026 Dunaka. Identidad y Confección Tradicional. Todos los derechos reservados.</p>
         </div>
-    </footer>
+    </footer >
 
-    <!-- TOAST DE NOTIFICACIÓN FLOTANTE -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
         <div id="liveToast" class="toast align-items-center text-white border-0 rounded-4" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
@@ -373,7 +461,7 @@
                 const resFav = await fetch("{{ url_for('favorites.obtener_cantidad_api') }}");
                 if (resFav.ok) {
                     const dataFav = await resFav.json();
-                    document.getElementById('fav-count').innerText = dataFav.cantidad;
+                    document.getElementById('fav-count').innerText = dataFav.cantidad || 0;
 
                     const favoritosIds = dataFav.ids || [];
                     document.querySelectorAll('.btn-fav-toggle').forEach(boton => {
@@ -384,7 +472,45 @@
                     });
                 }
             } catch (error) {
-                console.error("Error al inicializar datos:", error);
+                console.error("Error al inicializar datos del AppBar:", error);
+            }
+        }
+
+        async function agregarAlCarritoAsincrono(button, productoId) {
+            try {
+                const formData = new FormData();
+                formData.append('cantidad', 1);
+
+                const url = "{{ url_for('cart.agregar', producto_id=0) }}".replace('0', productoId);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.status === 401) {
+                    mostrarNotificacion("Inicia sesión para añadir productos al carrito.", "warning");
+                    setTimeout(() => window.location.href = "{{ url_for('auth.login') }}", 1500);
+                    return;
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarNotificacion(data.message || "¡Producto añadido al carrito con éxito!", "success");
+                    
+                    const resCart = await fetch("{{ url_for('cart.obtener_cantidad_api') }}");
+                    if (resCart.ok) {
+                        const dataCart = await resCart.json();
+                        document.getElementById('cart-count').innerText = dataCart.cantidad;
+                    }
+                } else {
+                    mostrarNotificacion("No se pudo añadir el producto en este momento.", "danger");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                mostrarNotificacion("Ocurrió un error al procesar la bolsa de compras.", "danger");
             }
         }
 
@@ -417,7 +543,7 @@
                     const resFav = await fetch("{{ url_for('favorites.obtener_cantidad_api') }}");
                     if (resFav.ok) {
                         const dataFav = await resFav.json();
-                        document.getElementById('fav-count').innerText = dataFav.cantidad;
+                        document.getElementById('fav-count').innerText = dataFav.cantidad || 0;
                     }
                 }
             } catch (error) {

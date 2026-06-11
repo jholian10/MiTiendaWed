@@ -80,7 +80,6 @@
             font-style: italic;
         }
 
-        /* CONTADOR DE CANTIDAD COMPACTO */
         .quantity-selector {
             display: inline-flex;
             align-items: center;
@@ -124,7 +123,6 @@
             margin: 0;
         }
 
-        /* SECCIÓN DE RESEÑAS */
         .review-card {
             background: #ffffff;
             border: 1px solid var(--borde-suave);
@@ -143,7 +141,6 @@
             box-shadow: none;
         }
 
-        /* ESTRELLAS INTERACTIVAS */
         .stars-rating-container {
             display: inline-flex;
             flex-direction: row-reverse;
@@ -173,7 +170,6 @@
             color: var(--oro-resena);
         }
 
-        /* BOTÓN DE FAVORITO EN DETALLE */
         .btn-fav-detail {
             border: 1px solid var(--borde-suave);
             background: white;
@@ -189,7 +185,6 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg sticky-top custom-navbar py-3 shadow-sm">
         <div class="container">
             <a class="navbar-brand brand-title fs-2 m-0" href="{{ url_for('products.index') }}">Dunaka</a>
@@ -209,7 +204,7 @@
                                 </span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3 mt-2" aria-labelledby="userMenu">
-                                <li><a class="dropdown-item small" href="{{ url_for('products.perfil') }}"><i class="bi bi-sliders2 me-2"></i>Mi Perfil</a></li>
+                                <li><a class="dropdown-item small" href="{{ url_for('profile.ver_perfil') }}"><i class="bi bi-sliders2 me-2"></i>Mi Perfil</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item small text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
                             </ul>
@@ -235,7 +230,6 @@
         </div>
     </nav>
 
-    <!-- FLASH MESSAGES -->
     <div class="container mt-4">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -249,11 +243,9 @@
         {% endwith %}
     </div>
 
-    <!-- MAIN PRODUCT DETAIL -->
     <main class="container my-4 flex-grow-1">
         <div class="product-detail-container shadow-sm bg-white p-4 p-lg-5">
             <div class="row g-5">
-                <!-- Zona Izquierda: Imagen -->
                 <div class="col-md-6 position-relative">
                     {% if producto.stock == 0 %}
                         <span class="badge bg-dark px-3 py-2 position-absolute top-3 start-3 rounded-pill" style="z-index: 5;">Agotado</span>
@@ -268,7 +260,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Zona Derecha: Metadatos y Gestión de Compra -->
                 <div class="col-md-6 d-flex flex-column justify-content-center">
                     <span class="text-uppercase text-muted font-monospace small mb-2 d-block" style="letter-spacing: 1px;">Producto Original</span>
                     <h1 class="brand-title display-5 mb-3">{{ producto.nombre }}</h1>
@@ -286,11 +277,8 @@
                         </span>
                     </div>
 
-                    <!-- FORMULARIO INTEGRADO CON SELECTOR DE CANTIDAD -->
                     {% if producto.stock > 0 %}
                     <form action="{{ url_for('cart.agregar', producto_id=producto.id) }}" method="POST" class="mt-2">
-                        
-                        <!-- Selector de Cantidad (Sumar / Restar) -->
                         <div class="mb-4">
                             <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider d-block" style="font-size: 0.75rem;">Cantidad</label>
                             <div class="quantity-selector">
@@ -304,7 +292,6 @@
                             </div>
                         </div>
 
-                        <!-- Botones de Acción -->
                         <div class="row g-2">
                             <div class="col-12 col-md-5">
                                 <button type="submit" class="btn btn-outline-dark w-100 py-3 rounded-3 fw-medium text-uppercase tracking-wider" style="font-size: 0.85rem;">
@@ -317,9 +304,9 @@
                                 </button>
                             </div>
                             <div class="col-2 col-md-2">
-                                <a href="{{ url_for('favorites.agregar', producto_id=producto.id) }}" class="btn btn-fav-detail w-100 py-3 rounded-3 d-flex align-items-center justify-content-center" title="Añadir a Favoritos">
+                                <button type="button" id="btn-fav-principal" class="btn btn-fav-detail w-100 py-3 rounded-3 d-flex align-items-center justify-content-center" title="Añadir a Favoritos" onclick="toggleFavoritoDetalle(this, '{{ producto.id }}')">
                                     <i class="bi bi-heart-fill"></i>
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -334,7 +321,6 @@
             </div>
         </div>
 
-        <!-- SISTEMA DE RESEÑAS -->
         <div class="row mt-5 pt-4">
             <div class="col-lg-8 mx-auto">
                 <h3 class="brand-title mb-4">Opiniones de la comunidad</h3>
@@ -372,7 +358,6 @@
                 </div>
                 {% endif %}
 
-                <!-- Feed o listado de comentarios -->
                 <div class="reviews-feed">
                     {% for r in reseñas %}
                     <div class="bg-white p-4 rounded-4 mb-3 border border-light shadow-sm">
@@ -404,21 +389,16 @@
         </div>
     </main>
 
-    <!-- FOOTER -->
     <footer class="bg-white border-top py-4 mt-auto text-center text-muted small">
         <div class="container">
             <p class="mb-0">&copy; 2026 Dunaka. Identidad y Confección Tradicional. Todos los derechos reservados.</p>
         </div>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             actualizarContadores();
 
-            // ==========================================
-            // CONTROLADOR DEL SELECTOR DE CANTIDAD (+ / -)
-            // ==========================================
             const btnMenos = document.getElementById("btn-menos");
             const btnMas = document.getElementById("btn-mas");
             const inputCantidad = document.getElementById("input-cantidad");
@@ -441,9 +421,6 @@
                 });
             }
 
-            // ==========================================
-            // LOGICA DEL SISTEMA DE ESTRELLAS ANIMADAS
-            // ==========================================
             const estrellas = document.querySelectorAll(".star-item");
             const inputCalificacion = document.getElementById("input-calificacion");
             const labelRating = document.getElementById("label-rating");
@@ -461,7 +438,7 @@
                 marcarEstrellas(valorFijado);
 
                 estrellas.forEach(estrella => {
-                    estrella.addEventListener("click", () => {
+                    circle = estrella.addEventListener("click", () => {
                         valorFijado = estrella.getAttribute("data-value");
                         inputCalificacion.value = valorFijado;
                         labelRating.innerText = textosCalificaciones[valorFijado];
@@ -491,7 +468,6 @@
             }
         });
 
-        // Sincronizar dinámicamente badges numéricos de la Navbar
         async function actualizarContadores() {
             try {
                 const resCart = await fetch("{{ url_for('cart.obtener_cantidad_api') }}");
@@ -505,6 +481,22 @@
                     document.getElementById('fav-count').innerText = dataFav.cantidad;
                 }
             } catch (e) { console.error("Error sincronizando contadores:", e); }
+        }
+
+        async function toggleFavoritoDetalle(btn, productoId) {
+            try {
+                const response = await fetch(`/favoritos/toggle/${productoId}`, { method: 'POST' });
+                if (response.status === 401) {
+                    window.location.href = "{{ url_for('auth.login') }}";
+                    return;
+                }
+                if (response.ok) {
+                    const data = await response.json();
+                    actualizarContadores();
+                }
+            } catch (error) {
+                console.error("Error al procesar la solicitud de favoritos:", error);
+            }
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

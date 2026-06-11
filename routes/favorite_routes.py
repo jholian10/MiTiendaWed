@@ -4,22 +4,20 @@ from models.favorite_model import conmutar_favorito, obtener_ids_favoritos, obte
 favorite_blueprint = Blueprint('favorites', __name__, url_prefix='/favoritos')
 
 def obtener_usuario_id_sesion():
-    if 'usuario_sesion' in session:
-        return session['usuario_sesion'].get('id')
     if 'usuario' in session:
         return session['usuario'].get('id')
     return None
 
 @favorite_blueprint.route('/')
-def ver_favoritos():
+@favorite_blueprint.route('/')
+def ver_favoritos():  # <--- Cambiado a español
     usuario_id = obtener_usuario_id_sesion()
     if not usuario_id:
         flash('Debes iniciar sesión para ver tus favoritos.', 'warning')
         return redirect(url_for('auth.login'))
         
     productos = obtener_productos_favoritos(usuario_id)
-    usuario_datos = session.get('usuario_sesion') or session.get('usuario')
-    return render_template('favoritos.html', productos=productos, usuario_sesion=usuario_datos)
+    return render_template('favoritos.html', productos=productos, usuario_sesion=session.get('usuario'))
 
 @favorite_blueprint.route('/toggle/<int:producto_id>', methods=['POST'])
 def toggle(producto_id):
