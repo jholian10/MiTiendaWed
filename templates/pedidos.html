@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos - Dunaka</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-arena: #f8f7f4;
+            --grafito: #1e2522;
+            --coral-accion: #ff6f61;
+            --borde-suave: rgba(30, 37, 34, 0.08);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-arena);
+            color: var(--grafito);
+        }
+        
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--grafito);
+            font-weight: 600;
+        }
+
+        .custom-navbar {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--borde-suave);
+        }
+
+        .order-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid var(--borde-suave);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 37, 34, 0.03);
+        }
+
+        .order-header {
+            background-color: #faf9f6;
+            border-bottom: 1px solid var(--borde-suave);
+            padding: 15px 25px;
+        }
+
+        .product-img-mini {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 12px;
+            background-color: var(--bg-arena);
+        }
+
+        /* Colores dinámicos para los estados del pedido */
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 6px 16px;
+            border-radius: 50px;
+        }
+
+        .status-pendiente { background-color: #fef3c7; color: #d97706; }
+        .status-pagado { background-color: #dcfce7; color: #15803d; }
+        .status-enviado { background-color: #e0f2fe; color: #0369a1; }
+        .status-cancelado { background-color: #fee2e2; color: #b91c1c; }
+
+        .btn-detalle {
+            background-color: transparent;
+            color: var(--grafito);
+            border: 1px solid var(--grafito);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-detalle:hover {
+            background-color: var(--grafito);
+            color: white;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top custom-navbar py-3 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand brand-title fs-2 m-0" href="{{ url_for('products.index') }}">Dunaka</a>
+            <div class="ms-auto">
+                <a href="{{ url_for('products.index') }}" class="btn btn-sm btn-link text-decoration-none text-dark">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a la Tienda
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="container my-5 flex-grow-1">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <h2 class="brand-title mb-2">Historial de Pedidos</h2>
+                <p class="text-muted small mb-4">Rastrea el estado de tus compras y revisa tus detalles de envío.</p>
+
+                <!-- BUCLE DE PEDIDOS -->
+                {% for pedido in pedidos %}
+                <div class="order-card mb-4 overflow-hidden">
+                    
+                    <!-- Encabezado de la Tarjeta del Pedido -->
+                    <div class="order-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="d-flex gap-4">
+                            <div>
+                                <span class="text-uppercase text-muted d-block" style="font-size: 0.7rem; font-weight: 600;">Fecha de Compra</span>
+                                <span class="small fw-medium text-dark">{{ pedido.fecha_creacion.strftime('%d/%m/%Y') if pedido.fecha_creacion.strftime else pedido.fecha_creacion }}</span>
+                            </div>
+                            <div>
+                                <span class="text-uppercase text-muted d-block" style="font-size: 0.7rem; font-weight: 600;">Referencia ID</span>
+                                <span class="small fw-medium text-dark">#DK-{{ pedido.id }}</span>
+                            </div>
+                            <div>
+                                <span class="text-uppercase text-muted d-block" style="font-size: 0.7rem; font-weight: 600;">Total Pagado</span>
+                                <span class="small fw-bold text-dark">${{ "{:,.0f}".format(pedido.total | float) }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <!-- Badge de Estado adaptativo -->
+                            <span class="status-badge 
+                                {% if pedido.estado == 'pendiente' %}status-pendiente
+                                {% elif pedido.estado == 'pagado' %}status-pagado
+                                {% elif pedido.estado == 'enviado' %}status-enviado
+                                {% else %}status-cancelado{% endif %}">
+                                {{ pedido.estado }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Cuerpo del Pedido (Items incluidos) -->
+                    <div class="p-4">
+                        {% for item in pedido.detalles %}
+                        <div class="d-flex align-items-center justify-content-between {% if not loop.last %}border-bottom pb-3 mb-3{% endif %}">
+                            <div class="d-flex align-items-center gap-3">
+                                {% if item.producto_imagen %}
+                                    <img src="{{ item.producto_imagen }}" class="product-img-mini" alt="{{ item.producto_nombre }}">
+                                {% else %}
+                                    <div class="product-img-mini d-flex align-items-center justify-content-center text-muted" style="font-size: 1.2rem;">
+                                        <i class="bi bi-bag"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1 fw-semibold" style="font-size: 0.95rem;">{{ item.producto_nombre }}</h6>
+                                    <span class="text-muted small">Cantidad: {{ item.cantidad }}</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-medium" style="font-size: 0.95rem;">${{ "{:,.0f}".format(item.precio_unitario * item.cantidad | float) }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <!-- Botón de detalles o acciones adicionales si se requieren en el futuro -->
+                        <div class="d-flex justify-content-end mt-3 pt-2 border-top border-light">
+                            <a href="{{ url_for('orders.ver_detalle', pedido_id=pedido.id) }}" class="btn-detalle">
+                                <i class="bi bi-receipt me-1"></i> Ver comprobante
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                {% else %}
+                <!-- Estado Vacío -->
+                <div class="text-center py-5 bg-white rounded-4 border border-light shadow-sm my-4">
+                    <i class="bi bi-box-seam display-3 text-muted text-opacity-30 d-block mb-3"></i>
+                    <h4 class="brand-title fs-4">Aún no tienes pedidos</h4>
+                    <p class="text-muted small mb-4">Cuando realices una compra, aparecerá reflejada en esta sección.</p>
+                    <a href="{{ url_for('products.index') }}" class="btn btn-dark rounded-3 px-4 py-2" style="background-color: var(--grafito);">
+                        Explorar Colección
+                    </a>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-top py-4 mt-auto text-center text-muted small">
+        <div class="container">
+            <p class="mb-0">&copy; 2026 Dunaka. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

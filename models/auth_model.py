@@ -19,22 +19,32 @@ def registrar_usuario(nombre, correo, password_plana, rol='cliente'):
     password_encriptada = generate_password_hash(password_plana, method='scrypt')
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    query = """
-        INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) 
-        VALUES (%s, %s, %s, %s, 1)
-    """
+    query = "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, %s, %s, 1)"
     try:
         cursor.execute(query, (nombre, correo, password_encriptada, rol))
         conexion.commit()
-        resultado = True
+        return True
     except Exception as e:
-        print(f"Error al registrar en BD: {e}")
-        conexion.rollback()
-        resultado = False
+        print(f"Error al registrar: {e}")
+        return False
     finally:
         cursor.close()
         conexion.close()
-    return resultado
+
+def registrar_usuario_oauth(nombre, correo):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+    query = "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, 'google_auth', 'cliente', 1)"
+    try:
+        cursor.execute(query, (nombre, correo))
+        conexion.commit()
+        return True
+    except Exception as e:
+        print(f"Error al registrar OAuth: {e}")
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
 
 def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, ciudad, foto_perfil_url=None):
     conexion = obtener_conexion()
@@ -58,11 +68,8 @@ def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, c
     cursor.execute(query, params)
     conexion.commit()
     
-    cursor.execute("""
-        SELECT id, nombre, correo, rol, telefono, direccion, ciudad, foto_perfil_url 
-        FROM usuarios 
-        WHERE id = %s
-    """, (id_usuario,))
+    # Obtener el usuario actualizado
+    cursor.execute("SELECT id, nombre, correo, rol, telefono, direccion, ciudad, foto_perfil_url FROM usuarios WHERE id = %s", (id_usuario,))
     usuario_actualizado = cursor.fetchone()
     
     cursor.close()
