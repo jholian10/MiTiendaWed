@@ -53,7 +53,7 @@ def actualizar_password(correo, nueva_pwd):
     pwd = generate_password_hash(nueva_pwd, method='scrypt')
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    cursor.execute("UPDATE usuarios SET password_hash = %s, codigo_recuperacion = NULL WHERE correo = %s", 
+    cursor.execute("UPDATE usuarios SET password_hash = %s, codigo_recuperacion = NULL, codigo_expira = NULL WHERE correo = %s", 
                    (pwd, correo))
     conexion.commit()
     cursor.close(); conexion.close()
@@ -61,29 +61,15 @@ def actualizar_password(correo, nueva_pwd):
 def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, ciudad, foto_perfil_url=None):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    
     if foto_perfil_url:
-        query = """
-            UPDATE usuarios 
-            SET nombre = %s, correo = %s, telefono = %s, direccion = %s, ciudad = %s, foto_perfil_url = %s 
-            WHERE id = %s
-        """
+        query = "UPDATE usuarios SET nombre = %s, correo = %s, telefono = %s, direccion = %s, ciudad = %s, foto_perfil_url = %s WHERE id = %s"
         params = (nombre, correo, telefono, direccion, ciudad, foto_perfil_url, id_usuario)
     else:
-        query = """
-            UPDATE usuarios 
-            SET nombre = %s, correo = %s, telefono = %s, direccion = %s, ciudad = %s 
-            WHERE id = %s
-        """
+        query = "UPDATE usuarios SET nombre = %s, correo = %s, telefono = %s, direccion = %s, ciudad = %s WHERE id = %s"
         params = (nombre, correo, telefono, direccion, ciudad, id_usuario)
-        
     cursor.execute(query, params)
     conexion.commit()
-    
-    # Obtener el usuario actualizado
     cursor.execute("SELECT id, nombre, correo, rol, telefono, direccion, ciudad, foto_perfil_url FROM usuarios WHERE id = %s", (id_usuario,))
-    usuario_actualizado = cursor.fetchone()
-    
-    cursor.close()
-    conexion.close()
-    return usuario_actualizado
+    usuario = cursor.fetchone()
+    cursor.close(); conexion.close()
+    return usuario

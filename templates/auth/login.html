@@ -49,6 +49,8 @@
         .btn-google:hover { background: #f8f9fa; border-color: #bcc1c6; }
         .link-dunaka { color: #7fa99b; font-weight: 600; text-decoration: none; }
         .link-dunaka:hover { color: #3f5e53; }
+        .forgot-pass { font-size: 0.75rem; color: #8c9691; text-decoration: none; transition: 0.3s; }
+        .forgot-pass:hover { color: #1e2522; }
     </style>
 </head>
 <body>
@@ -74,13 +76,16 @@
                             <label class="form-label small fw-bold">Correo Electrónico</label>
                             <input type="email" name="correo" class="form-control" placeholder="nombre@ejemplo.com" required>
                         </div>
-                        <div class="mb-4">
+                        <div class="mb-2">
                             <label class="form-label small fw-bold">Contraseña</label>
                             <input type="password" name="password" class="form-control" placeholder="••••••••" required>
                         </div>
                         
-                        <button type="submit" class="btn btn-dunaka w-100 mb-3">Iniciar Sesión</button>
+                        <div class="mb-4 text-end">
+                            <a href="{{ url_for('auth.recuperar_password') }}" class="forgot-pass">¿Olvidaste tu contraseña?</a>
+                        </div>
                         
+                        <button type="submit" class="btn btn-dunaka w-100 mb-3">Iniciar Sesión</button>
                     </form>
 
                     <div class="text-center mb-3">

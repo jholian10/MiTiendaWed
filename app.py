@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_mail import Mail
 from dotenv import load_dotenv
 import os
 
@@ -14,7 +15,18 @@ from routes.profile_routes import profile_blueprint
 from routes.order_routes import order_custom_bp 
 
 app = Flask(__name__)
+print("Ruta de templates configurada:", app.template_folder)
+print("Directorio actual:", os.getcwd())
 app.secret_key = os.getenv('SECRET_KEY', 'clave_secreta_para_sesiones')
+
+# Configuración de Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+
+mail = Mail(app)
 
 init_oauth(app)
 

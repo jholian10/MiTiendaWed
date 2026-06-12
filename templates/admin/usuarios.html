@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunaka | Gestión de Usuarios</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* DEFINICIÓN DE VARIABLES DE MARCA */
+        :root {
+            --primary-purple: #6f42c1;
+            --primary-purple-dark: #52279c;
+            --primary-blue: #0d6efd;
+            --primary-blue-light: #e6f0ff;
+            --accent-neon-purple: #d1b3ff;
+            --white-pure: #ffffff;
+            --bg-light-blue: #f4f7fe;
+            --text-dark: #212529;
+            --text-muted: #7c8ba1;
+            
+            --status-success-bg: #d1e7dd;
+            --status-success-text: #0f5132;
+            --status-purple-bg: #e8dbff;
+            --status-purple-text: #52279c;
+        }
+
+        body {
+            background-color: var(--bg-light-blue);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* DISEÑO ESTRUCTURAL: MENU LATERAL (SIDEBAR) */
+        .sidebar-container {
+            width: 290px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-blue) 100%);
+            padding: 30px 20px;
+            border-radius: 0 45px 45px 0;
+            box-shadow: 10px 0 40px rgba(111, 66, 193, 0.15);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
+            padding: 10px 15px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .sidebar-brand h3 {
+            color: var(--white-pure);
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            font-size: 1.6rem;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .sidebar-brand span {
+            font-size: 0.75rem;
+            color: var(--accent-neon-purple);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            margin-bottom: 12px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .menu-icon-wrapper {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .menu-link:hover, .menu-item.active .menu-link {
+            background: var(--white-pure);
+            color: var(--primary-purple) !important;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .menu-link:hover .menu-icon-wrapper, .menu-item.active .menu-icon-wrapper {
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
+            color: var(--white-pure);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 20px;
+        }
+
+        .logout-link {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            color: #ff8585;
+        }
+        .logout-link:hover {
+            background: #dc3545 !important;
+            color: var(--white-pure) !important;
+            border-color: transparent;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-workspace {
+            margin-left: 290px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        /* BARRA DE BÚSQUEDA */
+        .search-container-box {
+            position: relative;
+            margin-bottom: 35px;
+        }
+        .search-input-premium {
+            width: 100%;
+            padding: 18px 25px 18px 60px;
+            border: 2px solid transparent;
+            background-color: var(--white-pure);
+            border-radius: 25px;
+            font-size: 1rem;
+            box-shadow: 0 15px 35px rgba(111, 66, 193, 0.04);
+            transition: all 0.3s ease;
+        }
+        .search-input-premium:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            box-shadow: 0 15px 30px rgba(111, 66, 193, 0.15);
+        }
+        .search-icon-inside {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--primary-purple);
+        }
+
+        /* TABLA DE USUARIOS */
+        .workspace-table-card {
+            background-color: var(--white-pure);
+            border-radius: 35px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.03);
+            padding: 35px;
+        }
+
+        .premium-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        .premium-table thead tr th {
+            background-color: var(--bg-light-blue);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 16px 20px;
+            border: none;
+        }
+
+        .premium-table tbody tr {
+            background-color: var(--white-pure);
+            transition: all 0.3s ease;
+        }
+
+        .premium-table tbody tr:hover {
+            transform: scale(1.01) translateY(-2px);
+            box-shadow: 0 12px 25px rgba(111, 66, 193, 0.06);
+        }
+
+        .premium-table tbody td {
+            padding: 20px;
+            border-top: 1px solid #f8f9fa;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .premium-table tbody td:first-child { border-radius: 20px 0 0 20px; }
+        .premium-table tbody td:last-child { border-radius: 0 20px 20px 0; }
+
+        /* BADGES */
+        .status-badge-vibrant {
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-admin { background-color: var(--status-purple-bg); color: var(--status-purple-text); }
+        .badge-cliente { background-color: var(--status-success-bg); color: var(--status-success-text); }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-container">
+        <div class="sidebar-brand">
+            <h3>Dunaka</h3>
+            <span>Panel de Gestión</span>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="{{ url_for('admin.panel_admin') }}" class="menu-link">
+                    <div class="menu-icon-wrapper"><i class="fas fa-box"></i></div>
+                    Gestión de Productos
+                </a>
+            </li>
+            <li class="menu-item active">
+                <a href="{{ url_for('admin.gestion_usuarios') }}" class="menu-link">
+                    <div class="menu-icon-wrapper"><i class="fas fa-users"></i></div>
+                    Gestión de Usuarios
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ url_for('admin.ver_notificaciones') }}" class="menu-link">
+                    <div class="menu-icon-wrapper"><i class="fas fa-bell"></i></div>
+                    Notificaciones
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link">
+                    <div class="menu-icon-wrapper"><i class="fas fa-shopping-bag"></i></div>
+                    Gestión de Pedidos
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="menu-link logout-link">
+                <div class="menu-icon-wrapper"><i class="fas fa-sign-out-alt"></i></div>
+                Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
+    <div class="main-workspace">
+        <div class="row align-items-center mb-5">
+            <div class="col-md-12">
+                <h1 class="fw-bold mb-1" style="letter-spacing: -1px;">Control de Usuarios</h1>
+                <p class="text-muted mb-0">Lista global de clientes y administradores registrados en la plataforma</p>
+            </div>
+        </div>
+
+        <div class="search-container-box">
+            <i class="fas fa-search search-icon-inside"></i>
+            <input type="text" id="userSearchInput" class="search-input-premium" placeholder="Buscar usuario por nombre o correo electrónico...">
+        </div>
+
+        <div class="workspace-table-card">
+            <div class="table-responsive">
+                <table class="table premium-table align-middle" id="userTable">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo Electrónico</th>
+                            <th>Rol del Sistema</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    {% for u in usuarios %}
+    <tr>
+        <td class="ps-4 text-secondary fw-semibold">#{{ u.id }}</td>
+        <td class="fw-bold text-dark">{{ u.nombre }}</td>
+        
+        <td class="text-secondary">{{ u.correo }}</td>
+        
+        <td>
+            {% if u.rol == 'admin' %}
+                <span class="status-badge-vibrant badge-admin"><i class="fas fa-user-shield"></i> Administrador</span>
+            {% else %}
+                <span class="status-badge-vibrant badge-cliente"><i class="fas fa-user text-success"></i> Cliente</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById('userSearchInput');
+            const tableRows = document.querySelectorAll('#userTable tbody tr');
+
+            searchInput.addEventListener('keyup', function() {
+                const query = this.value.toLowerCase().trim();
+                
+                tableRows.forEach(row => {
+                    const name = row.cells[1].textContent.toLowerCase();
+                    const email = row.cells[2].textContent.toLowerCase();
+                    
+                    if (name.includes(query) || email.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
