@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from werkzeug.utils import secure_filename
-from models.auth_model import actualizar_perfil_usuario 
+from models.profile_model import actualizar_perfil_usuario
 
 profile_blueprint = Blueprint('profile', __name__, url_prefix='/perfil')
 
