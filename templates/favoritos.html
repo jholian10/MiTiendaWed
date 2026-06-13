@@ -4,60 +4,295 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dunaka - Mis Favoritos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #fafbfb; }
-        .brand-title { font-family: 'Playfair Display', serif; color: #3f5e53; }
-        .fav-card { border: none; border-radius: 20px; overflow: hidden; transition: 0.3s; }
-        .fav-card:hover { transform: translateY(-5px); }
-        .btn-remove { position: absolute; top: 10px; right: 10px; background: white; border: none; border-radius: 50%; width: 32px; height: 32px; color: #e65c5c; display: flex; align-items: center; justify-content: center; }
-        .img-placeholder-client { height: 200px; background-color: #f5f7f6; color: #9eb2a8; font-family: 'Playfair Display', serif; font-style: italic; }
+        :root {
+            --azul-brand: #4f46e5;
+            --azul-hover: #3b32d1;
+            --texto-principal: #1e2229;
+            --texto-mutated: #7a869a;
+            --bg-cuerpo: #f8fafc;
+            --bg-card: #ffffff;
+            --radio-borde: 20px;
+            --sombra-premium: 0 12px 30px -10px rgba(0, 0, 0, 0.04);
+            --color-exito: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-cuerpo);
+            color: var(--texto-principal);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Barra de Navegación Premium */
+        .custom-navbar {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid #edf2f7;
+            padding: 18px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+        }
+
+        .navbar-brand-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--azul-brand);
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .navbar-brand-title:hover {
+            color: var(--azul-hover);
+        }
+
+        .navbar-section-tag {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--texto-mutated);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background-color: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 30px;
+        }
+
+        /* Título de Sección Superior */
+        .section-header-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--texto-principal);
+        }
+
+        /* Tarjetas de Favoritos Rediseñadas */
+        .fav-card {
+            border: 1px solid #edf2f7;
+            border-radius: var(--radio-borde);
+            background-color: var(--bg-card);
+            overflow: hidden;
+            box-shadow: var(--sombra-premium);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fav-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.12);
+            border-color: rgba(79, 70, 229, 0.2);
+        }
+
+        /* Contenedor de Imagen de Producto */
+        .product-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            background-color: #f8fafc;
+        }
+
+        /* Botón Eliminar de Favoritos */
+        .btn-remove {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: #ffffff;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            z-index: 5;
+        }
+
+        .btn-remove:hover {
+            background-color: #ef4444;
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        /* Marcador de posición elegante cuando no hay imagen */
+        .img-placeholder-client {
+            height: 240px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: var(--texto-mutated);
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Cuerpo de la Tarjeta */
+        .card-product-body {
+            padding: 20px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-title-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--texto-principal);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .product-price-badge {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--azul-brand);
+        }
+
+        /* Botón de Añadir al Carrito Directo */
+        .btn-add-cart-direct {
+            background-color: #f1f5f9;
+            color: var(--texto-principal);
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            width: 100%;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            margin-top: 4px;
+        }
+
+        .btn-add-cart-direct:hover {
+            background-color: var(--azul-brand);
+            color: #ffffff;
+        }
+
+        /* Contenedor Vista Vacía Estilizado */
+        .empty-state-box {
+            background-color: var(--bg-card);
+            border-radius: var(--radio-borde);
+            border: 2px dashed #e2e8f0;
+            padding: 60px 40px;
+            max-width: 500px;
+            margin: 40px auto;
+            box-shadow: var(--sombra-premium);
+        }
+
+        .empty-state-icon-circle {
+            width: 80px;
+            height: 80px;
+            background-color: #f3f4f6;
+            color: var(--texto-mutated);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 24px;
+        }
+
+        .btn-explore-shop {
+            background-color: var(--azul-brand);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .btn-explore-shop:hover {
+            background-color: var(--azul-hover);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* Notificación Toast Refinada */
+        .custom-premium-toast {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+            background-color: var(--texto-principal) !important;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar border-bottom bg-white py-3">
-        <div class="container">
-            <a class="brand-title fs-3 text-decoration-none" href="{{ url_for('products.index') }}">Dunaka</a>
-            <span class="text-muted">Mis Favoritos</span>
+
+    <nav class="navbar custom-navbar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand-title" href="{{ url_for('products.index') }}">Dunaka</a>
+            <span class="navbar-section-tag"><i class="bi bi-heart-fill me-1 text-danger"></i> Favoritos</span>
         </div>
     </nav>
+
     <main class="container my-5">
+        <div class="mb-4">
+            <h1 class="section-header-title">Mis Piezas Favoritas</h1>
+            <p class="text-muted small">Administra los artículos guardados de tu interés</p>
+        </div>
+
         <div class="row g-4" id="fav-container">
             {% for p in productos %}
-            <div class="col-6 col-md-3 product-item" id="product-card-{{ p.id }}">
-                <div class="card fav-card shadow-sm position-relative h-100">
-                    <button class="btn-remove shadow-sm" onclick="removerFavorito(this, '{{ p.id }}')">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                    {% if p.imagen_url %}
-                        <img src="{{ p.imagen_url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ p.nombre }}">
-                    {% else %}
-                        <div class="d-flex align-items-center justify-content-center img-placeholder-client fs-5 text-center px-2">
-                            Dunaka Taller
-                        </div>
-                    {% endif %}
-                    <div class="card-body p-3 text-center d-flex flex-column justify-content-between">
-                        <h6 class="fw-bold mb-1 text-truncate">{{ p.nombre }}</h6>
-                        <span class="text-success fw-bold">${{ p.precio_venta }}</span>
+            <div class="col-6 col-md-4 col-lg-3 product-item" id="product-card-{{ p.id }}">
+                <div class="card fav-card h-100">
+                    
+                    <div class="product-image-wrapper">
+                        <button class="btn-remove" onclick="removerFavorito(this, '{{ p.id }}')" title="Quitar de favoritos">
+                            <i class="bi bi-heart-break-fill"></i>
+                        </button>
+                        
+                        {% if p.imagen_url %}
+                            <img src="{{ p.imagen_url }}" class="card-img-top" style="height: 240px; object-fit: cover;" alt="{{ p.nombre }}">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center img-placeholder-client text-center px-2">
+                                <i class="bi bi-image me-2"></i> Sin Imagen
+                            </div>
+                        {% endif %}
                     </div>
+
+                    <div class="card-product-body">
+                        <h6 class="product-title-text text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h6>
+                        <div class="product-price-badge">${{ p.precio_venta }}</div>
+                        
+                        <button class="btn-add-cart-direct" onclick="mostrarNotificacion('Agregado al carrito de compras', 'success')">
+                            <i class="bi bi-bag-plus"></i> Añadir al carro
+                        </button>
+                    </div>
+
                 </div>
             </div>
             {% endfor %}
             
-            <div class="col-12 text-center py-5 {% if productos %}d-none{% endif %}" id="empty-msg">
-                <i class="bi bi-heartbreak text-muted display-4"></i>
-                <p class="text-muted mt-3">Aún no has guardado ninguna pieza en favoritos.</p>
-                <a href="{{ url_for('products.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-4 mt-2">Explorar tienda</a>
+            <div class="col-12 text-center py-4 {% if productos %}d-none{% endif %}" id="empty-msg">
+                <div class="empty-state-box">
+                    <div class="empty-state-icon-circle">
+                        <i class="bi bi-heart"></i>
+                    </div>
+                    <h3 class="fw-bold h5 mb-2">Tu lista está vacía</h3>
+                    <p class="text-muted small mb-4">Aún no has guardado ninguna pieza de nuestra colección en tus favoritos.</p>
+                    <a href="{{ url_for('products.index') }}" class="btn btn-explore-shop text-decoration-none">Explorar Catálogo</a>
+                </div>
             </div>
         </div>
     </main>
 
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="toastMessage"></div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+        <div id="liveToast" class="toast align-items-center text-white border-0 custom-premium-toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex p-2">
+                <div class="toast-body d-flex align-items-center gap-2" id="toastMessage">
+                    </div>
                 <button type="button" class="btn-close btn-close-white m-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
@@ -66,17 +301,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const toastElement = document.getElementById('liveToast');
-        const toast = new bootstrap.Toast(toastElement);
+        const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
 
         function mostrarNotificacion(mensaje, tipo = 'success') {
-            const bgClass = tipo === 'success' ? 'bg-success' : (tipo === 'warning' ? 'bg-warning text-dark' : 'bg-danger');
-            toastElement.className = `toast align-items-center text-white border-0 ${bgClass}`;
-            document.getElementById('toastMessage').innerText = mensaje;
+            const toastMessageDiv = document.getElementById('toastMessage');
+            
+            // Definición elegante de iconos según el estado
+            let icon = '<i class="bi bi-check-circle-fill text-success"></i>';
+            if (tipo === 'danger') icon = '<i class="bi bi-exclamation-triangle-fill text-danger"></i>';
+            if (tipo === 'warning') icon = '<i class="bi bi-exclamation-circle-fill text-warning"></i>';
+
+            toastMessageDiv.innerHTML = `${icon} <span class="fw-medium">${mensaje}</span>`;
             toast.show();
         }
 
         async function removerFavorito(button, productoId) {
             try {
+                // Deshabilitar botón temporalmente para evitar peticiones múltiples
+                button.disabled = true;
+
                 const response = await fetch(`/favoritos/toggle/${productoId}`, {
                     method: 'POST',
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -85,20 +328,31 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (!data.agregado) {
-                        // Eliminar elemento de la interfaz de forma limpia
                         const elemento = document.getElementById(`product-card-${productoId}`);
-                        elemento.remove();
-                        mostrarNotificacion(data.message, "success");
+                        
+                        // Transición sutil de desvanecimiento antes de remover
+                        elemento.style.opacity = '0';
+                        elemento.style.transform = 'scale(0.9)';
+                        elemento.style.transition = 'all 0.25s ease';
+                        
+                        setTimeout(() => {
+                            elemento.remove();
+                            mostrarNotificacion(data.message, "success");
 
-                        // Si ya no quedan tarjetas visibles, mostrar el mensaje de favoritos vacíos
-                        const restantes = document.querySelectorAll('.product-item');
-                        if (restantes.length === 0) {
-                            document.getElementById('empty-msg').classList.remove('d-none');
-                        }
+                            // Validar si quedan elementos activos
+                            const restantes = document.querySelectorAll('.product-item');
+                            if (restantes.length === 0) {
+                                document.getElementById('empty-msg').classList.remove('d-none');
+                            }
+                        }, 250);
                     }
+                } else {
+                    button.disabled = false;
+                    mostrarNotificacion("No se pudo remover la pieza de favoritos.", "warning");
                 }
             } catch (error) {
-                mostrarNotificacion("Error al intentar actualizar tus favoritos.", "danger");
+                button.disabled = false;
+                mostrarNotificacion("Error al conectar con el servidor.", "danger");
             }
         }
     </script>

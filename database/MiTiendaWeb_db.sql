@@ -69,26 +69,6 @@ CREATE TABLE IF NOT EXISTS reseñas (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
-DELIMITER //
-
-CREATE TRIGGER alerta_stock_agotado
-AFTER UPDATE ON productos
-FOR EACH ROW
-BEGIN
-    -- 1. Si el stock llegó a 0 y antes era mayor a 0, creamos alerta de AGOTADO
-    IF NEW.stock = 0 AND OLD.stock > 0 THEN
-        INSERT INTO notificaciones (mensaje, fecha_creacion)
-        VALUES (CONCAT('¡Alerta de Inventario! El producto "', NEW.nombre, '" se ha agotado por completo.'), NOW());
-    
-    -- 2. Si baja del stock mínimo, creamos alerta de STOCK BAJO
-    ELSEIF NEW.stock <= NEW.stock_minimo AND OLD.stock > NEW.stock_minimo AND NEW.stock > 0 THEN
-        INSERT INTO notificaciones (mensaje, fecha_creacion)
-        VALUES (CONCAT('¡Atención! El producto "', NEW.nombre, '" está por debajo del límite mínimo. Quedan solo ', NEW.stock, ' unidades.'), NOW());
-    END IF;
-END //
-
-DELIMITER ;
-
 
 -- =========================================================================
 -- INSERCIÓN DE 10 PRODUCTOS (BOLSOS Y ACCESORIOS)
