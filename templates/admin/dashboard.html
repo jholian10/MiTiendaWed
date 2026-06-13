@@ -358,45 +358,52 @@
 <body>
 
     <div class="sidebar-container">
-        <div class="sidebar-brand">
-            <h3>Dunaka</h3>
-            <span>Panel de Gestión</span>
-        </div>
-        
-        <ul class="sidebar-menu">
-            <li class="menu-item active">
-                <a href="{{ url_for('admin.panel_admin') }}" class="menu-link">
-                    <div class="menu-icon-wrapper"><i class="fas fa-box"></i></div>
-                    Gestión de Productos
-                </a>
-            </li>
-            <li class="menu-item">
-    <a href="{{ url_for('admin.gestion_usuarios') }}" class="menu-link">
-        <div class="menu-icon-wrapper"><i class="fas fa-users"></i></div>
-        Gestión de Usuarios
-    </a>
-</li>
-            <li class="menu-item">
-                <a href="{{ url_for('admin.ver_notificaciones') }}" class="menu-link">
-                    <div class="menu-icon-wrapper"><i class="fas fa-bell"></i></div>
-                    Notificaciones
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <div class="menu-icon-wrapper"><i class="fas fa-shopping-bag"></i></div>
-                    Gestión de Pedidos
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-footer">
-            <a href="{{ url_for('auth.logout') }}" class="menu-link logout-link">
-                <div class="menu-icon-wrapper"><i class="fas fa-sign-out-alt"></i></div>
-                Cerrar Sesión
-            </a>
-        </div>
+    <div class="sidebar-brand">
+        <h3>Dunaka</h3>
+        <span>Panel de Gestión</span>
     </div>
+    
+    <ul class="sidebar-menu">
+        <li class="menu-item active">
+            <a href="{{ url_for('admin.panel_admin') }}" class="menu-link">
+                <div class="menu-icon-wrapper"><i class="fas fa-box"></i></div>
+                Gestión de Productos
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="{{ url_for('admin.gestion_usuarios') }}" class="menu-link">
+                <div class="menu-icon-wrapper"><i class="fas fa-users"></i></div>
+                Gestión de Usuarios
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="{{ url_for('admin.ver_notificaciones') }}" class="menu-link">
+                <div class="menu-icon-wrapper"><i class="fas fa-bell"></i></div>
+                Notificaciones
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#" class="menu-link">
+                <div class="menu-icon-wrapper"><i class="fas fa-shopping-bag"></i></div>
+                Gestión de Pedidos
+            </a>
+        </li>
+        <!-- NUEVA OPCIÓN: MESA DE SOPORTE -->
+        <li class="menu-item">
+            <a href="{{ url_for('admin.ver_mensajes') }}" class="menu-link">
+                <div class="menu-icon-wrapper"><i class="fas fa-headset"></i></div>
+                Mesa de Soporte
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <a href="{{ url_for('auth.logout') }}" class="menu-link logout-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-sign-out-alt"></i></div>
+            Cerrar Sesión
+        </a>
+    </div>
+</div>
 
     <div class="main-workspace">
         <div class="row align-items-center mb-5">

@@ -1,0 +1,63 @@
+<form action="{{ url_for('guardar_direccion') }}" method="POST" class="mt-4">
+    <div class="mb-3">
+        <label class="form-label">Departamento</label>
+        <select name="departamento" id="departamento" class="form-control" required>
+            <option value="">Selecciona un departamento</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ciudad / Municipio</label>
+        <select name="municipio" id="municipio" class="form-control" required>
+            <option value="">Selecciona primero un departamento</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Barrio</label>
+        <input type="text" name="barrio" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Número de casa / Dirección</label>
+        <input type="text" name="numero_casa" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Teléfono</label>
+        <input type="tel" name="telefono" class="form-control" required>
+    </div>
+    
+    <button type="submit" class="btn btn-primary w-100">Guardar Información</button>
+</form>
+
+<script>
+    let datosColombia = {};
+
+    // Cargar los datos al iniciar
+    fetch('/static/js/colombia.json')
+        .then(response => response.json())
+        .then(data => {
+            datosColombia = data;
+            const deptoSelect = document.getElementById('departamento');
+            Object.keys(data).forEach(depto => {
+                let opt = document.createElement('option');
+                opt.value = depto;
+                opt.innerHTML = depto;
+                deptoSelect.appendChild(opt);
+            });
+        });
+
+    // Actualizar municipios
+    document.getElementById('departamento').addEventListener('change', function() {
+        const muniSelect = document.getElementById('municipio');
+        muniSelect.innerHTML = '<option value="">Selecciona una ciudad</option>';
+        
+        if (this.value && datosColombia[this.value]) {
+            datosColombia[this.value].forEach(ciudad => {
+                let opt = document.createElement('option');
+                opt.value = ciudad;
+                opt.innerHTML = ciudad;
+                muniSelect.appendChild(opt);
+            });
+        }
+    });
+</script>

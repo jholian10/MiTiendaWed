@@ -1,7 +1,9 @@
 import os
+from werkzeug.utils import secure_filename # <--- AGREGA ESTA LÍNEA AQUÍ
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.db import obtener_conexion
 from models.product_model import listar_productos, obtener_producto_por_id
+from models.support_model import obtener_todos_los_mensajes
 
 # IMPORTANTE: Renombramos 'eliminar_producto' como 'eliminar_producto_db' 
 from models.admin_product_model import insertar_producto, actualizar_producto, eliminar_producto as eliminar_producto_db
@@ -53,36 +55,38 @@ def gestion_usuarios():
 # =========================================================
 @admin_blueprint.route('/producto/nuevo', methods=['GET', 'POST'])
 def nuevo_producto():
-    if not es_admin(): 
-        return redirect(url_for('auth.login'))
+    if not es_admin(): return redirect(url_for('auth.login'))
     
     if request.method == 'POST':
+        # Obtener datos
         nombre = request.form.get('nombre')
         precio_compra = request.form.get('precio_compra')
         precio_venta = request.form.get('precio_venta')
         stock = int(request.form.get('stock', 0))
-        stock_minimo = request.form.get('stock_minimo')
-        imagen_url = request.form.get('imagen_url')
+        stock_minimo = int(request.form.get('stock_minimo', 5))
         descripcion = request.form.get('descripcion')
         
-        # 1. Guardamos el producto en el inventario
-        insertar_producto(nombre, precio_compra, precio_venta, stock, stock_minimo, imagen_url, descripcion)
+        # Guardar Imagen
+        imagen_file = request.files.get('imagen')
+        imagen_path = ""
+        if imagen_file:
+            filename = secure_filename(imagen_file.filename)
+            imagen_file.save(os.path.join('static/uploads', filename))
+            imagen_path = f'uploads/{filename}'
         
-        # 2. CREAMOS LA NOTIFICACIÓN DIRECTAMENTE DESDE PYTHON
+        # Insertar
+        insertar_producto(nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_path)
+        
+        # Notificar
         conexion = obtener_conexion()
         cursor = conexion.cursor()
-        
-        if stock == 0:
-            mensaje_alerta = f'¡Alerta de Inventario! El administrador registró el nuevo producto "{nombre}" SIN EXISTENCIAS (0 unidades).'
-        else:
-            mensaje_alerta = f'¡Nuevo Producto! El administrador registró "{nombre}" con {stock} unidades en el inventario.'
-            
-        cursor.execute("INSERT INTO notificaciones (mensaje, fecha_creacion) VALUES (%s, NOW())", (mensaje_alerta,))
-        conexion.commit() # Guardamos los cambios de forma segura
+        cursor.execute("INSERT INTO notificaciones (mensaje, fecha_creacion) VALUES (%s, NOW())", 
+                       (f'Producto registrado: {nombre}',))
+        conexion.commit()
         cursor.close()
         conexion.close()
         
-        flash('Producto agregado con éxito al inventario.', 'success')
+        flash('Registrado con éxito', 'success')
         return redirect(url_for('admin.panel_admin'))
         
     return render_template('admin/agregar.html')
@@ -171,3 +175,11 @@ def ver_notificaciones():
     conexion.close()
     
     return render_template('admin/notificaciones.html', notificaciones=todas)
+
+# routes/admin_routes.py
+
+@admin_blueprint.route('/admin/mensajes')
+def ver_mensajes():
+    # Aquí iría tu lógica de verificación de rol de administrador
+    mensajes = obtener_todos_los_mensajes()
+    return render_template('admin/admin_mensajes.html', mensajes=mensajes)

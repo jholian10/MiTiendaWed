@@ -8,11 +8,11 @@ def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, c
     try:
         if foto_perfil_url:
             query = """UPDATE usuarios SET nombre = %s, correo = %s, telefono = %s, 
-                       direccion = %s, ciudad = %s, foto_perfil_url = %s WHERE id = %s"""
+                    direccion = %s, ciudad = %s, foto_perfil_url = %s WHERE id = %s"""
             params = (nombre, correo, telefono, direccion, ciudad, foto_perfil_url, id_usuario)
         else:
             query = """UPDATE usuarios SET nombre = %s, correo = %s, telefono = %s, 
-                       direccion = %s, ciudad = %s WHERE id = %s"""
+                    direccion = %s, ciudad = %s WHERE id = %s"""
             params = (nombre, correo, telefono, direccion, ciudad, id_usuario)
         
         cursor.execute(query, params)

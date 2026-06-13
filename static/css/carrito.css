@@ -1,0 +1,263 @@
+/* =========================================
+           VARIABLES Y CONFIGURACIÓN BASE
+        ========================================= */
+:root {
+    --primary-color: #4f46e5;
+    --secondary-color: #7c3aed;
+    --gradient-main: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    --bg-app: #f4f7fe;
+    --card-bg: #ffffff;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 30px -5px rgba(79, 70, 229, 0.1);
+    --shadow-hover: 0 20px 40px -10px rgba(79, 70, 229, 0.2);
+    --radius-md: 16px;
+    --radius-lg: 24px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.brand-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--primary-color);
+    letter-spacing: -0.5px;
+}
+
+/* =========================================
+           NAVBAR
+        ========================================= */
+.custom-navbar {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
+}
+
+/* =========================================
+           TARJETAS GLASSMORPHISM
+        ========================================= */
+.glass-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+/* =========================================
+           ELEMENTOS DEL CARRITO
+        ========================================= */
+.cart-item-row {
+    display: flex;
+    align-items: center;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.cart-item-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.cart-item-row:first-child {
+    padding-top: 0;
+}
+
+.product-img-thumb {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.product-img-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-md);
+    background: rgba(79, 70, 229, 0.05);
+    border: 1px dashed var(--primary-color);
+}
+
+/* Selector de cantidad */
+.quantity-controller {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f8fafc;
+    border-radius: 14px;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.btn-qty {
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-qty:hover {
+    background-color: #ffffff;
+    color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.qty-input {
+    width: 40px;
+    text-align: center;
+    border: none;
+    background: none;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-dark);
+    outline: none;
+}
+
+/* Botón de eliminar */
+.btn-remove-item {
+    color: var(--text-muted);
+    transition: color 0.2s, transform 0.2s;
+    font-size: 1.2rem;
+    background: rgba(226, 232, 240, 0.4);
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border: none;
+}
+
+.btn-remove-item:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.05);
+}
+
+/* =========================================
+           BOTONES Y BADGES
+        ========================================= */
+.btn-gradient {
+    background: var(--gradient-main);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+.btn-gradient:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+    color: white;
+}
+
+.btn-gradient:disabled {
+    background: #cbd5e1;
+    box-shadow: none;
+    color: #f8fafc;
+    cursor: not-allowed;
+}
+
+.btn-outline-custom {
+    border: 2px solid var(--border-color);
+    color: var(--text-dark);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    background: transparent;
+    text-decoration: none;
+}
+
+.btn-outline-custom:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(79, 70, 229, 0.05);
+}
+
+.text-success-badge {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* =========================================
+           ALERTA FLOTANTE MINIMALISTA
+        ========================================= */
+.alert-container {
+    position: fixed;
+    top: 90px;
+    right: 24px;
+    z-index: 1060;
+}
+
+.toast-minimal {
+    background: var(--text-dark);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 16px 24px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+.toast-minimal.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-icon {
+    color: #f59e0b;
+    font-size: 1.2rem;
+}
+
+/* Animación de entrada */
+.fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

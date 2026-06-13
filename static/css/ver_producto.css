@@ -1,258 +1,266 @@
+:root {
+    --bg-sistema: #f4f5fa;
+    /* El fondo exacto de tu panel */
+    --azul-brand: #4f46e5;
+    /* El color del botón "Registrar Nuevo Bolso" */
+    --texto-principal: #1e2229;
+    /* El color de tus títulos principales */
+    --texto-mutado: #788293;
+    /* El color de tus subtítulos de control */
 
-        :root {
-            --bg-sistema: #f4f5fa;        /* El fondo exacto de tu panel */
-            --azul-brand: #4f46e5;        /* El color del botón "Registrar Nuevo Bolso" */
-            --texto-principal: #1e2229;   /* El color de tus títulos principales */
-            --texto-mutado: #788293;      /* El color de tus subtítulos de control */
-            
-            /* Colores de los componentes de tu tabla */
-            --badge-disponible-bg: #eaf7f0;
-            --badge-disponible-txt: #1ea962;
-            --btn-editar-bg: #edf5ff;
-            --btn-editar-txt: #3b82f6;
-            --btn-baja-bg: #fdf2f2;
-            --btn-baja-txt: #ef4444;
-            
-            --shadow-suave: 0 10px 30px rgba(0, 0, 0, 0.03);
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-sistema);
-            color: var(--texto-principal);
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        /* NAVBAR ADAPTADO AL PANEL */
-        .custom-navbar {
-            background-color: #ffffff !important;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-            box-shadow: var(--shadow-suave);
-        }
-        
-        .brand-title {
-            font-weight: 700;
-            color: var(--texto-principal);
-            letter-spacing: -0.5px;
-        }
-        
-        .nav-icon-btn {
-            position: relative;
-            color: var(--texto-mutado);
-            font-size: 1.2rem;
-            transition: all 0.2s ease;
-        }
-        .nav-icon-btn:hover {
-            color: var(--azul-brand);
-        }
-        
-        .nav-badge {
-            position: absolute;
-            top: -4px;
-            right: -8px;
-            font-size: 0.65rem;
-            background-color: var(--azul-brand);
-            color: #ffffff;
-            padding: 3px 6px;
-            font-weight: 600;
-        }
+    /* Colores de los componentes de tu tabla */
+    --badge-disponible-bg: #eaf7f0;
+    --badge-disponible-txt: #1ea962;
+    --btn-editar-bg: #edf5ff;
+    --btn-editar-txt: #3b82f6;
+    --btn-baja-bg: #fdf2f2;
+    --btn-baja-txt: #ef4444;
 
-        /* CONTENEDORES ESTILO DASHBOARD (Tarjetas Blancas Redondeadas) */
-        .panel-card {
-            background: #ffffff;
-            border-radius: 24px;
-            border: none;
-            box-shadow: var(--shadow-suave);
-            padding: 35px;
-        }
+    --shadow-suave: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
 
-        .img-container-panel {
-            background-color: #ffffff;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: var(--shadow-suave);
-        }
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-sistema);
+    color: var(--texto-principal);
+    -webkit-font-smoothing: antialiased;
+}
 
-        .detail-img {
-            width: 100%;
-            height: auto;
-            max-height: 550px;
-            object-fit: cover;
-            display: block;
-        }
+/* NAVBAR ADAPTADO AL PANEL */
+.custom-navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-suave);
+}
 
-        .img-placeholder-detail {
-            height: 450px;
-            background: linear-gradient(135deg, #eef2f7 0%, #e0e6ed 100%);
-            color: var(--texto-mutado);
-            font-weight: 500;
-        }
+.brand-title {
+    font-weight: 700;
+    color: var(--texto-principal);
+    letter-spacing: -0.5px;
+}
 
-        /* BADGE DISPONIBLE EXACTO A TU TABLA */
-        .badge-status-disponible {
-            background-color: var(--badge-disponible-bg);
-            color: var(--badge-disponible-txt);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 30px;
-            display: inline-flex;
-            align-items: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.nav-icon-btn {
+    position: relative;
+    color: var(--texto-mutado);
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
 
-        .badge-status-agotado {
-            background-color: var(--btn-baja-bg);
-            color: var(--btn-baja-txt);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 30px;
-            display: inline-flex;
-            align-items: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.nav-icon-btn:hover {
+    color: var(--azul-brand);
+}
 
-        /* BOTONES COPIADOS DE TU PANEL DE GESTIÓN */
-        .btn-panel-primary {
-            background-color: var(--azul-brand);
-            color: #ffffff;
-            border: none;
-            border-radius: 14px;
-            padding: 14px 28px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-        }
+.nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    font-size: 0.65rem;
+    background-color: var(--azul-brand);
+    color: #ffffff;
+    padding: 3px 6px;
+    font-weight: 600;
+}
 
-        .btn-panel-primary:hover {
-            background-color: #3b32d1;
-            color: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
-        }
+/* CONTENEDORES ESTILO DASHBOARD (Tarjetas Blancas Redondeadas) */
+.panel-card {
+    background: #ffffff;
+    border-radius: 24px;
+    border: none;
+    box-shadow: var(--shadow-suave);
+    padding: 35px;
+}
 
-        /* Estilo idéntico a tu botón "Editar" */
-        .btn-panel-secondary {
-            background-color: var(--btn-editar-bg);
-            color: var(--btn-editar-txt);
-            border: none;
-            border-radius: 14px;
-            padding: 14px 24px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
+.img-container-panel {
+    background-color: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-suave);
+}
 
-        .btn-panel-secondary:hover {
-            background-color: #dbeafe;
-            color: var(--btn-editar-txt);
-        }
+.detail-img {
+    width: 100%;
+    height: auto;
+    max-height: 550px;
+    object-fit: cover;
+    display: block;
+}
 
-        /* Botón redondo de favoritos */
-        .btn-panel-fav {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            border: none;
-            background-color: var(--bg-sistema);
-            color: var(--texto-mutado);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.2s ease;
-        }
+.img-placeholder-detail {
+    height: 450px;
+    background: linear-gradient(135deg, #eef2f7 0%, #e0e6ed 100%);
+    color: var(--texto-mutado);
+    font-weight: 500;
+}
 
-        .btn-panel-fav:hover, .btn-panel-fav.is-active {
-            background-color: var(--btn-baja-bg);
-            color: var(--btn-baja-txt);
-        }
+/* BADGE DISPONIBLE EXACTO A TU TABLA */
+.badge-status-disponible {
+    background-color: var(--badge-disponible-bg);
+    color: var(--badge-disponible-txt);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-        /* SELECTOR DE CANTIDAD */
-        .quantity-control-wrapper {
-            display: inline-flex;
-            align-items: center;
-            background: var(--bg-sistema);
-            border-radius: 12px;
-            padding: 4px;
-        }
+.badge-status-agotado {
+    background-color: var(--btn-baja-bg);
+    color: var(--btn-baja-txt);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 30px;
+    display: inline-flex;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
-        .quantity-panel-btn {
-            background: #ffffff;
-            border: none;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--texto-principal);
-            border-radius: 8px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: all 0.2s ease;
-        }
+/* BOTONES COPIADOS DE TU PANEL DE GESTIÓN */
+.btn-panel-primary {
+    background-color: var(--azul-brand);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 28px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
 
-        .quantity-panel-btn:hover:not(:disabled) {
-            background: var(--azul-brand);
-            color: #ffffff;
-        }
+.btn-panel-primary:hover {
+    background-color: #3b32d1;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+}
 
-        .quantity-panel-input {
-            width: 45px;
-            text-align: center;
-            border: none;
-            background: transparent;
-            font-weight: 600;
-            color: var(--texto-principal);
-        }
+/* Estilo idéntico a tu botón "Editar" */
+.btn-panel-secondary {
+    background-color: var(--btn-editar-bg);
+    color: var(--btn-editar-txt);
+    border: none;
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
 
-        /* CAJA DE TEXTO DE RESEÑAS */
-        .panel-textarea {
-            border: 2px solid var(--bg-sistema);
-            background-color: var(--bg-sistema);
-            border-radius: 14px;
-            padding: 15px;
-            resize: none;
-            transition: all 0.2s ease;
-        }
+.btn-panel-secondary:hover {
+    background-color: #dbeafe;
+    color: var(--btn-editar-txt);
+}
 
-        .panel-textarea:focus {
-            background-color: #ffffff;
-            border-color: var(--azul-brand);
-            box-shadow: none;
-        }
+/* Botón redondo de favoritos */
+.btn-panel-fav {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    border: none;
+    background-color: var(--bg-sistema);
+    color: var(--texto-mutado);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
 
-        /* ESTRELLAS */
-        .stars-container-panel {
-            display: inline-flex;
-            flex-direction: row-reverse;
-            gap: 4px;
-        }
+.btn-panel-fav:hover,
+.btn-panel-fav.is-active {
+    background-color: var(--btn-baja-bg);
+    color: var(--btn-baja-txt);
+}
 
-        .star-panel-item {
-            font-size: 1.5rem;
-            color: #e2e8f0;
-            cursor: pointer;
-            transition: color 0.15s ease;
-        }
+/* SELECTOR DE CANTIDAD */
+.quantity-control-wrapper {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-sistema);
+    border-radius: 12px;
+    padding: 4px;
+}
 
-        .star-panel-item:hover, .star-panel-item:hover ~ .star-panel-item,
-        .star-panel-item.selected, .star-panel-item.selected ~ .star-panel-item {
-            color: #ffb703;
-        }
+.quantity-panel-btn {
+    background: #ffffff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--texto-principal);
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+}
 
-        /* FILAS DE COMENTARIOS */
-        .review-row-item {
-            border-bottom: 1px solid var(--bg-sistema);
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-        }
-        .review-row-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
+.quantity-panel-btn:hover:not(:disabled) {
+    background: var(--azul-brand);
+    color: #ffffff;
+}
+
+.quantity-panel-input {
+    width: 45px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    color: var(--texto-principal);
+}
+
+/* CAJA DE TEXTO DE RESEÑAS */
+.panel-textarea {
+    border: 2px solid var(--bg-sistema);
+    background-color: var(--bg-sistema);
+    border-radius: 14px;
+    padding: 15px;
+    resize: none;
+    transition: all 0.2s ease;
+}
+
+.panel-textarea:focus {
+    background-color: #ffffff;
+    border-color: var(--azul-brand);
+    box-shadow: none;
+}
+
+/* ESTRELLAS */
+.stars-container-panel {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 4px;
+}
+
+.star-panel-item {
+    font-size: 1.5rem;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.star-panel-item:hover,
+.star-panel-item:hover~.star-panel-item,
+.star-panel-item.selected,
+.star-panel-item.selected~.star-panel-item {
+    color: #ffb703;
+}
+
+/* FILAS DE COMENTARIOS */
+.review-row-item {
+    border-bottom: 1px solid var(--bg-sistema);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.review-row-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}

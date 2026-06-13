@@ -1,0 +1,66 @@
+{% extends 'admin/dashboard.html' %} 
+
+{% block content %}
+<style>
+    .container {
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .btn-responder {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+    .btn-responder:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Solicitudes de Soporte Pendientes</h3>
+        <span class="badge bg-secondary">{{ mensajes|length }} activos</span>
+    </div>
+
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Usuario</th>
+                <th>Mensaje</th>
+                <th>Fecha</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in mensajes %}
+            <tr>
+                <td><strong>{{ m.nombre }}</strong></td>
+                <td>{{ m.mensaje }}</td>
+                <td>{{ m.fecha_creacion }}</td>
+                <td class="text-center">
+                    <a href="#" class="btn btn-primary btn-sm btn-responder">
+                        <i class="fas fa-reply"></i> Responder
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center py-4">
+                    <i class="fas fa-check-circle" style="color: #28a745; font-size: 2rem;"></i>
+                    <p class="mt-2">No hay mensajes pendientes.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

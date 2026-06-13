@@ -1,0 +1,79 @@
+<nav class="navbar navbar-expand-lg sticky-top custom-navbar">
+    <div class="container">
+        <a class="navbar-brand brand-title fs-3 m-0 d-flex align-items-center gap-2" href="{{ url_for('products.index') }}">
+            <i class="bi bi-layers-half text-primary" style="color: var(--primary-solid) !important;"></i>
+            Dunaka
+        </a>
+
+        <div class="d-none d-lg-block mx-auto" style="width: 40%;">
+            <form action="{{ url_for('products.index') }}" method="GET" class="search-box-container">
+                <input type="text" name="q" class="search-box" placeholder="Buscar por nombre, técnica o material..." value="{{ busqueda or '' }}">
+                <button class="search-btn" type="submit" aria-label="Buscar">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-list fs-1 text-dark"></i>
+        </button>
+
+        <div class="collapse navbar-collapse flex-grow-0 mt-3 mt-lg-0" id="navbarContent">
+            
+            <form class="d-block d-lg-none mb-4" action="{{ url_for('products.index') }}" method="GET">
+                <div class="search-box-container w-100">
+                    <input type="text" name="q" class="search-box" placeholder="Buscar bolsos..." value="{{ busqueda or '' }}">
+                    <button class="search-btn" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="d-flex align-items-center justify-content-center justify-content-lg-end gap-3">
+                
+                {% if usuario_sesion %}
+                    <div class="dropdown">
+                        <a class="nav-icon-btn text-decoration-none dropdown-toggle d-flex align-items-center gap-2 px-3 w-auto rounded-pill" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--primary-light);">
+                            <i class="bi bi-person-fill" style="color: var(--primary-solid);"></i>
+                            <span class="fs-6 fw-semibold" style="color: var(--primary-solid);">
+                                {{ usuario_sesion.nombre.split(' ')[0] }}
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu mt-2" aria-labelledby="userMenu">
+                            <li class="px-3 py-2 border-bottom mb-2">
+                                <p class="mb-0 fw-bold text-dark" style="font-size: 0.9rem;">Mi Cuenta</p>
+                                <small class="text-muted">{{ usuario_sesion.email }}</small>
+                            </li>
+                            <li><a class="dropdown-item user-dropdown-item" href="{{ url_for('profile.ver_perfil') }}"><i class="bi bi-person-badge"></i>Mi Perfil</a></li>
+                            <li><a class="dropdown-item user-dropdown-item" href="{{ url_for('orders.ver_pedidos') }}"><i class="bi bi-box-seam"></i>Mis Pedidos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item user-dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right text-danger"></i>Cerrar Sesión</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav-icon-btn d-flex align-items-center gap-2 w-auto px-3 rounded-pill" title="Iniciar Sesión">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span class="fs-6 fw-medium">Ingresar</span>
+                    </a>
+                {% endif %}
+
+                <div class="vr d-none d-lg-block mx-2 text-muted" style="height: 25px; align-self: center;"></div>
+
+                <!-- NUEVO BOTÓN DE SOPORTE -->
+                <a href="{{ url_for('support.index') }}" class="nav-icon-btn text-decoration-none" title="Soporte">
+                    <i class="bi bi-headset"></i>
+                </a>
+
+                <a href="{{ url_for('favorites.ver_favoritos') }}" class="nav-icon-btn" title="Mis Favoritos">
+                    <i class="bi bi-heart"></i>
+                    <span class="nav-badge shadow-sm" id="fav-count">0</span>
+                </a>
+
+                <a href="{{ url_for('cart.ver_carrito') }}" class="nav-icon-btn text-decoration-none" id="cartButton" title="Ver Carrito">
+                    <i class="bi bi-bag"></i>
+                    <span class="nav-badge shadow-sm" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

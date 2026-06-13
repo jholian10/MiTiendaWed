@@ -13,6 +13,8 @@ from routes.favorite_routes import favorite_blueprint
 from routes.payment_routes import payment_blueprint
 from routes.profile_routes import profile_blueprint
 from routes.order_routes import order_custom_bp 
+# AGREGADO: Importa tu blueprint de soporte
+from routes.support_routes import support_blueprint 
 
 app = Flask(__name__)
 print("Ruta de templates configurada:", app.template_folder)
@@ -38,6 +40,8 @@ app.register_blueprint(favorite_blueprint)
 app.register_blueprint(payment_blueprint) 
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(order_custom_bp)
+# AGREGADO: Registra el blueprint de soporte
+app.register_blueprint(support_blueprint)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
