@@ -1,0 +1,390 @@
+:root {
+    --primary-purple: #6f42c1;
+    --primary-purple-dark: #52279c;
+    --primary-blue: #0d6efd;
+    --primary-blue-light: #e6f0ff;
+    --accent-neon-purple: #d1b3ff;
+    --white-pure: #ffffff;
+    --bg-light-blue: #f4f7fe;
+    --text-dark: #212529;
+    --text-muted: #7c8ba1;
+
+    /* Estados coloridos de inventario */
+    --status-success-bg: #d1e7dd;
+    --status-success-text: #0f5132;
+    --status-warning-bg: #fff3cd;
+    --status-warning-text: #664d03;
+    --status-danger-bg: #f8d7da;
+    --status-danger-text: #842029;
+}
+
+/* CONFIGURACIÓN BASE DEL SISTEMA */
+body {
+    background-color: var(--bg-light-blue);
+    font-family: "Poppins", sans-serif;
+    color: var(--text-dark);
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Personalización de la barra de desplazamiento (Scrollbar) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-light-blue);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-purple);
+    border-radius: 10px;
+}
+
+/* DISEÑO ESTRUCTURAL: MENU LATERAL (SIDEBAR) ASIMÉTRICO */
+.sidebar-container {
+    width: 290px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: linear-gradient(135deg,
+            var(--primary-purple) 0%,
+            var(--primary-blue) 100%);
+    padding: 30px 20px;
+    border-radius: 0 45px 45px 0;
+    box-shadow: 10px 0 40px rgba(111, 66, 193, 0.15);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-brand {
+    padding: 10px 15px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.sidebar-brand h3 {
+    color: var(--white-pure);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-size: 1.6rem;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.sidebar-brand span {
+    font-size: 0.75rem;
+    color: var(--accent-neon-purple);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+/* ENLACES E ICONOS CON COLORES VIVOS INTERACTIVOS */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.menu-item {
+    margin-bottom: 12px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+/* Círculo de fondo vivo para los iconos del menú */
+.menu-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+/* Colores específicos y vivos cuando pasas el mouse por encima */
+.menu-link:hover {
+    background: var(--white-pure);
+    color: var(--primary-purple) !important;
+    transform: translateX(8px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+.menu-link:hover .menu-icon-wrapper {
+    background: linear-gradient(135deg,
+            var(--primary-purple),
+            var(--primary-blue));
+    color: var(--white-pure);
+    transform: rotate(360deg);
+}
+
+/* Variaciones de colores vivos para estados activos */
+.menu-item.active .menu-link {
+    background: var(--white-pure);
+    color: var(--primary-purple) !important;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.menu-item.active .menu-icon-wrapper {
+    background: linear-gradient(135deg,
+            var(--primary-purple),
+            var(--primary-blue));
+    color: var(--white-pure);
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 20px;
+}
+
+.logout-link {
+    background: rgba(220, 53, 69, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    color: #ff8585;
+}
+
+.logout-link:hover {
+    background: #dc3545 !important;
+    color: var(--white-pure) !important;
+    border-color: transparent;
+}
+
+/* DISEÑO DEL CONTENIDO PRINCIPAL ENLAZADO */
+.main-workspace {
+    margin-left: 290px;
+    padding: 40px;
+    min-height: 100vh;
+    transition: all 0.4s ease;
+}
+
+/* TARJETAS DE ESTADÍSTICAS (WIDGETS DINÁMICOS) */
+.stat-card-box {
+    background: var(--white-pure);
+    border-radius: 30px;
+    border: none;
+    box-shadow: 0 15px 30px rgba(111, 66, 193, 0.03);
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card-box:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(111, 66, 193, 0.08);
+}
+
+/* Burbujas de iconos altamente vivas y llamativas */
+.stat-icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.icon-purple {
+    background-color: #f1ebff;
+    color: var(--primary-purple);
+}
+
+.icon-blue {
+    background-color: #e6f0ff;
+    color: var(--primary-blue);
+}
+
+.icon-orange {
+    background-color: #fff3cd;
+    color: #fd7e14;
+}
+
+/* BARRA DE BÚSQUEDA AVANZADA ESTILO GLOW */
+.search-container-box {
+    position: relative;
+    margin-bottom: 35px;
+}
+
+.search-input-premium {
+    width: 100%;
+    padding: 18px 25px 18px 60px;
+    border: 2px solid transparent;
+    background-color: var(--white-pure);
+    border-radius: 25px;
+    font-size: 1rem;
+    color: var(--text-dark);
+    box-shadow: 0 15px 35px rgba(111, 66, 193, 0.04);
+    transition: all 0.3s ease;
+}
+
+.search-input-premium:focus {
+    outline: none;
+    border-color: var(--primary-purple);
+    box-shadow: 0 15px 30px rgba(111, 66, 193, 0.15);
+    background-color: var(--white-pure);
+}
+
+.search-icon-inside {
+    position: absolute;
+    left: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--primary-purple);
+    transition: all 0.3s ease;
+}
+
+/* CONTENEDOR DE LA TABLA Y DISEÑO INTERNO */
+.workspace-table-card {
+    background-color: var(--white-pure);
+    border-radius: 35px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.03);
+    border: none;
+    padding: 35px;
+    margin-bottom: 30px;
+}
+
+.premium-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.premium-table thead tr th {
+    background-color: var(--bg-light-blue);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    padding: 16px 20px;
+    border: none;
+}
+
+.premium-table thead tr th:first-child {
+    border-radius: 15px 0 0 15px;
+}
+
+.premium-table thead tr th:last-child {
+    border-radius: 0 15px 15px 0;
+}
+
+.premium-table tbody tr {
+    background-color: var(--white-pure);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.01);
+    transition: all 0.3s ease;
+}
+
+.premium-table tbody tr:hover {
+    transform: scale(1.01) translateY(-2px);
+    box-shadow: 0 12px 25px rgba(111, 66, 193, 0.06);
+}
+
+.premium-table tbody td {
+    padding: 20px;
+    border-top: 1px solid #f8f9fa;
+    border-bottom: 1px solid #f8f9fa;
+    font-size: 0.95rem;
+}
+
+.premium-table tbody td:first-child {
+    border-left: 1px solid #f8f9fa;
+    border-radius: 20px 0 0 20px;
+}
+
+.premium-table tbody td:last-child {
+    border-right: 1px solid #f8f9fa;
+    border-radius: 0 20px 20px 0;
+}
+
+/* BADGES ULTRA REDONDEADOS Y BRILLANTES */
+.status-badge-vibrant {
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+}
+
+.badge-success-viva {
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
+}
+
+.badge-warning-viva {
+    background-color: var(--status-warning-bg);
+    color: var(--status-warning-text);
+}
+
+.badge-danger-viva {
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
+}
+
+/* BOTONES DE ACCIÓN FLUIDOS */
+.btn-action-premium {
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+}
+
+.btn-purple-gradient {
+    background: linear-gradient(135deg,
+            var(--primary-purple) 0%,
+            var(--primary-blue) 100%);
+    color: var(--white-pure);
+}
+
+.btn-purple-gradient:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(111, 66, 193, 0.2);
+    color: var(--white-pure);
+}
+
+.btn-outline-edit {
+    background-color: var(--primary-blue-light);
+    color: var(--primary-blue);
+}
+
+.btn-outline-edit:hover {
+    background-color: var(--primary-blue);
+    color: var(--white-pure);
+}

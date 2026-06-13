@@ -1,536 +1,406 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dunaka | Panel de Control Absoluto</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dunaka | Soporte y Mensajes</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tu archivo CSS principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/deshboard.css') }}" />
 
     <style>
-        /* DEFINICIÓN DE VARIABLES DE MARCA (Morado, Azul, Blanco Premium) */
-        :root {
-            --primary-purple: #6f42c1;
-            --primary-purple-dark: #52279c;
-            --primary-blue: #0d6efd;
-            --primary-blue-light: #e6f0ff;
-            --accent-neon-purple: #d1b3ff;
-            --white-pure: #ffffff;
-            --bg-light-blue: #f4f7fe;
-            --text-dark: #212529;
-            --text-muted: #7c8ba1;
-            
-            /* Estados coloridos de inventario */
-            --status-success-bg: #d1e7dd;
-            --status-success-text: #0f5132;
-            --status-warning-bg: #fff3cd;
-            --status-warning-text: #664d03;
-            --status-danger-bg: #f8d7da;
-            --status-danger-text: #842029;
-        }
+      /* --- ESTILOS EXCLUSIVOS PARA LA VISTA DE CHAT --- */
+      .chat-wrapper {
+        display: flex;
+        background: #ffffff;
+        border-radius: 30px;
+        box-shadow: 0 15px 30px rgba(111, 66, 193, 0.03);
+        height: calc(100vh - 160px);
+        overflow: hidden;
+      }
 
-        /* CONFIGURACIÓN BASE DEL SISTEMA */
-        body {
-            background-color: var(--bg-light-blue);
-            font-family: 'Poppins', sans-serif;
-            color: var(--text-dark);
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
-        }
+      /* PANEL IZQUIERDO: Lista de personas que escribieron */
+      .chat-sidebar {
+        width: 340px;
+        background: #fafbfe;
+        border-right: 1px solid #e1e5eb;
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-search-box {
+        padding: 25px 20px;
+        border-bottom: 1px solid #e1e5eb;
+      }
+      .chat-search-box input {
+        width: 100%;
+        padding: 12px 20px;
+        border-radius: 20px;
+        border: 1px solid #e1e5eb;
+        outline: none;
+        font-size: 0.9rem;
+        background: #ffffff;
+        transition: all 0.3s ease;
+      }
+      .chat-search-box input:focus {
+        border-color: #6f42c1;
+        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+      }
+      .contact-list {
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+      .contact-item {
+        padding: 18px 20px;
+        border-bottom: 1px solid #e1e5eb;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+      }
+      .contact-item:hover, .contact-item.active {
+        background: #ffffff;
+        border-left: 4px solid #6f42c1;
+      }
+      .contact-avatar {
+        width: 45px;
+        height: 45px;
+        background: #e6f0ff;
+        color: #0d6efd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+      .contact-item.active .contact-avatar {
+        background: #f1ebff;
+        color: #6f42c1;
+      }
+      .contact-info {
+        overflow: hidden;
+        width: 100%;
+      }
+      .contact-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0;
+        color: #212529;
+      }
+      .contact-msg {
+        font-size: 0.8rem;
+        color: #7c8ba1;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-        /* Personalización de la barra de desplazamiento (Scrollbar) */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-light-blue);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-purple);
-            border-radius: 10px;
-        }
-
-        /* DISEÑO ESTRUCTURAL: MENU LATERAL (SIDEBAR) ASIMÉTRICO */
-        .sidebar-container {
-            width: 290px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-blue) 100%);
-            padding: 30px 20px;
-            border-radius: 0 45px 45px 0;
-            box-shadow: 10px 0 40px rgba(111, 66, 193, 0.15);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sidebar-brand {
-            padding: 10px 15px;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .sidebar-brand h3 {
-            color: var(--white-pure);
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            font-size: 1.6rem;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
-        .sidebar-brand span {
-            font-size: 0.75rem;
-            color: var(--accent-neon-purple);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        /* ENLACES E ICONOS CON COLORES VIVOS INTERACTIVOS */
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex-grow: 1;
-        }
-
-        .menu-item {
-            margin-bottom: 12px;
-        }
-
-        .menu-link {
-            display: flex;
-            align-items: center;
-            padding: 14px 20px;
-            color: rgba(255, 255, 255, 0.75);
-            text-decoration: none;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        /* Círculo de fondo vivo para los iconos del menú */
-        .menu-icon-wrapper {
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-        }
-
-        /* Colores específicos y vivos cuando pasas el mouse por encima */
-        .menu-link:hover {
-            background: var(--white-pure);
-            color: var(--primary-purple) !important;
-            transform: translateX(8px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            font-weight: 600;
-        }
-
-        .menu-link:hover .menu-icon-wrapper {
-            background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
-            color: var(--white-pure);
-            transform: rotate(360deg);
-        }
-
-        /* Variaciones de colores vivos para estados activos */
-        .menu-item.active .menu-link {
-            background: var(--white-pure);
-            color: var(--primary-purple) !important;
-            font-weight: 600;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        }
-
-        .menu-item.active .menu-icon-wrapper {
-            background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
-            color: var(--white-pure);
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            padding-top: 20px;
-        }
-
-        .logout-link {
-            background: rgba(220, 53, 69, 0.1);
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            color: #ff8585;
-        }
-        .logout-link:hover {
-            background: #dc3545 !important;
-            color: var(--white-pure) !important;
-            border-color: transparent;
-        }
-
-        /* DISEÑO DEL CONTENIDO PRINCIPAL ENLAZADO */
-        .main-workspace {
-            margin-left: 290px;
-            padding: 40px;
-            min-height: 100vh;
-            transition: all 0.4s ease;
-        }
-
-        /* TARJETAS DE ESTADÍSTICAS (WIDGETS DINÁMICOS) */
-        .stat-card-box {
-            background: var(--white-pure);
-            border-radius: 30px;
-            border: none;
-            box-shadow: 0 15px 30px rgba(111, 66, 193, 0.03);
-            padding: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card-box:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(111, 66, 193, 0.08);
-        }
-
-        /* Burbujas de iconos altamente vivas y llamativas */
-        .stat-icon-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .icon-purple { background-color: #f1ebff; color: var(--primary-purple); }
-        .icon-blue { background-color: #e6f0ff; color: var(--primary-blue); }
-        .icon-orange { background-color: #fff3cd; color: #fd7e14; }
-
-        /* BARRA DE BÚSQUEDA AVANZADA ESTILO GLOW */
-        .search-container-box {
-            position: relative;
-            margin-bottom: 35px;
-        }
-        .search-input-premium {
-            width: 100%;
-            padding: 18px 25px 18px 60px;
-            border: 2px solid transparent;
-            background-color: var(--white-pure);
-            border-radius: 25px;
-            font-size: 1rem;
-            color: var(--text-dark);
-            box-shadow: 0 15px 35px rgba(111, 66, 193, 0.04);
-            transition: all 0.3s ease;
-        }
-        .search-input-premium:focus {
-            outline: none;
-            border-color: var(--primary-purple);
-            box-shadow: 0 15px 30px rgba(111, 66, 193, 0.15);
-            background-color: var(--white-pure);
-        }
-        .search-icon-inside {
-            position: absolute;
-            left: 25px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2rem;
-            color: var(--primary-purple);
-            transition: all 0.3s ease;
-        }
-
-        /* CONTENEDOR DE LA TABLA Y DISEÑO INTERNO */
-        .workspace-table-card {
-            background-color: var(--white-pure);
-            border-radius: 35px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.03);
-            border: none;
-            padding: 35px;
-            margin-bottom: 30px;
-        }
-
-        .premium-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 12px;
-        }
-
-        .premium-table thead tr th {
-            background-color: var(--bg-light-blue);
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            padding: 16px 20px;
-            border: none;
-        }
-
-        .premium-table thead tr th:first-child { border-radius: 15px 0 0 15px; }
-        .premium-table thead tr th:last-child { border-radius: 0 15px 15px 0; }
-
-        .premium-table tbody tr {
-            background-color: var(--white-pure);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.01);
-            transition: all 0.3s ease;
-        }
-
-        .premium-table tbody tr:hover {
-            transform: scale(1.01) translateY(-2px);
-            box-shadow: 0 12px 25px rgba(111, 66, 193, 0.06);
-        }
-
-        .premium-table tbody td {
-            padding: 20px;
-            border-top: 1px solid #f8f9fa;
-            border-bottom: 1px solid #f8f9fa;
-            font-size: 0.95rem;
-        }
-
-        .premium-table tbody td:first-child {
-            border-left: 1px solid #f8f9fa;
-            border-radius: 20px 0 0 20px;
-        }
-        .premium-table tbody td:last-child {
-            border-right: 1px solid #f8f9fa;
-            border-radius: 0 20px 20px 0;
-        }
-
-        /* BADGES ULTRA REDONDEADOS Y BRILLANTES */
-        .status-badge-vibrant {
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            letter-spacing: 0.5px;
-        }
-        .badge-success-viva { background-color: var(--status-success-bg); color: var(--status-success-text); }
-        .badge-warning-viva { background-color: var(--status-warning-bg); color: var(--status-warning-text); }
-        .badge-danger-viva { background-color: var(--status-danger-bg); color: var(--status-danger-text); }
-
-        /* BOTONES DE ACCIÓN FLUIDOS */
-        .btn-action-premium {
-            padding: 10px 24px;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: none;
-        }
-        .btn-purple-gradient {
-            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-blue) 100%);
-            color: var(--white-pure);
-        }
-        .btn-purple-gradient:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(111, 66, 193, 0.2);
-            color: var(--white-pure);
-        }
-
-        .btn-outline-edit {
-            background-color: var(--primary-blue-light);
-            color: var(--primary-blue);
-        }
-        .btn-outline-edit:hover {
-            background-color: var(--primary-blue);
-            color: var(--white-pure);
-        }
+      /* PANEL DERECHO: Conversación con el cliente */
+      .chat-main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+      }
+      .chat-header {
+        padding: 20px 30px;
+        border-bottom: 1px solid #e1e5eb;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .chat-messages {
+        flex-grow: 1;
+        padding: 30px;
+        overflow-y: auto;
+        background: #f4f7fe;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .message {
+        max-width: 65%;
+        padding: 15px 20px;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        position: relative;
+        line-height: 1.5;
+      }
+      .msg-cliente {
+        background: #ffffff;
+        color: #212529;
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+      }
+      .msg-admin {
+        background: linear-gradient(135deg, #6f42c1, #0d6efd);
+        color: #ffffff;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+        box-shadow: 0 5px 15px rgba(111,66,193,0.15);
+      }
+      .msg-time {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        display: block;
+        margin-top: 8px;
+        text-align: right;
+      }
+      .chat-input {
+        padding: 20px 30px;
+        border-top: 1px solid #e1e5eb;
+        background: #ffffff;
+      }
+      .chat-input form {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      .chat-input input {
+        flex-grow: 1;
+        padding: 15px 25px;
+        border-radius: 30px;
+        border: 1px solid #e1e5eb;
+        background: #f8f9fa;
+        outline: none;
+        transition: 0.3s;
+      }
+      .chat-input input:focus {
+        border-color: #6f42c1;
+        background: #ffffff;
+      }
+      .btn-enviar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6f42c1, #0d6efd);
+        color: #ffffff;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .btn-enviar:hover {
+        transform: scale(1.08) translateY(-2px);
+        box-shadow: 0 10px 20px rgba(111, 66, 193, 0.2);
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
+    <!-- SIDEBAR MANTENIDO IGUAL, PERO AÑADIENDO "MENSAJES SOPORTE" -->
     <div class="sidebar-container">
-    <div class="sidebar-brand">
+      <div class="sidebar-brand">
         <h3>Dunaka</h3>
         <span>Panel de Gestión</span>
-    </div>
-    
-    <ul class="sidebar-menu">
+      </div>
+
+      <ul class="sidebar-menu">
+        <!-- Quitamos la clase 'active' de Productos -->
+        <li class="menu-item">
+          <a href="{{ url_for('admin.panel_admin') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-box"></i></div>
+            Gestión de Productos
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="{{ url_for('admin.gestion_usuarios') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-users"></i></div>
+            Gestión de Usuarios
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="{{ url_for('admin.ver_notificaciones') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-bell"></i></div>
+            Notificaciones
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="#" class="menu-link">
+            <div class="menu-icon-wrapper">
+              <i class="fas fa-shopping-bag"></i>
+            </div>
+            Gestión de Pedidos
+          </a>
+        </li>
+        <!-- NUEVO ÍTEM: MENSAJES DE SOPORTE (Marcado como activo) -->
         <li class="menu-item active">
-            <a href="{{ url_for('admin.panel_admin') }}" class="menu-link">
-                <div class="menu-icon-wrapper"><i class="fas fa-box"></i></div>
-                Gestión de Productos
-            </a>
+         <a href="{{ url_for('admin.ver_mensajes') }}" class="menu-link">
+            <div class="menu-icon-wrapper">
+              <i class="fas fa-headset"></i>
+            </div>
+            Mensajes Soporte
+          </a>
         </li>
-        <li class="menu-item">
-            <a href="{{ url_for('admin.gestion_usuarios') }}" class="menu-link">
-                <div class="menu-icon-wrapper"><i class="fas fa-users"></i></div>
-                Gestión de Usuarios
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="{{ url_for('admin.ver_notificaciones') }}" class="menu-link">
-                <div class="menu-icon-wrapper"><i class="fas fa-bell"></i></div>
-                Notificaciones
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="#" class="menu-link">
-                <div class="menu-icon-wrapper"><i class="fas fa-shopping-bag"></i></div>
-                Gestión de Pedidos
-            </a>
-        </li>
-        <!-- NUEVA OPCIÓN: MESA DE SOPORTE -->
-        <li class="menu-item">
-            <a href="{{ url_for('admin.ver_mensajes') }}" class="menu-link">
-                <div class="menu-icon-wrapper"><i class="fas fa-headset"></i></div>
-                Mesa de Soporte
-            </a>
-        </li>
-    </ul>
+      </ul>
 
-    <div class="sidebar-footer">
+      <div class="sidebar-footer">
         <a href="{{ url_for('auth.logout') }}" class="menu-link logout-link">
-            <div class="menu-icon-wrapper"><i class="fas fa-sign-out-alt"></i></div>
-            Cerrar Sesión
+          <div class="menu-icon-wrapper">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          Cerrar Sesión
         </a>
+      </div>
     </div>
-</div>
 
+    <!-- MAIN WORKSPACE: REEMPLAZADO POR LA VISTA DE CHAT -->
     <div class="main-workspace">
-        <div class="row align-items-center mb-5">
-            <div class="col-md-7">
-                <h1 class="fw-bold mb-1" style="letter-spacing: -1px;">Inventario de Bolsos</h1>
-                <p class="text-muted mb-0">Control en tiempo real de tus creaciones artesanales</p>
-            </div>
-            <div class="col-md-5 text-md-end mt-3 mt-md-0">
-                <a href="{{ url_for('admin.nuevo_producto') }}" class="btn-action-premium btn-purple-gradient shadow-sm">
-                    <i class="fas fa-plus"></i> Registrar Nuevo Bolso
-                </a>
-            </div>
+      
+      <!-- Título de la sección -->
+      <div class="row align-items-center mb-4">
+        <div class="col-md-12">
+          <h1 class="fw-bold mb-1" style="letter-spacing: -1px">
+            Atención al Cliente
+          </h1>
+          <p class="text-muted mb-0">
+            Responde los mensajes, dudas y solicitudes de tus compradores.
+          </p>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR PRINCIPAL DEL CHAT -->
+      <div class="chat-wrapper">
+        
+        <!-- PANEL IZQUIERDO: LISTA DE PERSONAS -->
+        <div class="chat-sidebar">
+          <div class="chat-search-box">
+            <input type="text" id="buscarCliente" placeholder="Buscar cliente por nombre..." />
+          </div>
+          
+          <div class="contact-list" id="listaContactos">
+            
+            <!-- Ejemplo de Cliente Activo (Seleccionado) -->
+            <a href="#" class="contact-item active">
+              <div class="contact-avatar"><i class="fas fa-user"></i></div>
+              <div class="contact-info">
+                <div class="d-flex justify-content-between">
+                  <p class="contact-name">Camila Vargas</p>
+                  <small class="text-muted" style="font-size: 0.7rem;">10:45 AM</small>
+                </div>
+                <p class="contact-msg">Hola, ¿el bolso modelo Luna está disponible?</p>
+              </div>
+            </a>
+
+            <!-- Ejemplo de otro cliente -->
+            <a href="#" class="contact-item">
+              <div class="contact-avatar"><i class="fas fa-user"></i></div>
+              <div class="contact-info">
+                <div class="d-flex justify-content-between">
+                  <p class="contact-name">Jorge Ramírez</p>
+                  <small class="text-muted" style="font-size: 0.7rem;">Ayer</small>
+                </div>
+                <p class="contact-msg">Tuve un problema con mi pago en la web.</p>
+              </div>
+            </a>
+
+            <!-- Ejemplo de otro cliente -->
+            <a href="#" class="contact-item">
+              <div class="contact-avatar"><i class="fas fa-user"></i></div>
+              <div class="contact-info">
+                <div class="d-flex justify-content-between">
+                  <p class="contact-name">Sofía Castro</p>
+                  <small class="text-muted" style="font-size: 0.7rem;">Mar 15</small>
+                </div>
+                <p class="contact-msg">¡Me encantó el producto! Muchas gracias.</p>
+              </div>
+            </a>
+
+          </div>
         </div>
 
-        <div class="row g-4 mb-5">
-            <div class="col-xl-4 col-md-6">
-                <div class="stat-card-box">
-                    <div>
-                        <span class="text-muted small d-block mb-1 fw-medium">Total Productos</span>
-                        <h3 class="fw-bold m-0" id="totalCount">Cargando...</h3>
-                    </div>
-                    <div class="stat-icon-circle icon-purple"><i class="fas fa-boxes-stacked"></i></div>
-                </div>
+        <!-- PANEL DERECHO: ÁREA DE MENSAJES -->
+        <div class="chat-main">
+          
+          <!-- Cabecera del chat actual -->
+          <div class="chat-header">
+            <div class="contact-avatar" style="width: 50px; height: 50px; background: #f1ebff; color: #6f42c1;">
+              <i class="fas fa-user"></i>
             </div>
-            <div class="col-xl-4 col-md-6">
-                <div class="stat-card-box">
-                    <div>
-                        <span class="text-muted small d-block mb-1 fw-medium">Pedidos Activos</span>
-                        <h3 class="fw-bold m-0">14 Activos</h3>
-                    </div>
-                    <div class="stat-icon-circle icon-blue"><i class="fas fa-truck-fast"></i></div>
-                </div>
+            <div>
+              <h5 class="mb-0 fw-bold">Camila Vargas</h5>
+              <small class="text-success fw-medium"><i class="fas fa-circle" style="font-size: 0.5rem; vertical-align: middle;"></i> Escribió hace 15 minutos</small>
             </div>
-            <div class="col-xl-4 col-md-12">
-                <div class="stat-card-box">
-                    <div>
-                        <span class="text-muted small d-block mb-1 fw-medium">Alertas de Stock</span>
-                        <h3 class="fw-bold m-0" id="alertCount">Evaluando...</h3>
-                    </div>
-                    <div class="stat-icon-circle icon-orange"><i class="fas fa-triangle-exclamation"></i></div>
-                </div>
-            </div>
-        </div>
+          </div>
 
-        <div class="search-container-box">
-            <i class="fas fa-search search-icon-inside"></i>
-            <input type="text" id="globalSearchInput" class="search-input-premium" placeholder="Escribe el nombre del bolso o palabras clave para buscar al instante...">
-        </div>
-
-        <div class="workspace-table-card">
-            <div class="table-responsive">
-                <table class="table premium-table align-middle" id="mainInventoryTable">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Nombre de la Pieza</th>
-                            <th>Precio de Venta</th>
-                            <th>Unidades</th>
-                            <th>Estado Actual</th>
-                            <th class="text-center">Acciones del Sistema</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in productos %}
-                        <tr>
-                            <td class="ps-4 fw-bold text-dark">{{ p.nombre }}</td>
-                            <td class="text-primary fw-bold" style="font-size: 1.05rem;">${{ p.precio_venta }}</td>
-                            <td class="text-secondary fw-medium">{{ p.stock }} uds</td>
-                            <td>
-                                {% if p.stock == 0 %}
-                                    <span class="status-badge-vibrant badge-danger-viva"><i class="fas fa-circle-xmark"></i> AGOTADO</span>
-                                {% elif p.stock <= p.stock_minimo %}
-                                    <span class="status-badge-vibrant badge-warning-viva"><i class="fas fa-triangle-exclamation"></i> STOCK BAJO</span>
-                                {% else %}
-                                    <span class="status-badge-vibrant badge-success-viva"><i class="fas fa-circle-check"></i> DISPONIBLE</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ url_for('admin.editar_producto', id_producto=p.id) }}" class="btn-action-premium btn-outline-edit me-2">
-                                    <i class="fas fa-pen-to-square"></i> Editar
-                                </a>
-                                <form action="{{ url_for('admin.eliminar_producto', id_producto=p.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás completamente seguro de dar de baja este producto del inventario?');">
-                                    <button type="submit" class="btn-action-premium btn-light text-danger"><i class="fas fa-trash-can"></i> Baja</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+          <!-- Historial de Conversación -->
+          <div class="chat-messages" id="cajaMensajes">
+            
+            <div class="message msg-cliente">
+              ¡Hola buenas tardes! Quisiera saber si el bolso "Modelo Luna" está disponible en color negro. Lo vi en la tienda pero no me deja agregarlo.
+              <span class="msg-time">10:45 AM</span>
             </div>
+
+            <div class="message msg-admin">
+              ¡Hola Camila! Gracias por comunicarte con Dunaka. Efectivamente el "Modelo Luna" en negro se nos agotó anoche, pero la próxima semana tendremos nuevo inventario. ¿Te gustaría que te avisemos?
+              <span class="msg-time">10:52 AM</span>
+            </div>
+
+            <div class="message msg-cliente">
+              ¡Sí, por favor! Lo quiero apartar en cuanto llegue.
+              <span class="msg-time">10:55 AM</span>
+            </div>
+
+          </div>
+
+          <!-- Input para escribir y responder -->
+          <div class="chat-input">
+            <form action="#" method="POST">
+              <input type="text" name="mensaje" placeholder="Escribe tu respuesta para Camila aquí..." required autocomplete="off">
+              <button type="submit" class="btn-enviar" title="Enviar Mensaje">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </form>
+          </div>
+
         </div>
+      </div>
+
     </div>
 
+    <!-- Pequeño script para el buscador de clientes de la lista izquierda -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const searchInput = document.getElementById('globalSearchInput');
-            const tableRows = document.querySelectorAll('#mainInventoryTable tbody tr');
-            const totalCountElement = document.getElementById('totalCount');
-            const alertCountElement = document.getElementById('alertCount');
+      document.addEventListener("DOMContentLoaded", function () {
+        // Asegurarnos de que el chat siempre baje hasta el último mensaje al cargar
+        const chatBox = document.getElementById("cajaMensajes");
+        chatBox.scrollTop = chatBox.scrollHeight;
 
-            // 1. Buscador dinámico en tiempo real
-            searchInput.addEventListener('keyup', function() {
-                const query = this.value.toLowerCase().trim();
-                
-                tableRows.forEach(row => {
-                    const productName = row.cells[0].textContent.toLowerCase();
-                    if (productName.includes(query)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
+        // Buscador de contactos
+        const searchInput = document.getElementById("buscarCliente");
+        const contactItems = document.querySelectorAll(".contact-item");
 
-            // 2. Cálculo matemático de métricas en caliente para los Widgets superiores
-            let totalItems = tableRows.length;
-            let lowStockAlerts = 0;
-
-            tableRows.forEach(row => {
-                const badgeText = row.cells[3].textContent;
-                if (badgeText.includes('STOCK BAJO') || badgeText.includes('AGOTADO')) {
-                    lowStockAlerts++;
-                }
-            });
-
-            totalCountElement.innerText = `${totalItems} Bolsos`;
-            alertCountElement.innerText = lowStockAlerts > 0 ? `${lowStockAlerts} en Alerta` : 'Todo al día';
+        searchInput.addEventListener("keyup", function (e) {
+          const term = e.target.value.toLowerCase().trim();
+          contactItems.forEach(item => {
+            const name = item.querySelector(".contact-name").textContent.toLowerCase();
+            if (name.includes(term)) {
+              item.style.display = "flex";
+            } else {
+              item.style.display = "none";
+            }
+          });
         });
+      });
     </script>
-</body>
+  </body>
 </html>
