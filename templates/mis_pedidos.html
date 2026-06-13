@@ -3,142 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dunaka - Historial de Mis Pedidos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Historial de Mis Pedidos - Dunaka</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
     <style>
-        /* Diseño Unificado con la Identidad Oficial Dunaka */
+        /* =========================================
+           VARIABLES BASADAS EN IMAGE_0A2BA2.JPG
+        ========================================= */
         :root {
-            --azul-brand: #4f46e5;
-            --azul-hover: #3b32d1;
-            --texto-principal: #1e2229;
-            --texto-mutated: #7a869a;
-            --bg-cuerpo: #f8fafc;
-            --bg-card: #ffffff;
+            --bg-app: #f4f7fe;
+            --white: #ffffff;
+            --blue-primary: #3b82f6; /* Azul del botón "Registrar Nuevo Bolso" */
+            --blue-hover: #2563eb;
+            --text-main: #1e293b; /* Color del título "Inventario de Bolsos" */
+            --text-muted: #8f9bba; /* Color del subtítulo */
+            
+            /* Colores de las cajitas de iconos (morado, azul, naranja de la imagen) */
+            --icon-bg-purple: #f3e8ff; --icon-color-purple: #9333ea;
+            --icon-bg-blue: #e0f2fe;   --icon-color-blue: #0284c7;
+            
+            --radius-card: 24px;
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.02);
         }
 
         body { 
             font-family: 'Poppins', sans-serif; 
-            background-color: var(--bg-cuerpo); 
-            color: var(--texto-principal); 
+            background-color: var(--bg-app); 
+            color: var(--text-main); 
             min-height: 100vh;
         }
         
-        .brand-title { 
-            font-family: 'Playfair Display', serif; 
-            color: var(--azul-brand); 
-            font-weight: 700; 
-            font-size: 2.4rem;
-        }
-
-        /* Tarjeta de Pedido Premium Reconfigurada */
-        .order-card-premium { 
-            border: 1px solid #edf2f7; 
-            border-radius: 24px; 
-            background: var(--bg-card); 
-            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
+        /* =========================================
+           CABECERA (TÍTULOS Y BOTÓN)
+        ========================================= */
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin-bottom: 0.2rem;
         }
         
-        .order-card-premium:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.12);
-            border-color: #e2e8f0;
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 400;
         }
 
-        /* Volver a la tienda */
-        .btn-back-minimal {
-            border: 1px solid #edf2f7;
-            color: var(--texto-principal);
-            background: white;
-            border-radius: 50px;
-            font-weight: 500;
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-        }
-        .btn-back-minimal:hover {
-            background: var(--azul-brand);
-            color: white;
-            border-color: var(--azul-brand);
-        }
-
-        /* Botón secundario para detalles */
-        .btn-order-detail {
-            background-color: #f1f5f9;
-            color: var(--texto-principal);
+        /* Botón estilo "Registrar Nuevo Bolso" */
+        .btn-dunaka-primary {
+            background-color: var(--blue-primary);
+            color: var(--white);
+            border-radius: 50px; /* Forma de píldora */
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
             border: none;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            text-decoration: none;
         }
-        .btn-order-detail:hover {
-            background-color: var(--azul-brand);
-            color: white;
-        }
-
-        .text-reference {
-            color: var(--texto-principal);
-            font-weight: 600;
-            font-size: 1.05rem;
+        .btn-dunaka-primary:hover {
+            background-color: var(--blue-hover);
+            color: var(--white);
         }
 
-        .text-price {
+        /* =========================================
+           TARJETAS BLANCAS (Estilo Estadísticas)
+        ========================================= */
+        .dunaka-card {
+            background-color: var(--white);
+            border-radius: var(--radius-card);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s ease;
+        }
+        .dunaka-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Contenedor del ícono al estilo de la imagen */
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+        .icon-box.purple { background-color: var(--icon-bg-purple); color: var(--icon-color-purple); }
+        .icon-box.blue { background-color: var(--icon-bg-blue); color: var(--icon-color-blue); }
+
+        /* =========================================
+           TEXTOS DENTRO DE LA TARJETA
+        ========================================= */
+        .order-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        
+        .order-value {
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--azul-brand);
-            font-size: 1.25rem;
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .order-ref {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
-        /* Badges de Estado Estilo Pastel Premium */
-        .badge-status { 
-            padding: 6px 14px; 
-            border-radius: 30px; 
-            font-size: 0.78rem; 
-            font-weight: 600; 
+        /* =========================================
+           BADGES DE ESTADO (Estilo "DISPONIBLE")
+        ========================================= */
+        .badge-dunaka {
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            border: 1px solid transparent;
         }
-        .badge-pendiente { background-color: #fef3c7; color: #d97706; border-color: #fde68a; }
-        .badge-pagado { background-color: #e0e7ff; color: #4338ca; border-color: #c7d2fe; }
-        .badge-empacando { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
-        .badge-transito { background-color: #ffedd5; color: #c2410c; border-color: #fed7aa; }
-        .badge-entregado { background-color: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+        /* Basado en el verde de "Disponible" de tu imagen */
+        .badge-entregado { background-color: #dcfce7; color: #166534; }
+        .badge-pendiente { background-color: #fef9c3; color: #854d0e; }
+        .badge-empacando { background-color: #e0e7ff; color: #3730a3; }
+        .badge-transito { background-color: #ffedd5; color: #9a3412; }
 
-        /* Iconografía decorativa de fondo sutil para las tarjetas */
-        .card-icon-bg {
-            font-size: 3.5rem;
-            color: var(--azul-brand);
-            opacity: 0.05;
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            pointer-events: none;
+        /* =========================================
+           BOTÓN SECUNDARIO (Estilo "Editar"/"Baja")
+        ========================================= */
+        .btn-action-light {
+            background-color: var(--bg-app);
+            color: var(--blue-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-
-        /* Contenedor de Estado Vacío */
-        .empty-orders-box {
-            background: var(--bg-card);
-            border-radius: 24px;
-            border: 1px solid #edf2f7;
-            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.04);
+        .btn-action-light:hover {
+            background-color: #e0e7ff;
         }
     </style>
 </head>
 <body>
 
-    <div class="container my-5" style="max-width: 1060px;">
+    <!-- Contenedor principal alineado con el dashboard -->
+    <main class="container my-5" style="max-width: 1100px;">
         
-        <div class="d-flex justify-content-between align-items-center mb-5">
+        <!-- HEADER EXACTO AL DE LA IMAGEN -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
             <div>
-                <h1 class="brand-title m-0">Dunaka</h1>
-                <p class="text-muted small m-0 mt-1">Sigue el estado y progreso de tus piezas adquiridas en tiempo real.</p>
+                <h1 class="page-title">Historial de Mis Pedidos</h1>
+                <p class="page-subtitle">Control en tiempo real de tus compras y envíos</p>
             </div>
-            <a href="{{ url_for('products.index') }}" class="btn btn-back-minimal px-4 py-2 small">
-                <i class="bi bi-arrow-left me-2"></i>Volver a la tienda
+            <a href="{{ url_for('products.index') }}" class="btn-dunaka-primary">
+                <i class="bi bi-shop"></i> Volver a la Tienda
             </a>
         </div>
 
@@ -146,36 +193,31 @@
         <div class="row g-4">
             {% for orden in ordenes %}
             {% set info_estado = mapa.get(orden.estado, {'texto': orden.estado, 'clase': ''}) %}
-            <div class="col-12 col-md-6">
-                <div class="card order-card-premium p-4 position-relative d-flex flex-column justify-content-between h-100">
+            <div class="col-12 col-lg-6">
+                <!-- TARJETA ESTILO WIDGET DEL DASHBOARD -->
+                <div class="dunaka-card flex-column flex-sm-row gap-4">
                     
-                    <i class="bi bi-box2-heart card-icon-bg"></i>
-
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-reference">
-                                <i class="bi bi-hash text-muted me-1"></i>{{ orden.referencia }}
-                            </span>
-                            <span class="badge-status {{ info_estado.clase }}">
-                                <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
-                                {{ info_estado.texto }}
-                            </span>
+                    <!-- Lado Izquierdo: Info Principal -->
+                    <div class="d-flex align-items-center gap-3 w-100">
+                        <div class="icon-box {% loop.cycle('purple', 'blue') %}">
+                            <i class="bi bi-box-seam"></i>
                         </div>
-
-                        <div class="d-flex align-items-center text-muted small mb-4">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <span>Realizado el {{ orden.fecha }}</span>
+                        <div>
+                            <span class="order-label">Pedido N° {{ orden.referencia }}</span>
+                            <h3 class="order-value">${{ "{:,.2f}".format(orden.total) }}</h3>
+                            <span class="text-muted" style="font-size: 0.8rem;"><i class="bi bi-calendar3"></i> {{ orden.fecha }}</span>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: #f1f5f9 !important;">
-                        <div>
-                            <span class="text-muted d-block small mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Total de Compra</span>
-                            <span class="text-price">${{ "{:,.2f}".format(orden.total) }} <span style="font-size: 0.8rem; font-weight: 500; color: var(--texto-mutated);">COP</span></span>
-                        </div>
+                    <!-- Lado Derecho: Estado y Acción -->
+                    <div class="d-flex flex-column align-items-sm-end gap-3 w-100 mt-3 mt-sm-0">
+                        <!-- Aquí aplicamos la clase pastel según el estado -->
+                        <span class="badge-dunaka {{ info_estado.clase }}">
+                            <i class="bi bi-circle-fill" style="font-size: 0.4rem;"></i> {{ info_estado.texto }}
+                        </span>
                         
-                        <a href="#" class="btn btn-order-detail px-3 py-2 text-decoration-none">
-                            <i class="bi bi-eye me-1"></i> Detalles
+                        <a href="#" class="btn-action-light mt-auto">
+                            <i class="bi bi-pencil-square"></i> Detalles
                         </a>
                     </div>
 
@@ -185,18 +227,17 @@
         </div>
         
         {% else %}
-            <div class="text-center py-5 my-4 empty-orders-box">
-                <div class="mb-4 d-inline-block p-4 rounded-circle" style="background-color: #f1f5f9;">
-                    <i class="bi bi-bag-x text-muted display-4 opacity-50"></i>
-                </div>
-                <h5 class="fw-semibold text-dark mb-1">Aún no tienes pedidos registrados</h5>
-                <p class="text-muted small mx-auto mb-4" style="max-width: 340px;">Cuando realices la adquisición de alguna de nuestras piezas exclusivas, podrás realizar el seguimiento completo desde este panel.</p>
-                <a href="{{ url_for('products.index') }}" class="btn btn-back-minimal px-4 py-2 small">
-                    Explorar la tienda
-                </a>
+        <!-- ESTADO VACÍO CON EL MISMO LENGUAJE VISUAL -->
+        <div class="dunaka-card flex-column text-center py-5 justify-content-center" style="min-height: 300px;">
+            <div class="icon-box blue mx-auto mb-3" style="width: 70px; height: 70px; font-size: 2rem;">
+                <i class="bi bi-inbox"></i>
             </div>
+            <h4 class="order-ref mb-2">No hay pedidos activos</h4>
+            <p class="page-subtitle mx-auto" style="max-width: 400px;">Aún no has realizado compras. Cuando lo hagas, aparecerán aquí con el mismo formato de tu panel de gestión.</p>
+        </div>
         {% endif %}
-    </div>
+        
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
