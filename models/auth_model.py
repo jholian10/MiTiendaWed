@@ -88,3 +88,12 @@ def actualizar_password(correo, nueva_pwd):
     finally:
         cursor.close()
         conexion.close()
+        
+def obtener_datos_envio_usuario(usuario_id):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    cursor.execute("SELECT telefono, direccion, ciudad FROM usuarios WHERE id = %s", (usuario_id,))
+    usuario = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+    return usuario

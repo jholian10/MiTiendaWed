@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash, jsonify
 from models.cart_model import agregar_producto_al_carrito, obtener_carrito_usuario, eliminar_del_carrito
+from models.auth_model import obtener_datos_envio_usuario
 
 cart_blueprint = Blueprint('cart', __name__, url_prefix='/carrito')
 
@@ -62,3 +63,22 @@ def obtener_cantidad_api():
     carrito_data = obtener_carrito_usuario(session['usuario']['id'])
     total_unidades = sum(item['cantidad'] for item in carrito_data.get('items', []))
     return jsonify({'cantidad': total_unidades})
+
+from flask import session, redirect, url_for, flash
+
+@cart_blueprint.route('/validar-envio')
+def validar_envio():
+    if 'usuario' not in session:
+        return redirect(url_for('auth.login'))
+    
+    # Obtenemos los datos del usuario actual
+    datos_usuario = obtener_datos_envio_usuario(session['usuario']['id'])
+    
+    # Comprobamos si alguno de los campos obligatorios está vacío
+    if not datos_usuario.get('direccion') or not datos_usuario.get('ciudad') or not datos_usuario.get('telefono'):
+        flash('Para finalizar tu compra, necesitamos tu dirección, ciudad y teléfono.', 'warning')
+        # Redirigimos al perfil para que complete sus datos
+        return redirect(url_for('profile.ver_perfil'))
+    
+    # Si todo está bien, lo enviamos a la pasarela de pagos
+    return redirect(url_for('payment.procesar_pago'))

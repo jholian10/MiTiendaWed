@@ -7,14 +7,10 @@ from models.cart_model import obtener_detalles_carrito
 
 payment_blueprint = Blueprint('payment', __name__, url_prefix='/pago')
 
-# =========================================================================
-# ⚙️ CONFIGURACIÓN DE CREDENCIALES DESDE EL ARCHIVO .ENV
-# =========================================================================
-# Cargamos tus llaves reales del .env. Si no existen, usa tus valores por defecto.
 WOMPI_PUBLIC_KEY = os.getenv('WOMPI_PUBLIC_KEY', 'pub_test_GHpuOWhHiYzNcAX5EZX9Fy4lTKxfBTWT').strip()
 WOMPI_INTEGRITY_SECRET = os.getenv('WOMPI_INTEGRITY_SECRET', 'test_integrity_P0flJ5cCmnqd6LtVHARxwxVSFy6rI6Ft...').strip()
 
-@payment_blueprint.route('/checkout', methods=['POST'])
+@payment_blueprint.route('/checkout', methods=['GET', 'POST'])
 def procesar_pago():
     if 'usuario' not in session:
         flash('Debes iniciar sesión.', 'warning')
@@ -27,16 +23,12 @@ def procesar_pago():
         flash('Carrito vacío.', 'warning')
         return redirect(url_for('cart.ver_carrito'))
 
-    # 1. Calculamos el total de la base de datos (con tus precios reales en COP)
     total_cop = sum(float(item['precio_venta']) * int(item['cantidad']) for item in items_carrito)
     
-    # 2. Convertimos a centavos como un ENTERO puro, sin puntos decimales .0
     monto_en_centavos = int(round(total_cop * 100))
     
-    # 3. Generamos la referencia única de la orden basada en milisegundos
     referencia_pago = f"ORD_{usuario_id}_{int(time.time() * 1000)}"
     
-    # 4. Guardamos el registro inicial en la tabla 'ordenes' como PENDIENTE
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     cursor.execute(
@@ -47,12 +39,9 @@ def procesar_pago():
     cursor.close()
     conexion.close()
     
-    # 5. CONSTRUCCIÓN DE LA FIRMA DE INTEGRIDAD ESTRICTA DE WOMPI:
-    # Cadena: Referencia + MontoEnCentavos + Moneda(COP) + SecretoDeIntegridad
     cadena_firma = f"{referencia_pago}{monto_en_centavos}COP{WOMPI_INTEGRITY_SECRET}"
     firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
 
-    # 📌 LOG DE DIAGNÓSTICO EN CONSOLA (Para validar que todo cuadre en tu terminal)
     print("\n" + "="*60)
     print("🚀 [DIAGNÓSTICO] PETICIÓN DE PAGO ENVIADA A WOMPI")
     print(f"• Referencia: {referencia_pago}")
@@ -62,10 +51,8 @@ def procesar_pago():
     print(f"• Firma SHA256 generada: {firma_checksum}")
     print("="*60 + "\n")
 
-    # 6. Obtenemos el correo del usuario en sesión
     correo_usuario = session['usuario'].get('correo') or session['usuario'].get('email', '')
 
-    # 7. Formulario HTML con redirección automática usando METHOD="GET"
     html_form = f"""
     <!DOCTYPE html>
     <html lang="es">

@@ -132,11 +132,11 @@
                         <span class="fs-2 fw-bold" style="color: var(--primary-color); letter-spacing: -1px;">$<span id="summary-total">{{ total }}</span></span>
                     </div>
 
-                    <form action="{{ url_for('payment.procesar_pago') }}" method="POST">
-                        <button type="submit" id="btn-pagar" class="btn-gradient w-100 py-3" {% if not items %}disabled{% endif %}>
-                            Proceder al pago <i class="bi bi-shield-lock-fill ms-2"></i>
-                        </button>
-                    </form>
+                    <a href="{{ url_for('cart.validar_envio') }}" 
+   class="btn btn-gradient w-100 py-3 {% if not items %}disabled{% endif %}" 
+   style="text-decoration: none; display: block; text-align: center;">
+    Proceder al pago <i class="bi bi-shield-lock-fill ms-2"></i>
+</a>
                     
                     <div class="text-center mt-4">
                         <p class="small text-muted m-0"><i class="bi bi-lock me-1"></i> Transacción 100% segura</p>
