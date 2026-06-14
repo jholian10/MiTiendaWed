@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información de Envío - Dunaka</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            /* Colores extraídos de tu diseño "Dunaka" */
+            --primary-color: #6366f1; /* Morado principal */
+            --secondary-color: #4f46e5; /* Morado oscuro para hover */
+            --bg-color: #f4f5f9; /* Fondo claro de la página */
+            --text-main: #2d3748;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Simulación de tu Navbar para mantener contexto */
+        .navbar-custom {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .navbar-brand-custom {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        /* Estilos de la tarjeta */
+        .glass-card {
+            background: #ffffff;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border-radius: 1.2rem;
+            overflow: hidden;
+        }
+
+        .form-select, .form-control {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.6rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        /* Estilos del botón Dunaka */
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            transition: all 0.3s ease;
+            border-radius: 0.6rem;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar-custom d-flex justify-content-between align-items-center">
+        <a href="#" class="navbar-brand-custom"><i class="bi bi-box-seam me-2"></i>Dunaka</a>
+        <a href="{{ url_for('cart.ver_carrito') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> Volver al carrito
+        </a>
+    </header>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                
+                <div class="glass-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px; color: var(--primary-color);">
+                            <i class="bi bi-geo-alt fs-3"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">Información de Envío</h4>
+                        <p class="text-muted small">Completa los datos exactos para realizar tu entrega</p>
+                    </div>
+                    
+                    <form action="{{ url_for('cart.guardar_direccion_route') }}" method="POST">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-medium">Departamento</label>
+                                <select id="departamento" name="departamento" class="form-select shadow-none" onchange="cargarMunicipios()" required>
+                                    <option value="">Selecciona...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-medium">Ciudad / Municipio</label>
+                                <select id="ciudad" name="ciudad" class="form-select shadow-none" required>
+                                    <option value="">Selecciona el depto</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Barrio</label>
+                            <input type="text" name="barrio" class="form-control shadow-none" placeholder="Ej: Centro, El Bosque, etc." required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Dirección detallada</label>
+                            <input type="text" name="direccion" class="form-control shadow-none" placeholder="Calle, Carrera, número, apto" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-gradient w-100 py-3 text-white border-0 shadow-sm fw-semibold">
+                            Guardar y continuar al pago <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                        
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let datosColombia = [];
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlGist = 'https://gist.githubusercontent.com/jholian10/89b363329953127fde6ff570a3c85a23/raw/c86c5ac08969771f80ae64e09b966d99ab716c2e/gistfile1.txt'; 
+            
+            fetch(urlGist)
+                .then(response => response.json())
+                .then(data => {
+                    datosColombia = data;
+                    const selectDepto = document.getElementById('departamento');
+                    
+                    selectDepto.innerHTML = '<option value="">Selecciona un departamento</option>';
+
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.departamento; 
+                        opt.textContent = item.departamento;
+                        selectDepto.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error("Error al cargar JSON de departamentos:", err));
+        });
+
+        function cargarMunicipios() {
+            const deptoSeleccionado = document.getElementById('departamento').value;
+            const selectCiudad = document.getElementById('ciudad');
+            
+            selectCiudad.innerHTML = '<option value="">Selecciona un municipio</option>';
+            
+            const infoDepto = datosColombia.find(item => item.departamento === deptoSeleccionado);
+            
+            if (infoDepto && infoDepto.ciudades) {
+                infoDepto.ciudades.forEach(ciudad => {
+                    const opt = document.createElement('option');
+                    opt.value = ciudad;
+                    opt.textContent = ciudad;
+                    selectCiudad.appendChild(opt);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

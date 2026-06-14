@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash, jsonify
 from models.cart_model import agregar_producto_al_carrito, obtener_carrito_usuario, eliminar_del_carrito
 from models.auth_model import obtener_datos_envio_usuario
+from models.direccion_model import guardar_direccion
 
 cart_blueprint = Blueprint('cart', __name__, url_prefix='/carrito')
 
@@ -64,21 +65,55 @@ def obtener_cantidad_api():
     total_unidades = sum(item['cantidad'] for item in carrito_data.get('items', []))
     return jsonify({'cantidad': total_unidades})
 
-from flask import session, redirect, url_for, flash
+@cart_blueprint.route('/configurar-direccion')
+def configurar_direccion():
+    if 'usuario' not in session:
+        return redirect(url_for('auth.login'))
+    return render_template('direccion.html')
 
 @cart_blueprint.route('/validar-envio')
 def validar_envio():
     if 'usuario' not in session:
         return redirect(url_for('auth.login'))
     
-    # Obtenemos los datos del usuario actual
     datos_usuario = obtener_datos_envio_usuario(session['usuario']['id'])
     
-    # Comprobamos si alguno de los campos obligatorios está vacío
-    if not datos_usuario.get('direccion') or not datos_usuario.get('ciudad') or not datos_usuario.get('telefono'):
-        flash('Para finalizar tu compra, necesitamos tu dirección, ciudad y teléfono.', 'warning')
-        # Redirigimos al perfil para que complete sus datos
-        return redirect(url_for('profile.ver_perfil'))
+    if not datos_usuario or not datos_usuario.get('direccion'):
+        flash('Por favor, configura tu dirección de entrega.', 'info')
+        return redirect(url_for('cart.configurar_direccion'))
     
-    # Si todo está bien, lo enviamos a la pasarela de pagos
     return redirect(url_for('payment.procesar_pago'))
+
+@cart_blueprint.route('/guardar-direccion', methods=['POST'])
+def guardar_direccion_route():
+    if 'usuario' not in session:
+        return redirect(url_for('auth.login'))
+        
+    # 1. Capturamos los datos del formulario
+    departamento = request.form.get('departamento')
+    ciudad = request.form.get('ciudad')
+    barrio = request.form.get('barrio')
+    direccion = request.form.get('direccion')
+    
+    # 2. Validación básica
+    if not departamento or not ciudad or not barrio or not direccion:
+        flash('Por favor, completa todos los campos de la dirección.', 'danger')
+        return redirect(url_for('cart.configurar_direccion'))
+    
+    # 3. Intentamos guardar en la base de datos usando el modelo
+    try:
+        # Llamamos al modelo pasando los parámetros capturados
+        exito = guardar_direccion(session['usuario']['id'], departamento, ciudad, barrio, direccion)
+        
+        if exito:
+            flash('Dirección guardada correctamente.', 'success')
+            return redirect(url_for('payment.procesar_pago'))
+        else:
+            flash('Hubo un error al guardar en la base de datos.', 'danger')
+            return redirect(url_for('cart.configurar_direccion'))
+            
+    except Exception as e:
+        # Manejo de errores inesperados
+        print(f"Error al guardar dirección: {e}")
+        flash('Ocurrió un error al procesar tu solicitud.', 'danger')
+        return redirect(url_for('cart.configurar_direccion'))

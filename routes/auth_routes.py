@@ -43,7 +43,6 @@ def login():
                 'rol': usuario['rol']
             }
             
-            # Redirección basada en rol
             if usuario['rol'] == 'admin':
                 flash('Bienvenido, administrador.', 'success')
                 return redirect(url_for('admin.panel_admin'))
