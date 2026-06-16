@@ -1,5 +1,6 @@
 # models/perfil_modelo.py
 from database.db import obtener_conexion
+import traceback
 
 def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, ciudad, foto_perfil_url=None):
     conexion = obtener_conexion()
@@ -25,6 +26,7 @@ def actualizar_perfil_usuario(id_usuario, nombre, correo, telefono, direccion, c
         
     except Exception as e:
         print(f"Error al actualizar perfil: {e}")
+        print(traceback.format_exc())
         return None
     finally:
         cursor.close()

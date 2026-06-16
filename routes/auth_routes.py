@@ -35,12 +35,16 @@ def login():
         
         # Validar existencia y hash de contraseña
         if usuario and check_password_hash(usuario['password_hash'], password_plana):
-            # Guardamos el rol en la sesión para permitir acceso al admin
+            # Guardamos los campos completos en la sesión para mostrar el perfil correctamente
             session['usuario'] = {
                 'id': usuario['id'],
                 'nombre': usuario['nombre'],
                 'correo': usuario['correo'],
-                'rol': usuario['rol']
+                'rol': usuario['rol'],
+                'telefono': usuario.get('telefono'),
+                'direccion': usuario.get('direccion'),
+                'ciudad': usuario.get('ciudad'),
+                'foto_perfil_url': usuario.get('foto_perfil_url')
             }
             
             if usuario['rol'] == 'admin':

@@ -176,10 +176,59 @@ def ver_notificaciones():
     
     return render_template('admin/notificaciones.html', notificaciones=todas)
 
-# routes/admin_routes.py
+# =========================================================
+# VISTA: PANEL DE REPORTES
+# =========================================================
+@admin_blueprint.route('/reportes')
+def ver_reportes():
+    if not es_admin():
+        return redirect(url_for('auth.login'))
+    
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    
+    # Total de productos
+    cursor.execute("SELECT COUNT(*) as total FROM productos WHERE estado = 1")
+    total_productos = cursor.fetchone()['total']
+    
+    # Stock bajo (menor a 5)
+    cursor.execute("SELECT id, nombre, stock FROM productos WHERE stock < 5 AND estado = 1 ORDER BY stock ASC")
+    stock_bajo = cursor.fetchall() or []
+    
+    # Productos más vendidos (si existe tabla de órdenes)
+    cursor.execute("""
+        SELECT p.id, p.nombre, COUNT(*) as cantidad_vendida, p.precio_venta
+        FROM productos p
+        LEFT JOIN carrito_detalles cd ON p.id = cd.producto_id
+        GROUP BY p.id
+        ORDER BY cantidad_vendida DESC
+        LIMIT 10
+    """)
+    top_productos = cursor.fetchall() or []
+    
+    # Ingresos totales
+    cursor.execute("""
+        SELECT SUM(p.precio_venta * cd.cantidad) as ingresos_totales
+        FROM productos p
+        LEFT JOIN carrito_detalles cd ON p.id = cd.producto_id
+    """)
+    result = cursor.fetchone()
+    ingresos_totales = result['ingresos_totales'] if result['ingresos_totales'] else 0
+    
+    # Mensajes de soporte pendientes
+    cursor.execute("SELECT COUNT(*) as total FROM soporte WHERE estado = 'pendiente'")
+    soporte_pendiente = cursor.fetchone()['total']
+    
+    cursor.close()
+    conexion.close()
+    
+    reportes_data = {
+        'total_productos': total_productos,
+        'stock_bajo': stock_bajo,
+        'top_productos': top_productos,
+        'ingresos_totales': ingresos_totales,
+        'soporte_pendiente': soporte_pendiente
+    }
+    
+    return render_template('admin/reportes.html', reportes=reportes_data)
 
-@admin_blueprint.route('/admin/mensajes')
-def ver_mensajes():
-    # Aquí iría tu lógica de verificación de rol de administrador
-    mensajes = obtener_todos_los_mensajes()
-    return render_template('admin/admin_mensajes.html', mensajes=mensajes)

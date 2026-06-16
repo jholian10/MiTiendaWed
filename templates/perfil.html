@@ -129,6 +129,20 @@
                                         <p>{{ usuario.telefono or 'No registrado aún' }}</p>
                                     </div>
                                 </li>
+                                <li>
+                                    <div class="info-icon"><i class="bi bi-geo-alt"></i></div>
+                                    <div class="info-content">
+                                        <h6>Dirección</h6>
+                                        <p>{{ usuario.direccion or 'No registrada' }}</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="info-icon"><i class="bi bi-building"></i></div>
+                                    <div class="info-content">
+                                        <h6>Ciudad</h6>
+                                        <p>{{ usuario.ciudad or 'No registrada' }}</p>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
 

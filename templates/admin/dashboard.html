@@ -236,6 +236,12 @@
           </a>
         </li>
         <li class="menu-item">
+          <a href="{{ url_for('admin.ver_reportes') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-chart-bar"></i></div>
+            Reportes
+          </a>
+        </li>
+        <li class="menu-item">
           <a href="#" class="menu-link">
             <div class="menu-icon-wrapper">
               <i class="fas fa-shopping-bag"></i>
@@ -243,9 +249,9 @@
             Gestión de Pedidos
           </a>
         </li>
-        <!-- NUEVO ÍTEM: MENSAJES DE SOPORTE (Marcado como activo) -->
-        <li class="menu-item active">
-         <a href="{{ url_for('admin.ver_mensajes') }}" class="menu-link">
+        <!-- NUEVO ÍTEM: MENSAJES DE SOPORTE -->
+        <li class="menu-item">
+         <a href="{{ url_for('support.admin_soporte_panel') }}" class="menu-link">
             <div class="menu-icon-wrapper">
               <i class="fas fa-headset"></i>
             </div>
@@ -264,143 +270,80 @@
       </div>
     </div>
 
-    <!-- MAIN WORKSPACE: REEMPLAZADO POR LA VISTA DE CHAT -->
+    <!-- MAIN WORKSPACE: GESTIÓN DE PRODUCTOS -->
+    {% block content %}
     <div class="main-workspace">
       
       <!-- Título de la sección -->
       <div class="row align-items-center mb-4">
-        <div class="col-md-12">
+        <div class="col-md-8">
           <h1 class="fw-bold mb-1" style="letter-spacing: -1px">
-            Atención al Cliente
+            Gestión de Productos
           </h1>
           <p class="text-muted mb-0">
-            Responde los mensajes, dudas y solicitudes de tus compradores.
+            Administra el inventario y catálogo de productos disponibles.
           </p>
+        </div>
+        <div class="col-md-4 text-end">
+          <a href="{{ url_for('admin.nuevo_producto') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Producto
+          </a>
         </div>
       </div>
 
-      <!-- CONTENEDOR PRINCIPAL DEL CHAT -->
-      <div class="chat-wrapper">
-        
-        <!-- PANEL IZQUIERDO: LISTA DE PERSONAS -->
-        <div class="chat-sidebar">
-          <div class="chat-search-box">
-            <input type="text" id="buscarCliente" placeholder="Buscar cliente por nombre..." />
-          </div>
-          
-          <div class="contact-list" id="listaContactos">
-            
-            <!-- Ejemplo de Cliente Activo (Seleccionado) -->
-            <a href="#" class="contact-item active">
-              <div class="contact-avatar"><i class="fas fa-user"></i></div>
-              <div class="contact-info">
-                <div class="d-flex justify-content-between">
-                  <p class="contact-name">Camila Vargas</p>
-                  <small class="text-muted" style="font-size: 0.7rem;">10:45 AM</small>
-                </div>
-                <p class="contact-msg">Hola, ¿el bolso modelo Luna está disponible?</p>
-              </div>
-            </a>
-
-            <!-- Ejemplo de otro cliente -->
-            <a href="#" class="contact-item">
-              <div class="contact-avatar"><i class="fas fa-user"></i></div>
-              <div class="contact-info">
-                <div class="d-flex justify-content-between">
-                  <p class="contact-name">Jorge Ramírez</p>
-                  <small class="text-muted" style="font-size: 0.7rem;">Ayer</small>
-                </div>
-                <p class="contact-msg">Tuve un problema con mi pago en la web.</p>
-              </div>
-            </a>
-
-            <!-- Ejemplo de otro cliente -->
-            <a href="#" class="contact-item">
-              <div class="contact-avatar"><i class="fas fa-user"></i></div>
-              <div class="contact-info">
-                <div class="d-flex justify-content-between">
-                  <p class="contact-name">Sofía Castro</p>
-                  <small class="text-muted" style="font-size: 0.7rem;">Mar 15</small>
-                </div>
-                <p class="contact-msg">¡Me encantó el producto! Muchas gracias.</p>
-              </div>
-            </a>
-
-          </div>
+      <!-- TABLA DE PRODUCTOS -->
+      <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
+        <table class="table table-hover">
+          <thead style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <tr>
+              <th style="color: #6f42c1; font-weight: 600;">ID</th>
+              <th style="color: #6f42c1; font-weight: 600;">Nombre</th>
+              <th style="color: #6f42c1; font-weight: 600;">Precio Compra</th>
+              <th style="color: #6f42c1; font-weight: 600;">Precio Venta</th>
+              <th style="color: #6f42c1; font-weight: 600;">Stock</th>
+              <th style="color: #6f42c1; font-weight: 600;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos %}
+            <tr>
+              <td>#{{ producto.id }}</td>
+              <td><strong>{{ producto.nombre }}</strong></td>
+              <td>${{ "%.2f"|format(producto.precio_compra) }}</td>
+              <td>${{ "%.2f"|format(producto.precio_venta) }}</td>
+              <td>
+                <span class="badge {% if producto.stock > 10 %}bg-success{% elif producto.stock > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                  {{ producto.stock }}
+                </span>
+              </td>
+              <td>
+                <a href="{{ url_for('admin.editar_producto', id_producto=producto.id) }}" class="btn btn-sm btn-warning" title="Editar">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form style="display:inline;" method="POST" action="{{ url_for('admin.eliminar_producto', id_producto=producto.id) }}" onsubmit="return confirm('¿Eliminar este producto?');">
+                  <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% if not productos %}
+        <div class="alert alert-info" role="alert">
+          <i class="fas fa-info-circle"></i> No hay productos registrados. <a href="{{ url_for('admin.nuevo_producto') }}">Crear uno ahora</a>
         </div>
-
-        <!-- PANEL DERECHO: ÁREA DE MENSAJES -->
-        <div class="chat-main">
-          
-          <!-- Cabecera del chat actual -->
-          <div class="chat-header">
-            <div class="contact-avatar" style="width: 50px; height: 50px; background: #f1ebff; color: #6f42c1;">
-              <i class="fas fa-user"></i>
-            </div>
-            <div>
-              <h5 class="mb-0 fw-bold">Camila Vargas</h5>
-              <small class="text-success fw-medium"><i class="fas fa-circle" style="font-size: 0.5rem; vertical-align: middle;"></i> Escribió hace 15 minutos</small>
-            </div>
-          </div>
-
-          <!-- Historial de Conversación -->
-          <div class="chat-messages" id="cajaMensajes">
-            
-            <div class="message msg-cliente">
-              ¡Hola buenas tardes! Quisiera saber si el bolso "Modelo Luna" está disponible en color negro. Lo vi en la tienda pero no me deja agregarlo.
-              <span class="msg-time">10:45 AM</span>
-            </div>
-
-            <div class="message msg-admin">
-              ¡Hola Camila! Gracias por comunicarte con Dunaka. Efectivamente el "Modelo Luna" en negro se nos agotó anoche, pero la próxima semana tendremos nuevo inventario. ¿Te gustaría que te avisemos?
-              <span class="msg-time">10:52 AM</span>
-            </div>
-
-            <div class="message msg-cliente">
-              ¡Sí, por favor! Lo quiero apartar en cuanto llegue.
-              <span class="msg-time">10:55 AM</span>
-            </div>
-
-          </div>
-
-          <!-- Input para escribir y responder -->
-          <div class="chat-input">
-            <form action="#" method="POST">
-              <input type="text" name="mensaje" placeholder="Escribe tu respuesta para Camila aquí..." required autocomplete="off">
-              <button type="submit" class="btn-enviar" title="Enviar Mensaje">
-                <i class="fas fa-paper-plane"></i>
-              </button>
-            </form>
-          </div>
-
-        </div>
+        {% endif %}
       </div>
 
     </div>
-
-    <!-- Pequeño script para el buscador de clientes de la lista izquierda -->
+    {% endblock %}
+        
+    <!-- Script para funciones del dashboard -->
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Asegurarnos de que el chat siempre baje hasta el último mensaje al cargar
-        const chatBox = document.getElementById("cajaMensajes");
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        // Buscador de contactos
-        const searchInput = document.getElementById("buscarCliente");
-        const contactItems = document.querySelectorAll(".contact-item");
-
-        searchInput.addEventListener("keyup", function (e) {
-          const term = e.target.value.toLowerCase().trim();
-          contactItems.forEach(item => {
-            const name = item.querySelector(".contact-name").textContent.toLowerCase();
-            if (name.includes(term)) {
-              item.style.display = "flex";
-            } else {
-              item.style.display = "none";
-            }
-          });
-        });
-      });
+      // Dashboard de productos - script básico
+      console.log('Dashboard de productos cargado');
     </script>
   </body>
 </html>

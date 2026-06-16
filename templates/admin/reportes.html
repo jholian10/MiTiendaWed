@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dunaka | Reportes</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/deshboard.css') }}" />
+
+    <style>
+      .stat-card {
+        background: linear-gradient(135deg, #6f42c1, #0d6efd);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(111, 66, 193, 0.15);
+        margin-bottom: 20px;
+      }
+      .stat-card i {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        opacity: 0.8;
+      }
+      .stat-card h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 10px 0;
+      }
+      .stat-card p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+      .report-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+      }
+      .report-section h4 {
+        color: #6f42c1;
+        font-weight: 600;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f1ebff;
+        padding-bottom: 10px;
+      }
+      .alert-warning-custom {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <div class="sidebar-container">
+      <div class="sidebar-brand">
+        <h3>Dunaka</h3>
+        <span>Panel de Gestión</span>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-item">
+          <a href="{{ url_for('admin.panel_admin') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-box"></i></div>
+            Gestión de Productos
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="{{ url_for('admin.gestion_usuarios') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-users"></i></div>
+            Gestión de Usuarios
+          </a>
+        </li>
+        <li class="menu-item">
+          <a href="{{ url_for('admin.ver_notificaciones') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-bell"></i></div>
+            Notificaciones
+          </a>
+        </li>
+        <li class="menu-item active">
+          <a href="{{ url_for('admin.ver_reportes') }}" class="menu-link">
+            <div class="menu-icon-wrapper"><i class="fas fa-chart-bar"></i></div>
+            Reportes
+          </a>
+        </li>
+        <li class="menu-item">
+         <a href="{{ url_for('support.admin_soporte_panel') }}" class="menu-link">
+            <div class="menu-icon-wrapper">
+              <i class="fas fa-headset"></i>
+            </div>
+            Mensajes Soporte
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <a href="{{ url_for('auth.logout') }}" class="menu-link logout-link">
+          <div class="menu-icon-wrapper">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          Cerrar Sesión
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="main-workspace">
+      
+      <!-- Título -->
+      <div class="row align-items-center mb-5">
+        <div class="col-md-12">
+          <h1 class="fw-bold mb-1" style="letter-spacing: -1px">
+            <i class="fas fa-chart-line"></i> Reportes y Estadísticas
+          </h1>
+          <p class="text-muted mb-0">
+            Visualiza el desempeño de tu tienda y gestión de inventario.
+          </p>
+        </div>
+      </div>
+
+      <!-- TARJETAS DE ESTADÍSTICAS -->
+      <div class="row">
+        <div class="col-md-3">
+          <div class="stat-card">
+            <i class="fas fa-boxes"></i>
+            <h3>{{ reportes.total_productos }}</h3>
+            <p>Productos Activos</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="background: linear-gradient(135deg, #ff6b6b, #ee5a6f);">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>{{ reportes.stock_bajo|length }}</h3>
+            <p>Productos Bajo Stock</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="background: linear-gradient(135deg, #4ecdc4, #44a08d);">
+            <i class="fas fa-dollar-sign"></i>
+            <h3>${{ "%.2f"|format(reportes.ingresos_totales) }}</h3>
+            <p>Ingresos Totales</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="background: linear-gradient(135deg, #f5a623, #f78e69);">
+            <i class="fas fa-comments"></i>
+            <h3>{{ reportes.soporte_pendiente }}</h3>
+            <p>Soporte Pendiente</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTOS CON STOCK BAJO -->
+      {% if reportes.stock_bajo %}
+      <div class="report-section">
+        <h4><i class="fas fa-warning"></i> Productos con Stock Bajo</h4>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead style="background: #f8f9fa;">
+              <tr>
+                <th>ID</th>
+                <th>Nombre Producto</th>
+                <th>Stock Actual</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto in reportes.stock_bajo %}
+              <tr>
+                <td>#{{ producto.id }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>
+                  <span class="badge bg-danger">{{ producto.stock }} unidades</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- TOP PRODUCTOS -->
+      {% if reportes.top_productos %}
+      <div class="report-section">
+        <h4><i class="fas fa-star"></i> Top 10 Productos Más Vendidos</h4>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead style="background: #f8f9fa;">
+              <tr>
+                <th>Posición</th>
+                <th>Nombre Producto</th>
+                <th>Cantidad Vendida</th>
+                <th>Precio Unit.</th>
+                <th>Ingresos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto in reportes.top_productos %}
+              <tr>
+                <td><strong>#{{ loop.index }}</strong></td>
+                <td>{{ producto.nombre }}</td>
+                <td><span class="badge bg-info">{{ producto.cantidad_vendida or 0 }}</span></td>
+                <td>${{ "%.2f"|format(producto.precio_venta) }}</td>
+                <td>${{ "%.2f"|format((producto.cantidad_vendida or 0) * producto.precio_venta) }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- INFORMACIÓN GENERAL -->
+      <div class="report-section">
+        <h4><i class="fas fa-info-circle"></i> Información General del Sistema</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Total de Productos:</strong> {{ reportes.total_productos }}</p>
+            <p><strong>Productos con Stock Bajo:</strong> {{ reportes.stock_bajo|length }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Ingresos Generados:</strong> ${{ "%.2f"|format(reportes.ingresos_totales) }}</p>
+            <p><strong>Solicitudes de Soporte Pendientes:</strong> {{ reportes.soporte_pendiente }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
