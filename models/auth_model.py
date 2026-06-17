@@ -1,6 +1,8 @@
 # models/auth_model.py
 from database.db import obtener_conexion
 from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
+
 
 def obtener_usuario_por_correo(correo):
     conexion = obtener_conexion()
@@ -97,3 +99,25 @@ def obtener_datos_envio_usuario(usuario_id):
     cursor.close()
     conexion.close()
     return usuario
+
+def cambiar_password(usuario_id, password_actual, nuevo_password):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    
+    # 1. Cambia 'password' por 'password_hash' aquí:
+    cursor.execute("SELECT password_hash FROM usuarios WHERE id = %s", (usuario_id,))
+    usuario = cursor.fetchone()
+    
+    # Nota: Asegúrate de que check_password_hash esté comparando contra el valor correcto
+    if usuario and check_password_hash(usuario['password_hash'], password_actual):
+        # 2. Cambia 'password' por 'password_hash' aquí también:
+        hashed_pw = generate_password_hash(nuevo_password)
+        cursor.execute("UPDATE usuarios SET password_hash = %s WHERE id = %s", (hashed_pw, usuario_id))
+        conexion.commit()
+        success = True
+    else:
+        success = False
+        
+    cursor.close()
+    conexion.close()
+    return success

@@ -166,7 +166,8 @@
         </div>
 
         <div class="dunaka-card">
-            <form method="POST">
+            <!-- NOTA: Añadimos enctype="multipart/form-data" para permitir subida de archivos -->
+            <form method="POST" enctype="multipart/form-data">
                 <div class="row g-4">
                     
                     <!-- COLUMNA IZQUIERDA: Datos del Bolso -->
@@ -186,14 +187,16 @@
                                 <label class="form-label">Costo Compra</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">$</span>
-                                    <input type="number" step="0.01" name="precio_compra" class="form-control border-start-0 ps-0" value="{{ producto.precio_compra }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
+                                    <!-- NOTA: Se añadió min="0" -->
+                                    <input type="number" step="0.01" min="0" name="precio_compra" class="form-control border-start-0 ps-0" value="{{ producto.precio_compra }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <label class="form-label text-primary">Precio Venta</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">$</span>
-                                    <input type="number" step="0.01" name="precio_venta" class="form-control border-start-0 ps-0" value="{{ producto.precio_venta }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
+                                    <!-- NOTA: Se añadió min="0" -->
+                                    <input type="number" step="0.01" min="0" name="precio_venta" class="form-control border-start-0 ps-0" value="{{ producto.precio_venta }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
                         </div>
@@ -205,7 +208,8 @@
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">
                                         <i class="bi bi-box-seam text-muted"></i>
                                     </span>
-                                    <input type="number" name="stock" class="form-control border-start-0 ps-0" value="{{ producto.stock }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
+                                    <!-- NOTA: Se añadió min="0" -->
+                                    <input type="number" min="0" name="stock" class="form-control border-start-0 ps-0" value="{{ producto.stock }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -214,7 +218,8 @@
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">
                                         <i class="bi bi-exclamation-triangle text-muted"></i>
                                     </span>
-                                    <input type="number" name="stock_minimo" class="form-control border-start-0 ps-0" value="{{ producto.stock_minimo }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
+                                    <!-- NOTA: Se añadió min="0" -->
+                                    <input type="number" min="0" name="stock_minimo" class="form-control border-start-0 ps-0" value="{{ producto.stock_minimo }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
                         </div>
@@ -223,8 +228,9 @@
                     <!-- COLUMNA DERECHA: Imagen -->
                     <div class="col-md-5 d-flex flex-column">
                         <div class="mb-3">
-                            <label class="form-label">URL de Imagen</label>
-                            <input type="url" name="imagen_url" id="img_input" class="form-control" placeholder="https://ejemplo.com/imagen.jpg" value="{{ producto.imagen_url or '' }}">
+                            <label class="form-label">Subir nueva imagen</label>
+                            <!-- NOTA: Cambiado type="url" a type="file" y se añadió accept="image/*" -->
+                            <input type="file" name="imagen_archivo" id="img_input" class="form-control" accept="image/*">
                         </div>
                         <div class="flex-grow-1 d-flex flex-column">
                             <span class="form-label mb-2">Previsualización</span>
@@ -232,7 +238,7 @@
                                 <img id="img_preview" src="{{ producto.imagen_url or '' }}" style="width:100%; height:100%; object-fit:cover; {% if producto.imagen_url %} display:block; {% else %} display:none; {% endif %}">
                                 <div id="preview_text" class="text-center" style="{% if producto.imagen_url %} display:none; {% endif %}">
                                     <i class="bi bi-image text-muted fs-1 mb-2 d-block"></i>
-                                    <span class="text-muted small px-2">Pega una URL para ver la imagen</span>
+                                    <span class="text-muted small px-2">Selecciona un archivo para ver la imagen</span>
                                 </div>
                             </div>
                         </div>
@@ -265,15 +271,30 @@
         const imgInput = document.getElementById('img_input');
         const imgPreview = document.getElementById('img_preview');
         const previewText = document.getElementById('preview_text');
+        
+        // Guardamos la imagen original en caso de que cancelen la selección
+        const originalSrc = imgPreview.src;
+        const hasOriginal = "{{ producto.imagen_url }}" !== "" && "{{ producto.imagen_url }}" !== "None";
 
-        imgInput.addEventListener('input', function() {
-            if (this.value.trim() !== "") {
-                imgPreview.src = this.value;
+        imgInput.addEventListener('change', function(event) {
+            // Obtenemos el archivo seleccionado
+            const file = event.target.files[0];
+            
+            if (file) {
+                // Si hay archivo, creamos una URL local para previsualizarlo
+                imgPreview.src = URL.createObjectURL(file);
                 imgPreview.style.display = 'block';
                 previewText.style.display = 'none';
             } else {
-                imgPreview.style.display = 'none';
-                previewText.style.display = 'block';
+                // Si cancelan la selección, volvemos al estado anterior
+                if (hasOriginal) {
+                    imgPreview.src = originalSrc;
+                    imgPreview.style.display = 'block';
+                    previewText.style.display = 'none';
+                } else {
+                    imgPreview.style.display = 'none';
+                    previewText.style.display = 'block';
+                }
             }
         });
     </script>

@@ -4,6 +4,7 @@ from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 from models.profile_model import actualizar_perfil_usuario
 from models.auth_model import obtener_usuario_por_correo, actualizar_password
+from models.auth_model import cambiar_password
 
 profile_blueprint = Blueprint('profile', __name__, url_prefix='/perfil')
 
@@ -126,3 +127,24 @@ def editar_perfil():
             flash(f'Error al guardar los cambios: {str(e)}', 'danger')
 
     return render_template('editar_perfil.html', usuario=usuario_datos, usuario_sesion=usuario_datos)
+
+
+@profile_blueprint.route('/cambiar-password', methods=['POST'])
+def actualizar_password():
+    if 'usuario' not in session:
+        return redirect(url_for('auth.login'))
+        
+    actual = request.form.get('password_actual')
+    nueva = request.form.get('nueva_password')
+    confirmacion = request.form.get('confirmar_password')
+    
+    if nueva != confirmacion:
+        flash('Las contraseñas nuevas no coinciden.', 'error')
+        return redirect(url_for('profile.ver_perfil'))
+        
+    if cambiar_password(session['usuario']['id'], actual, nueva):
+        flash('Contraseña actualizada con éxito.', 'success')
+    else:
+        flash('Error: La contraseña actual es incorrecta.', 'error')
+        
+    return redirect(url_for('profile.ver_perfil'))
