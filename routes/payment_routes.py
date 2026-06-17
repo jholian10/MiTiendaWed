@@ -20,36 +20,30 @@ def procesar_pago():
     items_carrito = obtener_detalles_carrito(usuario_id)
     
     if not items_carrito:
-        flash('Carrito vacío.', 'warning')
+        flash('Tu carrito está vacío.', 'warning')
         return redirect(url_for('cart.ver_carrito'))
 
+    direccion = request.form.get('direccion', 'No especificada')
+    ciudad = request.form.get('ciudad', 'No especificada')
+    telefono = request.form.get('telefono', 'No especificado')
+
     total_cop = sum(float(item['precio_venta']) * int(item['cantidad']) for item in items_carrito)
-    
     monto_en_centavos = int(round(total_cop * 100))
-    
     referencia_pago = f"ORD_{usuario_id}_{int(time.time() * 1000)}"
     
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    cursor.execute(
-        "INSERT INTO ordenes (usuario_id, referencia, total, estado) VALUES (%s, %s, %s, 'PENDIENTE')", 
-        (usuario_id, referencia_pago, total_cop)
-    )
+    
+    sql = """INSERT INTO pedidos (usuario_id, referencia, total, estado, direccion_envio, ciudad_envio, telefono_contacto, fecha_creacion) 
+             VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())"""
+    cursor.execute(sql, (usuario_id, referencia_pago, total_cop, 'PENDIENTE', direccion, ciudad, telefono))
+    
     conexion.commit()
     cursor.close()
     conexion.close()
     
     cadena_firma = f"{referencia_pago}{monto_en_centavos}COP{WOMPI_INTEGRITY_SECRET}"
     firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
-
-    print("\n" + "="*60)
-    print("🚀 [DIAGNÓSTICO] PETICIÓN DE PAGO ENVIADA A WOMPI")
-    print(f"• Referencia: {referencia_pago}")
-    print(f"• Total original: ${total_cop} COP")
-    print(f"• Total en centavos: {monto_en_centavos}")
-    print(f"• Cadena armada para hash: {cadena_firma}")
-    print(f"• Firma SHA256 generada: {firma_checksum}")
-    print("="*60 + "\n")
 
     correo_usuario = session['usuario'].get('correo') or session['usuario'].get('email', '')
 
@@ -58,19 +52,9 @@ def procesar_pago():
     <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <title>Conectando con la pasarela de pago...</title>
-        <style>
-            body {{ font-family: 'Poppins', sans-serif; background-color: #f6f5f2; text-align: center; padding-top: 100px; color: #2b3531; }}
-            .loader-box {{ background: white; padding: 40px; border-radius: 24px; display: inline-block; box-shadow: 0 15px 35px rgba(0,0,0,0.02); }}
-            h2 {{ color: #ff6f61; }}
-        </style>
+        <title>Procesando pago...</title>
     </head>
     <body onload="document.getElementById('wompi_form').submit()">
-        <div class="loader-box">
-            <h2>Conectando de forma segura con Wompi...</h2>
-            <p>Por favor, no cierres ni recargues esta ventana.</p>
-        </div>
-        
         <form id="wompi_form" action="https://checkout.wompi.co/p/" method="GET">
             <input type="hidden" name="public-key" value="{WOMPI_PUBLIC_KEY}" />
             <input type="hidden" name="currency" value="COP" />
@@ -83,3 +67,49 @@ def procesar_pago():
     </html>
     """
     return render_template_string(html_form)
+
+@payment_blueprint.route('/webhooks/wompi', methods=['POST'])
+def webhook_wompi():
+    data = request.json
+    if data and data.get('event') == 'transaction.updated':
+        transaction = data['data']['transaction']
+        referencia = transaction['reference']
+        estado = transaction['status']
+
+        if estado == 'APPROVED':
+            conexion = obtener_conexion()
+            cursor = conexion.cursor(dictionary=True)
+            try:
+                # 1. Actualizar estado
+                cursor.execute("UPDATE pedidos SET estado = 'EMPACANDO' WHERE referencia = %s", (referencia,))
+                
+                # 2. Obtener usuario para limpiar carrito
+                cursor.execute("SELECT usuario_id FROM pedidos WHERE referencia = %s", (referencia,))
+                pedido = cursor.fetchone()
+                
+                if pedido:
+                    u_id = pedido['usuario_id']
+                    # Limpiar carrito
+                    cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id IN (SELECT id FROM carritos WHERE usuario_id = %s)", (u_id,))
+                    cursor.execute("DELETE FROM carritos WHERE usuario_id = %s", (u_id,))
+                
+                conexion.commit()
+            except Exception as e:
+                print(f"Error en webhook: {e}")
+                conexion.rollback()
+            finally:
+                cursor.close()
+                conexion.close()
+    
+    return '', 200
+
+@payment_blueprint.route('/test-borrar-carrito/<int:u_id>')
+def test_borrado(u_id):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id IN (SELECT id FROM carritos WHERE usuario_id = %s)", (u_id,))
+    cursor.execute("DELETE FROM carritos WHERE usuario_id = %s", (u_id,))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return "¡Carrito borrado con éxito!"

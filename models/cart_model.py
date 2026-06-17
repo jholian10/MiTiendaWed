@@ -71,3 +71,20 @@ def eliminar_del_carrito(detalle_id):
     conexion.commit()
     cursor.close()
     conexion.close()
+    
+def vaciar_carrito_completo(usuario_id):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        # Primero buscamos el carrito
+        cursor.execute("SELECT id FROM carritos WHERE usuario_id = %s", (usuario_id,))
+        carrito = cursor.fetchone()
+        if carrito:
+            # Borramos los productos dentro
+            cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id = %s", (carrito['id'],))
+            # Borramos el carrito
+            cursor.execute("DELETE FROM carritos WHERE id = %s", (carrito['id'],))
+        conexion.commit()
+    finally:
+        cursor.close()
+        conexion.close()
