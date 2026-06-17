@@ -9,6 +9,56 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+
+    <style>
+        /* Estilos Exóticos para el Modal */
+        .modal-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .modal-header-custom {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1.5rem 2rem;
+        }
+        .modal-body-custom {
+            padding: 2rem;
+        }
+        .modal-footer-custom {
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 1.5rem 2rem;
+        }
+        .input-exotic {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            background-color: rgba(255,255,255,0.9);
+            transition: all 0.3s ease;
+        }
+        .input-exotic:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.1);
+            background-color: #fff;
+        }
+        /* Ajustes de botones para el modal */
+        .btn-gradient-modal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50px;
+            padding: 10px 24px;
+            border: none;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-gradient-modal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
@@ -154,7 +204,6 @@
                                         <h6 class="fw-bold mb-1"><i class="bi bi-key me-2 text-primary"></i>Contraseña</h6>
                                         <p class="text-muted small m-0">Actualizada por última vez recientemente</p>
                                     </div>
-                                    <!-- Botón que activa el modal -->
                                     <button class="btn btn-sm btn-outline-custom" data-bs-toggle="modal" data-bs-target="#modalCambiarPassword">Cambiar</button>
                                 </div>
                             </div>
@@ -166,22 +215,36 @@
         </div>
     </main>
 
-    <!-- Modal para cambiar contraseña -->
     <div class="modal fade" id="modalCambiarPassword" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-        <form action="{{ url_for('profile.actualizar_password') }}" method="POST" class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Cambiar Contraseña</h5>
+      <div class="modal-dialog modal-dialog-centered">
+        <form id="formCambiarPassword" action="{{ url_for('profile.actualizar_password') }}" method="POST" class="modal-content modal-glass border-0">
+          <div class="modal-header modal-header-custom border-0">
+            <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock text-primary me-2"></i>Cambiar Contraseña</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <input type="password" name="password_actual" class="form-control mb-2" placeholder="Contraseña actual" required>
-            <input type="password" name="nueva_password" class="form-control mb-2" placeholder="Nueva contraseña" required>
-            <input type="password" name="confirmar_password" class="form-control" placeholder="Confirmar nueva contraseña" required>
+          
+          <div class="modal-body modal-body-custom">
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted">Contraseña Actual</label>
+                <input type="password" name="password_actual" class="form-control input-exotic" placeholder="••••••••" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted">Nueva Contraseña</label>
+                <input type="password" id="nueva_password" name="nueva_password" class="form-control input-exotic" placeholder="Mínimo 6 caracteres" minlength="6" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-muted">Confirmar Nueva Contraseña</label>
+                <input type="password" id="confirmar_password" name="confirmar_password" class="form-control input-exotic" placeholder="Mínimo 6 caracteres" minlength="6" required>
+            </div>
+            
+            <div id="error_password" class="alert alert-danger d-none py-2 text-center small mb-0 rounded-3">
+                <i class="bi bi-exclamation-triangle me-1"></i> Las contraseñas nuevas no coinciden o tienen menos de 6 caracteres.
+            </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+          
+          <div class="modal-footer modal-footer-custom border-0 d-flex justify-content-between">
+            <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-gradient-modal"><i class="bi bi-check2-circle me-1"></i> Guardar cambios</button>
           </div>
         </form>
       </div>
@@ -194,5 +257,24 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.getElementById('formCambiarPassword').addEventListener('submit', function(event) {
+            const nuevaPass = document.getElementById('nueva_password').value;
+            const confirmarPass = document.getElementById('confirmar_password').value;
+            const errorDiv = document.getElementById('error_password');
+            
+            // Verificamos longitud y coincidencia
+            if (nuevaPass.length < 6 || nuevaPass !== confirmarPass) {
+                // Evitamos que el formulario se envíe
+                event.preventDefault(); 
+                // Mostramos el error
+                errorDiv.classList.remove('d-none');
+            } else {
+                // Ocultamos el error por si estaba visible
+                errorDiv.classList.add('d-none');
+            }
+        });
+    </script>
 </body>
 </html>
