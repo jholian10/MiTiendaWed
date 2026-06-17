@@ -1,0 +1,205 @@
+:root {
+    --azul-brand: #4f46e5;
+    --azul-hover: #3b32d1;
+    --texto-principal: #1e2229;
+    --texto-mutado: #788293;
+    --bg-input: #f0f4f9;
+    --bg-cuerpo: #f4f5fa;
+    --bg-card: #ffffff;
+    --radio-borde: 24px;
+    --sombra-premium: 0 20px 40px rgba(0, 0, 0, 0.03);
+    --color-error: #dc3545;
+    --color-exito: #198754;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-cuerpo);
+    color: var(--texto-principal);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    padding: 24px;
+}
+
+.login-centered-container {
+    width: 100%;
+    max-width: 520px;
+    background-color: var(--bg-card);
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-premium);
+    padding: 50px;
+}
+
+.brand-header-area {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.brand-logo-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--azul-brand);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.brand-tagline {
+    font-size: 0.85rem;
+    color: var(--texto-mutado);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+.form-main-heading {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--texto-principal);
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+}
+
+.form-sub-heading {
+    font-size: 0.9rem;
+    color: var(--texto-mutado);
+    margin-bottom: 30px;
+}
+
+.field-wrapper-block {
+    margin-bottom: 24px;
+}
+
+.custom-label-caps {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--texto-mutado);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+}
+
+.input-group-decorated {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-inline-icon {
+    position: absolute;
+    left: 18px;
+    color: var(--texto-mutado);
+    font-size: 1.2rem;
+    pointer-events: none;
+}
+
+.form-input-element {
+    width: 100%;
+    background-color: var(--bg-input);
+    border: 2px solid var(--bg-input);
+    border-radius: 16px;
+    padding: 16px 16px 16px 52px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--texto-principal);
+    transition: all 0.25s ease;
+}
+
+.form-input-element::placeholder {
+    color: #a0aec0;
+}
+
+.form-input-element:focus {
+    background-color: #ffffff;
+    border-color: var(--azul-brand);
+    box-shadow: none;
+    outline: none;
+}
+
+.password-visibility-toggle {
+    position: absolute;
+    right: 18px;
+    background: none;
+    border: none;
+    color: var(--texto-mutado);
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+}
+
+.password-visibility-toggle:hover {
+    color: var(--azul-brand);
+}
+
+.password-requirement-indicator {
+    font-size: 0.85rem;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.requirement-invalid {
+    color: var(--color-error);
+}
+
+.requirement-valid {
+    color: var(--color-exito);
+}
+
+.btn-action-primary {
+    background-color: var(--azul-brand);
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.btn-action-primary:hover {
+    background-color: var(--azul-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+}
+
+.footer-navigation-links {
+    text-align: center;
+    padding-top: 25px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.registration-highlight-link {
+    color: var(--azul-brand);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.registration-highlight-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+    .login-centered-container {
+        padding: 30px 20px;
+        border-radius: 20px;
+    }
+}

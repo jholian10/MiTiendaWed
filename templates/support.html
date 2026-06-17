@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soporte Técnico</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/support.css') }}">
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .chat-container { width: 400px; height: 600px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; overflow: hidden; }
         .chat-header { background: linear-gradient(135deg, #007bff, #00d4ff); color: white; padding: 20px; display: flex; align-items: center; }
@@ -44,43 +44,6 @@
         </div>
     </div>
 
-   <script>
-        async function sendMessage() {
-            let input = document.getElementById("user-input");
-            let chat = document.getElementById("chat-messages");
-            let msg = input.value;
-            
-            if(msg.trim() === "") return;
-
-            // 1. Mostrar mensaje en pantalla
-            chat.innerHTML += `<div class="message user">${msg}</div>`;
-            input.value = "";
-            chat.scrollTop = chat.scrollHeight;
-
-            // 2. Enviar mensaje al servidor (tu ruta /support/api)
-            try {
-                const response = await fetch('/support/api', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({mensaje: msg})
-                });
-                
-                const data = await response.json();
-                
-                // Opcional: Mostrar confirmación o respuesta del admin si existiera
-                if (data.respuesta) {
-                    chat.innerHTML += `<div class="message bot">${data.respuesta}</div>`;
-                    chat.scrollTop = chat.scrollHeight;
-                }
-            } catch (error) {
-                console.error("Error enviando mensaje:", error);
-            }
-        }
-
-        // Permitir enviar con la tecla Enter
-        document.getElementById("user-input").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") sendMessage();
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/support.js') }}"></script>
 </body>
 </html>

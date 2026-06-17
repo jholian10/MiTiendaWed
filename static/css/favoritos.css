@@ -1,0 +1,218 @@
+:root {
+    --azul-brand: #4f46e5;
+    --azul-hover: #3b32d1;
+    --texto-principal: #1e2229;
+    --texto-mutated: #7a869a;
+    --bg-cuerpo: #f8fafc;
+    --bg-card: #ffffff;
+    --radio-borde: 20px;
+    --sombra-premium: 0 12px 30px -10px rgba(0, 0, 0, 0.04);
+    --color-exito: #10b981;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-cuerpo);
+    color: var(--texto-principal);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Barra de Navegación Premium */
+.custom-navbar {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid #edf2f7;
+    padding: 18px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+}
+
+.navbar-brand-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--azul-brand);
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.navbar-brand-title:hover {
+    color: var(--azul-hover);
+}
+
+.navbar-section-tag {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--texto-mutated);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background-color: #f1f5f9;
+    padding: 6px 14px;
+    border-radius: 30px;
+}
+
+/* Título de Sección Superior */
+.section-header-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--texto-principal);
+}
+
+/* Tarjetas de Favoritos Rediseñadas */
+.fav-card {
+    border: 1px solid #edf2f7;
+    border-radius: var(--radio-borde);
+    background-color: var(--bg-card);
+    overflow: hidden;
+    box-shadow: var(--sombra-premium);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fav-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.12);
+    border-color: rgba(79, 70, 229, 0.2);
+}
+
+/* Contenedor de Imagen de Producto */
+.product-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    background-color: #f8fafc;
+}
+
+/* Botón Eliminar de Favoritos */
+.btn-remove {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.btn-remove:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    transform: scale(1.08);
+}
+
+/* Marcador de posición elegante cuando no hay imagen */
+.img-placeholder-client {
+    height: 240px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: var(--texto-mutated);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Cuerpo de la Tarjeta */
+.card-product-body {
+    padding: 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.product-title-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--texto-principal);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.product-price-badge {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--azul-brand);
+}
+
+/* Botón de Añadir al Carrito Directo */
+.btn-add-cart-direct {
+    background-color: #f1f5f9;
+    color: var(--texto-principal);
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    width: 100%;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+}
+
+.btn-add-cart-direct:hover {
+    background-color: var(--azul-brand);
+    color: #ffffff;
+}
+
+/* Contenedor Vista Vacía Estilizado */
+.empty-state-box {
+    background-color: var(--bg-card);
+    border-radius: var(--radio-borde);
+    border: 2px dashed #e2e8f0;
+    padding: 60px 40px;
+    max-width: 500px;
+    margin: 40px auto;
+    box-shadow: var(--sombra-premium);
+}
+
+.empty-state-icon-circle {
+    width: 80px;
+    height: 80px;
+    background-color: #f3f4f6;
+    color: var(--texto-mutated);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 24px;
+}
+
+.btn-explore-shop {
+    background-color: var(--azul-brand);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 12px 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+    transition: all 0.2s ease;
+}
+
+.btn-explore-shop:hover {
+    background-color: var(--azul-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Notificación Toast Refinada */
+.custom-premium-toast {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    background-color: var(--texto-principal) !important;
+}

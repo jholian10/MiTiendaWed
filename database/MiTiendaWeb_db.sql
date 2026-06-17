@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 16-06-2026 a las 09:15:19
+-- Tiempo de generación: 17-06-2026 a las 23:56:17
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -20,6 +20,20 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `mitiendaweb_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `carrito`
+--
+
+CREATE TABLE `carrito` (
+  `id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `producto_id` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL DEFAULT 1,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -41,8 +55,9 @@ INSERT INTO `carritos` (`id`, `usuario_id`, `actualizado_el`) VALUES
 (6, 8, '2026-06-12 19:24:02'),
 (7, 10, '2026-06-12 20:16:09'),
 (8, 11, '2026-06-13 20:36:13'),
-(9, 12, '2026-06-14 05:44:19'),
-(10, 13, '2026-06-16 06:08:07');
+(10, 13, '2026-06-16 06:08:07'),
+(11, 14, '2026-06-17 18:17:59'),
+(13, 12, '2026-06-17 20:57:15');
 
 -- --------------------------------------------------------
 
@@ -63,12 +78,7 @@ CREATE TABLE `carrito_detalles` (
 --
 
 INSERT INTO `carrito_detalles` (`id`, `carrito_id`, `producto_id`, `cantidad`, `agregado_el`) VALUES
-(43, 6, 16, 1, '2026-06-12 21:50:55'),
-(44, 6, 32, 1, '2026-06-12 21:57:05'),
-(52, 7, 14, 1, '2026-06-12 23:20:59'),
-(60, 9, 15, 1, '2026-06-14 05:44:46'),
-(61, 9, 16, 1, '2026-06-14 05:44:46'),
-(62, 9, 17, 1, '2026-06-14 05:44:47');
+(52, 7, 14, 1, '2026-06-12 23:20:59');
 
 -- --------------------------------------------------------
 
@@ -108,7 +118,14 @@ CREATE TABLE `direcciones_usuario` (
 
 INSERT INTO `direcciones_usuario` (`id`, `usuario_id`, `departamento`, `ciudad`, `direccion_detallada`, `telefono_contacto`, `es_principal`, `barrio`) VALUES
 (1, 12, 'Atlántico', 'Candelaria', 'op{', 'N/A', 1, 'po'),
-(2, 12, 'Boyacá', 'Belén', 'ghjgh', 'N/A', 1, 'ghfj');
+(2, 12, 'Boyacá', 'Belén', 'ghjgh', 'N/A', 1, 'ghfj'),
+(3, 12, 'Cesar', 'Gamarra', 'Asdadx', 'N/A', 1, 'asxsa'),
+(4, 12, 'Caquetá', 'Morelia', 'asd', 'N/A', 1, 'wd'),
+(5, 12, 'Caquetá', 'Puerto Rico', 'RGERG', 'N/A', 1, 'SEFR'),
+(6, 12, 'Boyacá', 'Buenavista', 'FGH', 'N/A', 1, 'GFH'),
+(7, 12, 'Chocó', 'El Carmen del Darién', 'aS', 'N/A', 1, 'aSAs'),
+(8, 12, 'Quindío', 'Quimbaya', 'fdsfds', 'N/A', 1, 'fds'),
+(9, 12, 'Cauca', 'Florencia', 'ghjgh', 'N/A', 1, 'wd');
 
 -- --------------------------------------------------------
 
@@ -122,13 +139,6 @@ CREATE TABLE `favoritos` (
   `producto_id` int(11) NOT NULL,
   `agregado_el` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `favoritos`
---
-
-INSERT INTO `favoritos` (`id`, `usuario_id`, `producto_id`, `agregado_el`) VALUES
-(10, 12, 17, '2026-06-14 16:17:39');
 
 -- --------------------------------------------------------
 
@@ -174,46 +184,9 @@ INSERT INTO `notificaciones` (`id`, `mensaje`, `fecha_creacion`) VALUES
 (25, 'Producto registrado: wqd', '2026-06-16 06:50:06'),
 (26, '¡Alerta de Inventario! El producto \"Cartera de Palma de Iraca Natural\" fue modificado y se ha quedado AGOTADO (0 unidades).', '2026-06-16 07:09:48'),
 (27, '¡Alerta de Inventario! El producto \"Mochila Arhuaca de Lana Pura\" se ha agotado por completo.', '2026-06-16 07:10:26'),
-(28, '¡Atención! El producto \"Mochila Arhuaca de Lana Pura\" fue modificado y quedó por debajo del stock mínimo. Quedan -67 unidades.', '2026-06-16 07:10:26');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `ordenes`
---
-
-CREATE TABLE `ordenes` (
-  `id` int(11) NOT NULL,
-  `usuario_id` int(11) DEFAULT NULL,
-  `referencia` varchar(100) DEFAULT NULL,
-  `total` decimal(10,2) DEFAULT NULL,
-  `estado` varchar(20) DEFAULT NULL,
-  `fecha` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `ordenes`
---
-
-INSERT INTO `ordenes` (`id`, `usuario_id`, `referencia`, `total`, `estado`, `fecha`) VALUES
-(10, 9, 'ORD_9_1781296284995', 45.00, 'PENDIENTE', '2026-06-12 20:31:24'),
-(11, 9, 'ORD_9_1781296370125', 45.00, 'PENDIENTE', '2026-06-12 20:32:50'),
-(12, 9, 'ORD_9_1781296704949', 115000.00, 'PENDIENTE', '2026-06-12 20:38:24'),
-(13, 9, 'ORD_9_1781297988932', 115000.00, 'PENDIENTE', '2026-06-12 20:59:48'),
-(14, 9, 'ORD_9_1781298973475', 204900.00, 'PENDIENTE', '2026-06-12 21:16:13'),
-(15, 8, 'ORD_8_1781301058278', 185000.00, 'PENDIENTE', '2026-06-12 21:50:58'),
-(16, 9, 'ORD_9_1781305314977', 403800.00, 'PENDIENTE', '2026-06-12 23:01:54'),
-(17, 9, 'ORD_9_1781323481284', 1624700.00, 'PENDIENTE', '2026-06-13 04:04:41'),
-(18, 9, 'ORD_9_1781387811917', 89900.00, 'PENDIENTE', '2026-06-13 21:56:51'),
-(19, 9, 'ORD_9_1781413876058', 89900.00, 'PENDIENTE', '2026-06-14 05:11:16'),
-(20, 9, 'ORD_9_1781415466164', 89900.00, 'PENDIENTE', '2026-06-14 05:37:46'),
-(21, 9, 'ORD_9_1781415472772', 89900.00, 'PENDIENTE', '2026-06-14 05:37:52'),
-(22, 9, 'ORD_9_1781415802231', 89900.00, 'PENDIENTE', '2026-06-14 05:43:22'),
-(23, 12, 'ORD_12_1781420046009', 329900.00, 'PENDIENTE', '2026-06-14 06:54:06'),
-(24, 12, 'ORD_12_1781420649302', 329900.00, 'PENDIENTE', '2026-06-14 07:04:09'),
-(25, 12, 'ORD_12_1781420654603', 329900.00, 'PENDIENTE', '2026-06-14 07:04:14'),
-(26, 12, 'ORD_12_1781421094034', 329900.00, 'PENDIENTE', '2026-06-14 07:11:34'),
-(27, 12, 'ORD_12_1781454046575', 329900.00, 'PENDIENTE', '2026-06-14 16:20:46');
+(28, '¡Atención! El producto \"Mochila Arhuaca de Lana Pura\" fue modificado y quedó por debajo del stock mínimo. Quedan -67 unidades.', '2026-06-16 07:10:26'),
+(29, '¡Alerta de Inventario! El producto \"Mochila Arhuaca de Lana Pura\" fue modificado y se ha quedado AGOTADO (0 unidades).', '2026-06-17 21:06:21'),
+(30, 'Producto registrado: jholian manuel', '2026-06-17 21:09:03');
 
 -- --------------------------------------------------------
 
@@ -232,6 +205,24 @@ CREATE TABLE `pedidos` (
   `telefono_contacto` varchar(20) NOT NULL,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `pedidos`
+--
+
+INSERT INTO `pedidos` (`id`, `usuario_id`, `referencia`, `total`, `estado`, `direccion_envio`, `ciudad_envio`, `telefono_contacto`, `fecha_creacion`) VALUES
+(3, 8, 'ORD_8_1781301058278', 185000.00, 'PENDIENTE', '', '', '', '2026-06-12 21:50:58'),
+(4, 12, 'ORD_12_1781420046009', 329900.00, 'PENDIENTE', '', '', '', '2026-06-14 06:54:06'),
+(5, 12, 'ORD_12_1781420649302', 329900.00, 'PENDIENTE', '', '', '', '2026-06-14 07:04:09'),
+(6, 12, 'ORD_12_1781420654603', 329900.00, 'PENDIENTE', '', '', '', '2026-06-14 07:04:14'),
+(7, 12, 'ORD_12_1781421094034', 329900.00, 'PENDIENTE', '', '', '', '2026-06-14 07:11:34'),
+(8, 12, 'ORD_12_1781454046575', 329900.00, 'PENDIENTE', '', '', '', '2026-06-14 16:20:46'),
+(9, 12, 'ORD_12_1781723482636', 54933.00, 'PENDIENTE', '', '', '', '2026-06-17 19:11:22'),
+(10, 12, 'ORD_12_1781724592448', 418000.00, 'PENDIENTE', '', '', '', '2026-06-17 19:29:52'),
+(11, 12, 'ORD_12_1781726111421', 144900.00, 'PENDIENTE', '', '', '', '2026-06-17 19:55:11'),
+(18, 12, 'ORD_12_1781729427500', 144900.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-17 20:50:27'),
+(19, 12, 'ORD_12_1781729444931', 144900.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-17 20:50:44'),
+(20, 12, 'ORD_12_1781729850847', 275000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-17 20:57:30');
 
 -- --------------------------------------------------------
 
@@ -275,7 +266,7 @@ INSERT INTO `productos` (`id`, `nombre`, `descripcion`, `precio_compra`, `precio
 (13, 'Mochila Wayuu Tradicional Geométrica', '120000.00', 15.00, 0.00, 0, 0, '60000.00', 0, '2026-06-12 20:38:11', '2026-06-13 17:55:21'),
 (14, 'Bolso de Caña Flecha Zenú', 'Elegante bolso de hombro elaborado con la tradicional técnica de trenzado de caña flecha. Estructura rígida y duradera.', 75000.00, 145000.00, 10, 2, 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80', 0, '2026-06-12 20:38:11', '2026-06-16 06:49:25'),
 (15, 'Cartera de Palma de Iraca Natural', '45000.00', 89900.00, 0.00, 1, 0, 'Cartera artesanal tejida en palma de iraca fina por artesanos de Sandoná, Nariño. Ideal para días soleados y eventos casuales.', 1, '2026-06-12 20:38:11', '2026-06-16 07:09:48'),
-(16, 'Mochila Arhuaca de Lana Pura', '90000.00', 185000.00, -67.00, 0, 0, 'Mochila Tutu genuina tejida por la comunidad Arhuaca en la Sierra Nevada de Santa Marta utilizando lana de oveja natural.', 1, '2026-06-12 20:38:11', '2026-06-16 07:10:26'),
+(16, 'Mochila Arhuaca de Lana Pura', '185000.00', 0.00, 0.00, 0, 0, '90000.00', 1, '2026-06-12 20:38:11', '2026-06-17 21:06:21'),
 (17, 'Bolso Tote en Macramé Algodón', 'Bolso amplio estilo tote tejido en hilos de algodón con la técnica de nudos macramé. Incluye forro interno de tela protectora.', 25000.00, 55000.00, 25, 5, 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=600&q=80', 1, '2026-06-12 20:38:11', '2026-06-12 20:38:11'),
 (18, 'Cartera de Cuero Repujado a Mano', 'Bolso de cuero de alta calidad con grabados precolombinos repujados artesanalmente. Herrajes de larga duración.', 110000.00, 220000.00, 12, 3, 'https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?auto=format&fit=crop&w=600&q=80', 1, '2026-06-12 20:38:11', '2026-06-12 20:38:11'),
 (19, 'Mochila Wayuu Unicolor Pastel', 'Mochila tejida a mano en un solo tono suave, ideal para combinar con outfits modernos manteniendo el toque tradicional.', 55000.00, 110000.00, 14, 3, 'https://images.unsplash.com/photo-1581605405669-fcdf81165afa?auto=format&fit=crop&w=600&q=80', 1, '2026-06-12 20:38:11', '2026-06-12 20:38:11'),
@@ -298,7 +289,8 @@ INSERT INTO `productos` (`id`, `nombre`, `descripcion`, `precio_compra`, `precio
 (36, 'dsger', 'fxghfg', 67.00, 456.00, 4564, 5456, NULL, 0, '2026-06-13 16:56:23', '2026-06-13 18:00:08'),
 (37, 'dsger', 'fxghfg', 67.00, 456.00, 4564, 5456, 'uploads/Captura_de_pantalla_2026-06-12_153320.png', 0, '2026-06-13 17:00:21', '2026-06-13 18:00:04'),
 (38, 'sedf', '', 0.02, 0.04, 2, 5, 'uploads/Captura_de_pantalla_2026-06-12_153320.png', 0, '2026-06-13 17:00:43', '2026-06-13 17:59:50'),
-(39, 'wqd', 'sad', 0.03, 0.03, 4, 5, 'uploads/Captura_de_pantalla_2026-06-12_153320.png', 1, '2026-06-16 06:50:06', '2026-06-16 06:50:06');
+(39, 'wqd', 'sad', 0.03, 0.03, 4, 5, 'uploads/Captura_de_pantalla_2026-06-12_153320.png', 1, '2026-06-16 06:50:06', '2026-06-16 06:50:06'),
+(40, 'jholian manuel', 'esfdsedrf', 0.01, 0.01, 1, 5, 'uploads/Screenshot_2026.06.11_13.31.10.293.png', 1, '2026-06-17 21:09:03', '2026-06-17 21:09:03');
 
 --
 -- Disparadores `productos`
@@ -364,58 +356,9 @@ CREATE TABLE `soporte` (
   `fecha` timestamp NOT NULL DEFAULT current_timestamp(),
   `estado` varchar(20) DEFAULT 'pendiente',
   `tipo` varchar(50) DEFAULT 'general',
-  `remitente` varchar(20) DEFAULT 'cliente'
+  `remitente` varchar(20) DEFAULT 'cliente',
+  `leido` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `soporte`
---
-
-INSERT INTO `soporte` (`id`, `usuario_id`, `mensaje`, `fecha`, `estado`, `tipo`, `remitente`) VALUES
-(9, 12, '4', '2026-06-15 22:47:25', 'pendiente', 'general', 'cliente'),
-(10, 12, 'muira que  quires', '2026-06-15 22:55:16', 'pendiente', 'general', 'admin'),
-(11, 12, 'dsfsdfsdf', '2026-06-15 22:55:46', 'pendiente', 'general', 'admin'),
-(12, 8, 'eweqrwe', '2026-06-15 22:57:07', 'pendiente', 'general', 'cliente'),
-(13, 8, 'werew', '2026-06-15 22:57:09', 'pendiente', 'general', 'cliente'),
-(14, 8, 'werwe', '2026-06-15 22:57:11', 'pendiente', 'general', 'cliente'),
-(15, 8, 'werwe', '2026-06-15 22:57:13', 'pendiente', 'general', 'cliente'),
-(16, 8, 'qwerwqfr', '2026-06-15 22:57:35', 'pendiente', 'general', 'admin'),
-(17, 8, 'sdfesw', '2026-06-15 22:57:37', 'pendiente', 'general', 'admin'),
-(18, 8, 'sef', '2026-06-15 22:57:39', 'pendiente', 'general', 'admin'),
-(19, 8, 'qwadqwa', '2026-06-15 23:04:13', 'pendiente', 'general', 'admin'),
-(20, 8, 'adqw', '2026-06-15 23:04:15', 'pendiente', 'general', 'admin'),
-(21, 12, 'asfdqew', '2026-06-15 23:04:29', 'pendiente', 'general', 'admin'),
-(22, 12, 'asdasd', '2026-06-15 23:04:30', 'pendiente', 'general', 'admin'),
-(23, 12, 'daswasd', '2026-06-15 23:09:34', 'pendiente', 'general', 'admin'),
-(24, 12, 'asdas', '2026-06-15 23:09:35', 'pendiente', 'general', 'admin'),
-(25, 12, 'ad', '2026-06-15 23:09:37', 'pendiente', 'general', 'admin'),
-(26, 8, 'sadsa', '2026-06-15 23:09:40', 'pendiente', 'general', 'admin'),
-(27, 8, '4', '2026-06-15 23:09:59', 'pendiente', 'general', 'cliente'),
-(28, 8, 'asfdasfd', '2026-06-15 23:13:58', 'pendiente', 'general', 'cliente'),
-(29, 8, 'hola soy jholian', '2026-06-15 23:14:23', 'pendiente', 'general', 'cliente'),
-(30, 8, 'a que buno en que te ayudo', '2026-06-15 23:14:42', 'pendiente', 'general', 'admin'),
-(31, 8, 'zxdfsd', '2026-06-15 23:18:27', 'pendiente', 'general', 'cliente'),
-(32, 8, 'asfsdfsd', '2026-06-15 23:18:33', 'pendiente', 'general', 'admin'),
-(33, 12, 'sdfds', '2026-06-15 23:18:36', 'pendiente', 'general', 'admin'),
-(34, 8, 'asfd', '2026-06-15 23:21:15', 'pendiente', 'general', 'cliente'),
-(35, 12, 'asda', '2026-06-15 23:21:21', 'pendiente', 'general', 'admin'),
-(36, 8, 'asda', '2026-06-15 23:21:25', 'pendiente', 'general', 'admin'),
-(37, 8, 'rge', '2026-06-15 23:25:16', 'pendiente', 'general', 'cliente'),
-(38, 8, 'gdfgdf', '2026-06-15 23:25:19', 'pendiente', 'general', 'cliente'),
-(39, 8, 'dfgd', '2026-06-15 23:25:28', 'pendiente', 'general', 'admin'),
-(40, 8, 'wqd', '2026-06-15 23:28:12', 'pendiente', 'general', 'cliente'),
-(41, 8, 'qwad', '2026-06-15 23:28:19', 'pendiente', 'general', 'admin'),
-(42, 8, 'qasdsa', '2026-06-15 23:30:10', 'pendiente', 'general', 'cliente'),
-(43, 8, 'holA', '2026-06-15 23:30:18', 'pendiente', 'general', 'cliente'),
-(44, 8, 'dime', '2026-06-15 23:30:38', 'pendiente', 'general', 'admin'),
-(45, 12, 'jhiu', '2026-06-15 23:37:49', 'pendiente', 'general', 'cliente'),
-(46, 12, 'hgfvyhfguyt', '2026-06-15 23:38:02', 'pendiente', 'general', 'admin'),
-(47, 12, 'wqdq', '2026-06-15 23:42:47', 'pendiente', 'general', 'cliente'),
-(48, 8, 'AS', '2026-06-16 05:01:07', 'pendiente', 'general', 'cliente'),
-(49, 8, 'RTHRFG', '2026-06-16 05:10:10', 'pendiente', 'general', 'cliente'),
-(50, 8, 'DSF', '2026-06-16 05:21:49', 'pendiente', 'general', 'cliente'),
-(51, 13, 'hola', '2026-06-16 06:08:15', 'pendiente', 'general', 'cliente'),
-(52, 8, 'rgerg', '2026-06-16 06:28:14', 'pendiente', 'general', 'cliente');
 
 -- --------------------------------------------------------
 
@@ -436,6 +379,7 @@ CREATE TABLE `usuarios` (
   `telefono` varchar(20) DEFAULT NULL,
   `direccion` varchar(255) DEFAULT NULL,
   `ciudad` varchar(100) DEFAULT NULL,
+  `foto_perfil` varchar(255) DEFAULT 'default.png',
   `foto_perfil_url` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -443,17 +387,26 @@ CREATE TABLE `usuarios` (
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `password_hash`, `rol`, `activo`, `creado_el`, `codigo_recuperacion`, `codigo_expira`, `telefono`, `direccion`, `ciudad`) VALUES
-(7, 'Administrador Principal', 'admin@dunaka.com', 'pbkdf2:sha256:600000$h6w4dJbA$7c5e9f8a3b2d1e4c6a8b0d9f2e4a6c8b0d9f2e4a6c8b0d9f2e4a6c8b0d9f2e4a', 'admin', 1, '2026-06-12 18:17:28', NULL, NULL, NULL, NULL, NULL),
-(8, 'Admin Nughevo', 'nuevoadmin@dunaka.com', 'pbkdf2:sha256:600000$wvT55qsK514deYEp$253bc76a8243432f8dd409d2a6e97bb712a4b69323a3dc6109aa3d47e86c8985', 'admin', 1, '2026-06-12 18:31:22', NULL, NULL, '', '', ''),
-(10, 'Eliad Suarez', 'eliadsuarez8@gmail.com', 'google_auth', 'cliente', 1, '2026-06-12 20:16:08', NULL, NULL, NULL, NULL, NULL),
-(11, 'Angi', 'agutierrezreales@gmail.com', 'scrypt:32768:8:1$ZwIboherOZkbWubS$9820fd3c7292bedea759dcb9a39bacc0c20ce9e742aeabeb59b8e47996bbdcb33d83e7814027f6492acb12a5d31f43fa63928dfe7ef5228a50370ccbf5043052', 'cliente', 1, '2026-06-13 20:36:10', NULL, NULL, NULL, NULL, NULL),
-(12, 'jholian manuel', 'jholianmanuel10@gmail.com', 'google_auth', 'cliente', 1, '2026-06-14 05:44:18', NULL, NULL, NULL, NULL, NULL),
-(13, 'LUCIANA SOFIA', 'lucianasofia2605@gmail.com', 'google_auth', 'cliente', 1, '2026-06-16 06:08:06', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `password_hash`, `rol`, `activo`, `creado_el`, `codigo_recuperacion`, `codigo_expira`, `telefono`, `direccion`, `ciudad`, `foto_perfil`, `foto_perfil_url`) VALUES
+(7, 'Administrador Principal', 'admin@dunaka.com', 'pbkdf2:sha256:600000$h6w4dJbA$7c5e9f8a3b2d1e4c6a8b0d9f2e4a6c8b0d9f2e4a6c8b0d9f2e4a6c8b0d9f2e4a', 'admin', 1, '2026-06-12 18:17:28', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
+(8, 'Admin Nuevo', 'nuevoadmin@dunaka.com', 'scrypt:32768:8:1$b8X3lSRtysONM3v7$6116bfc7b704937d874db36735af277638e5acf58547174f983b0639b59975d44e74a15d8ad02f804814d3a6f2f3681513abd15b3d4e490df342116a9a0bcb48', 'admin', 1, '2026-06-12 18:31:22', NULL, NULL, '', '', 'soladas', 'default.png', '/static/uploads/perfiles/user_8.png'),
+(10, 'Eliad Suarez', 'eliadsuarez8@gmail.com', 'google_auth', 'cliente', 1, '2026-06-12 20:16:08', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
+(11, 'Angi', 'agutierrezreales@gmail.com', 'scrypt:32768:8:1$ZwIboherOZkbWubS$9820fd3c7292bedea759dcb9a39bacc0c20ce9e742aeabeb59b8e47996bbdcb33d83e7814027f6492acb12a5d31f43fa63928dfe7ef5228a50370ccbf5043052', 'cliente', 1, '2026-06-13 20:36:10', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
+(12, 'jholian manuel', 'jholianmanuel10@gmail.com', 'google_auth', 'cliente', 1, '2026-06-14 05:44:18', NULL, NULL, '', '', '', 'default.png', '/static/uploads/perfiles/user_12.png'),
+(13, 'LUCIANA SOFIA', 'lucianasofia2605@gmail.com', 'google_auth', 'cliente', 1, '2026-06-16 06:08:06', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
+(14, 'Jholian', 'manuel@gmail.com', 'scrypt:32768:8:1$0GI8cpaatqZgFnXd$3e654dcaa79048459a12d3998b6ad7ef7b574bfeccd504f906914b65ee401ddc702a31cf9c12578b752a85953efa5767e858ab2632b32d97e7e51a1c9e6ec620', 'cliente', 1, '2026-06-17 18:17:53', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL);
 
 --
 -- Índices para tablas volcadas
 --
+
+--
+-- Indices de la tabla `carrito`
+--
+ALTER TABLE `carrito`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `producto_id` (`producto_id`);
 
 --
 -- Indices de la tabla `carritos`
@@ -499,18 +452,13 @@ ALTER TABLE `notificaciones`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `ordenes`
---
-ALTER TABLE `ordenes`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indices de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `referencia` (`referencia`),
-  ADD KEY `usuario_id` (`usuario_id`);
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `idx_pedidos_referencia` (`referencia`);
 
 --
 -- Indices de la tabla `pedido_detalles`
@@ -524,7 +472,8 @@ ALTER TABLE `pedido_detalles`
 -- Indices de la tabla `productos`
 --
 ALTER TABLE `productos`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_productos_estado` (`estado`);
 
 --
 -- Indices de la tabla `reseñas`
@@ -552,16 +501,22 @@ ALTER TABLE `usuarios`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `carrito`
+--
+ALTER TABLE `carrito`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `carritos`
 --
 ALTER TABLE `carritos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `carrito_detalles`
 --
 ALTER TABLE `carrito_detalles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones`
@@ -573,7 +528,7 @@ ALTER TABLE `direcciones`
 -- AUTO_INCREMENT de la tabla `direcciones_usuario`
 --
 ALTER TABLE `direcciones_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `favoritos`
@@ -585,19 +540,13 @@ ALTER TABLE `favoritos`
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
-
---
--- AUTO_INCREMENT de la tabla `ordenes`
---
-ALTER TABLE `ordenes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `pedido_detalles`
@@ -609,7 +558,7 @@ ALTER TABLE `pedido_detalles`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de la tabla `reseñas`
@@ -621,17 +570,24 @@ ALTER TABLE `reseñas`
 -- AUTO_INCREMENT de la tabla `soporte`
 --
 ALTER TABLE `soporte`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Restricciones para tablas volcadas
 --
+
+--
+-- Filtros para la tabla `carrito`
+--
+ALTER TABLE `carrito`
+  ADD CONSTRAINT `carrito_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `carrito_ibfk_2` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `carritos`
@@ -669,6 +625,7 @@ ALTER TABLE `favoritos`
 -- Filtros para la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
+  ADD CONSTRAINT `fk_usuario_pedido` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
   ADD CONSTRAINT `pedidos_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`);
 
 --
