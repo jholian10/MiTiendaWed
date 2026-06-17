@@ -7,17 +7,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        
         .chat-container { width: 400px; height: 600px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; overflow: hidden; }
-        
         .chat-header { background: linear-gradient(135deg, #007bff, #00d4ff); color: white; padding: 20px; display: flex; align-items: center; }
         .avatar { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; border: 2px solid white; object-fit: cover; background: white; padding: 2px; }
-        
         .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { padding: 12px 18px; border-radius: 18px; max-width: 85%; font-size: 0.95rem; line-height: 1.4; }
         .user { background: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .bot { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        
         .chat-footer { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; }
         input { flex: 1; border: 1px solid #ddd; border-radius: 25px; padding: 10px 20px; outline: none; }
         button { background: #007bff; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; transition: 0.3s; }
@@ -30,13 +26,16 @@
         <div class="chat-header">
             <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Support" class="avatar">
             <div>
-                <h5 style="margin:0">Bot de Soporte</h5>
+                <h5 style="margin:0">Soporte Dunaka</h5>
                 <small>Hola, {{ nombre_usuario }}</small>
             </div>
         </div>
         
         <div id="chat-messages" class="chat-body">
             <div class="message bot">¡Hola, {{ nombre_usuario }}! 👋 ¿En qué podemos ayudarte hoy?</div>
+            {% for m in mensajes %}
+                <div class="message {{ 'user' if m.remitente == 'cliente' else 'bot' }}">{{ m.mensaje }}</div>
+            {% endfor %}
         </div>
         
         <div class="chat-footer">
@@ -46,8 +45,6 @@
     </div>
 
    <script>
-        let paso = 0; // 0: saludo inicial, 1: esperando problema
-
         async function sendMessage() {
             let input = document.getElementById("user-input");
             let chat = document.getElementById("chat-messages");
@@ -55,34 +52,35 @@
             
             if(msg.trim() === "") return;
 
-            // Mostrar mensaje del usuario
+            // 1. Mostrar mensaje en pantalla
             chat.innerHTML += `<div class="message user">${msg}</div>`;
             input.value = "";
             chat.scrollTop = chat.scrollHeight;
 
-            if (paso === 0) {
-                // El bot analiza el primer mensaje y da opciones
-                setTimeout(() => {
-                    chat.innerHTML += `<div class="message bot">Entendido. Para ayudarte mejor, ¿cuál es el motivo de tu consulta?<br><br>
-                    1. 📦 Estado de mi pedido<br>
-                    2. 💳 Problemas con un pago<br>
-                    3. 👤 Problemas con mi cuenta<br>
-                    4. 👨‍💼 Hablar con un humano</div>`;
-                    chat.scrollTop = chat.scrollHeight;
-                    paso = 1;
-                }, 500);
-            } else {
-                // Enviar la elección al servidor
+            // 2. Enviar mensaje al servidor (tu ruta /support/api)
+            try {
                 const response = await fetch('/support/api', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({mensaje: msg})
                 });
+                
                 const data = await response.json();
-                chat.innerHTML += `<div class="message bot">${data.respuesta}</div>`;
-                chat.scrollTop = chat.scrollHeight;
+                
+                // Opcional: Mostrar confirmación o respuesta del admin si existiera
+                if (data.respuesta) {
+                    chat.innerHTML += `<div class="message bot">${data.respuesta}</div>`;
+                    chat.scrollTop = chat.scrollHeight;
+                }
+            } catch (error) {
+                console.error("Error enviando mensaje:", error);
             }
         }
+
+        // Permitir enviar con la tecla Enter
+        document.getElementById("user-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") sendMessage();
+        });
     </script>
 </body>
 </html>

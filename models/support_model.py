@@ -5,12 +5,14 @@ def guardar_mensaje_soporte(id_usuario, mensaje):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
-        query = "INSERT INTO soporte (usuario_id, mensaje) VALUES (%s, %s)"
+        # Agregamos 'cliente' en el remitente
+        query = "INSERT INTO soporte (usuario_id, mensaje, remitente) VALUES (%s, %s, 'cliente')"
         cursor.execute(query, (id_usuario, mensaje))
         conexion.commit()
         return True
+    # ... resto del código igual
     except Exception as e:
-        print(f"ERROR AL GUARDAR EN BD: {e}")
+        print(f"Error guardar_mensaje_soporte: {e}")
         return False
     finally:
         cursor.close()

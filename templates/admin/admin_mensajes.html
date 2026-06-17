@@ -1,125 +1,609 @@
-{% extends 'admin/dashboard.html' %}
+{% extends 'admin/base_admin.html' %}
 
 {% block content %}
 <style>
-    /* Estilos integrados para la vista de chat */
-    .chat-wrapper {
+    /* VARIABLES DE COLOR DUNAKA */
+    :root {
+        --primary-dunaka: #5840d8;
+        --primary-hover: #4632b3;
+        --bg-main: #f4f7fe;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --unread-bg: #f8f6ff;
+        --chat-bg: #f8fafc;
+    }
+
+    /* SCROLLBARS PERSONALIZADOS */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .dunaka-chat-wrapper {
         display: flex;
         background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        height: calc(100vh - 150px);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+        height: 75vh;
+        min-height: 600px;
         overflow: hidden;
-        border: 1px solid #e1e5eb;
+        margin-top: 1rem;
+        border: 1px solid var(--border-color);
     }
 
-    .chat-sidebar {
-        width: 350px;
-        border-right: 1px solid #e1e5eb;
+    /* SIDEBAR IZQUIERDO */
+    .chat-users-panel {
+        width: 360px;
+        border-right: 1px solid var(--border-color);
         display: flex;
         flex-direction: column;
+        background: #ffffff;
+        z-index: 2;
     }
 
-    .chat-main {
+    .sidebar-title-panel {
+        padding: 24px;
+        border-bottom: 1px solid var(--border-color);
+        background: #ffffff;
+    }
+
+    .sidebar-title-panel h6 {
+        margin: 0;
+        font-weight: 800;
+        color: var(--text-dark);
+        font-size: 1.2rem;
+        letter-spacing: -0.3px;
+    }
+
+    .users-list {
         flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .contact-item {
-        padding: 20px;
-        border-bottom: 1px solid #e1e5eb;
-        cursor: pointer;
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .contact-item:hover, .contact-item.active {
-        background: #f8f9fa;
-        border-left: 4px solid #6f42c1;
-    }
-
-    .chat-messages {
-        flex-grow: 1;
-        padding: 25px;
         overflow-y: auto;
-        background: #fcfcfc;
+        scroll-behavior: smooth;
     }
 
-    .msg-bubble {
+    /* TARJETA DE USUARIO */
+    .user-item {
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .user-item:hover {
+        background-color: #f8fafc;
+        padding-left: 28px; /* Pequeño efecto de movimiento al pasar el mouse */
+    }
+
+    /* RESALTADO EN MORADITO SI NO ESTÁ LEÍDO */
+    .user-item.unread-chat {
+        background-color: var(--unread-bg);
+    }
+    
+    .user-item.unread-chat::before,
+    .user-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: var(--primary-dunaka);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .user-item.active {
+        background-color: #ffffff;
+        box-shadow: inset 0 0 20px rgba(88, 64, 216, 0.03);
+    }
+
+    /* CONTENEDOR DEL AVATAR */
+    .avatar-wrapper {
+        position: relative;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        background-color: #e0e7ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-dunaka);
+        font-size: 1.2rem;
+        border: 2px solid #fff;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    }
+
+    /* CONTADOR ROJO */
+    .badge-unread {
+        background-color: #ef4444;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 800;
+        min-width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+        z-index: 10;
+    }
+
+    .user-info {
+        flex-grow: 1;
+        overflow: hidden;
+    }
+
+    .user-name {
+        font-weight: 700;
+        color: var(--text-dark);
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+
+    .user-preview {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+    }
+
+    .user-item.unread-chat .user-preview {
+        color: var(--primary-dunaka);
+        font-weight: 600;
+    }
+
+    /* PANEL DE CONVERSACIÓN */
+    .chat-conversation-panel {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--chat-bg);
+        position: relative;
+    }
+
+    .chat-header {
+        padding: 20px 30px;
+        background: #ffffff;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 4px 15px -10px rgba(0,0,0,0.05);
+        z-index: 1;
+    }
+
+    .chat-header-info h5 {
+        margin: 0;
+        font-weight: 800;
+        color: var(--text-dark);
+        font-size: 1.15rem;
+    }
+
+    .chat-header-meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .chat-header-meta i {
+        color: var(--primary-dunaka);
+    }
+
+    .chat-messages-area {
+        flex-grow: 1;
+        padding: 30px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    /* ANIMACIÓN DE ENTRADA PARA MENSAJES */
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* BURBUJAS DE MENSAJE */
+    .message {
         max-width: 70%;
-        padding: 12px 18px;
-        border-radius: 15px;
-        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        animation: slideUp 0.3s ease-out forwards;
     }
 
-    .msg-cliente { background: #e9ecef; align-self: flex-start; }
-    .msg-admin { background: #6f42c1; color: white; align-self: flex-end; margin-left: auto; }
+    .message-text {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
 
-    .chat-input {
-        padding: 20px;
-        border-top: 1px solid #e1e5eb;
-        background: #fff;
+    .message.client {
+        align-self: flex-start;
+    }
+
+    .message.client .message-text {
+        background-color: #ffffff;
+        border: 1px solid #f1f5f9;
+        color: var(--text-dark);
+        border-radius: 20px 20px 20px 4px; /* Cola de globo a la izquierda */
+    }
+
+    .message.admin {
+        align-self: flex-end;
+    }
+
+    .message.admin .message-text {
+        background: linear-gradient(135deg, var(--primary-dunaka), #7c3aed);
+        color: #ffffff;
+        border-radius: 20px 20px 4px 20px; /* Cola de globo a la derecha */
+    }
+
+    /* ESTADO DEL MENSAJE */
+    .message-meta {
+        font-size: 0.75rem;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+    
+    .message.admin .message-meta {
+        align-self: flex-end;
+        color: #94a3b8; 
+    }
+
+    .message.client .message-meta {
+        align-self: flex-start;
+        color: var(--text-muted);
+    }
+
+    .status-badge {
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-badge.visto {
+        color: #059669;
+        background-color: #d1fae5;
+    }
+
+    .status-badge.novisto {
+        color: var(--primary-dunaka);
+        background-color: #ede9fe;
+    }
+
+    /* ÁREA DE INPUT */
+    .chat-input-area {
+        padding: 20px 30px;
+        background: #ffffff;
+        border-top: 1px solid var(--border-color);
+        z-index: 1;
+    }
+
+    .input-group-custom {
+        display: flex;
+        align-items: center;
+        background: #f8fafc;
+        border-radius: 30px;
+        padding: 6px 6px 6px 24px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .input-group-custom:focus-within {
+        border-color: var(--primary-dunaka);
+        box-shadow: 0 0 0 3px rgba(88, 64, 216, 0.1);
+        background: #ffffff;
+    }
+
+    .input-group-custom input {
+        flex-grow: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        color: var(--text-dark);
+        font-size: 1rem;
+    }
+
+    .input-group-custom input::placeholder {
+        color: #94a3b8;
+    }
+
+    .send-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: var(--primary-dunaka);
+        border: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 10px rgba(88, 64, 216, 0.3);
+    }
+
+    .send-btn:hover {
+        background-color: var(--primary-hover);
+        transform: scale(1.05);
+    }
+    
+    .send-btn:active {
+        transform: scale(0.95);
     }
 </style>
 
-<div class="container-fluid mt-3">
-    <h3 class="mb-4 fw-bold">Soporte al Cliente</h3>
-    
-    <div class="chat-wrapper">
-        <div class="chat-sidebar">
-            <div class="p-3 border-bottom">
-                <input type="text" class="form-control" placeholder="Buscar conversaciones...">
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h3 class="fw-bold" style="color: #1e293b; letter-spacing: -0.5px;">Atención al Cliente</h3>
+        <p style="color: #64748b; font-size: 1.05rem;">Gestiona tus mensajes de soporte de manera inmediata.</p>
+    </div>
+
+    <div class="dunaka-chat-wrapper">
+        
+        <div class="chat-users-panel">
+            <div class="sidebar-title-panel">
+                <h6>Conversaciones activas</h6>
             </div>
-            <div class="overflow-auto">
-                {% for m in mensajes %}
-                <a href="#" class="contact-item {% if loop.first %}active{% endif %}">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold">{{ m.nombre }}</span>
-                        <small class="text-muted">{{ m.fecha_creacion }}</small>
+            
+            <div class="users-list" id="usersListContainer">
+                {% for c in clientes %}
+                <div class="user-item {% if c.no_leidos and c.no_leidos > 0 %}unread-chat{% endif %}" 
+                     id="user-item-{{ c.id }}"
+                     onclick="cargarChat({{ c.id }}, '{{ c.nombre }}', '{{ c.foto_url if c.foto_url else '' }}', this)">
+                    
+                    <div class="avatar-wrapper">
+                        {% if c.no_leidos and c.no_leidos > 0 %}
+                            <span class="badge-unread" id="badge-{{ c.id }}">{{ c.no_leidos }}</span>
+                        {% endif %}
+
+                        {% if c.foto_url %}
+                            <img src="{{ c.foto_url }}" alt="Foto" class="user-avatar">
+                        {% else %}
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
                     </div>
-                    <p class="text-muted small mb-0 text-truncate">{{ m.mensaje }}</p>
-                </a>
+                    
+                    <div class="user-info">
+                        <div class="user-name">{{ c.nombre }}</div>
+                        <p class="user-preview" id="preview-text-{{ c.id }}">{{ c.ultimo_mensaje }}</p>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
         </div>
 
-        <div class="chat-main">
-            <div class="p-3 border-bottom bg-light">
-                <h5 class="mb-0">Conversación con {{ mensajes[0].nombre if mensajes else 'Selecciona un usuario' }}</h5>
-            </div>
+        <div class="chat-conversation-panel">
             
-            <div class="chat-messages" id="chatBox">
-                {% if mensajes %}
-                    <div class="msg-bubble msg-cliente">
-                        {{ mensajes[0].mensaje }}
+            <div class="chat-header d-none" id="chatHeader">
+                <img src="" alt="Avatar" class="user-avatar" id="headerAvatar" style="display: none; width: 48px; height: 48px;">
+                <div class="user-avatar" id="headerAvatarIcon" style="width: 48px; height: 48px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="chat-header-info">
+                    <h5 id="chatTitle">Nombre del Cliente</h5>
+                    <div class="chat-header-meta">
+                        <i class="fas fa-comment-dots"></i>
+                        <span id="clientMessageCount">Calculando mensajes...</span>
                     </div>
-                {% else %}
-                    <div class="text-center mt-5 text-muted">
-                        <i class="fas fa-comments fa-3x mb-3"></i>
-                        <p>No hay mensajes para mostrar.</p>
-                    </div>
-                {% endif %}
+                </div>
             </div>
 
-            <div class="chat-input">
-                <form method="POST">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Escribe tu respuesta..." required>
-                        <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+            <div class="chat-messages-area" id="chatBox">
+                <div class="h-100 d-flex flex-column justify-content-center align-items-center" style="color: #94a3b8;">
+                    <div style="background: #e0e7ff; padding: 25px; border-radius: 50%; margin-bottom: 20px;">
+                        <i class="fas fa-paper-plane fa-3x" style="color: var(--primary-dunaka);"></i>
                     </div>
-                </form>
+                    <h4 class="fw-bold" style="color: #1e293b;">Selecciona una conversación</h4>
+                    <p class="text-center" style="font-size: 0.95rem;">Elige un cliente en el panel izquierdo para ver y responder sus mensajes.</p>
+                </div>
             </div>
+
+            <div class="chat-input-area d-none" id="chatInputArea">
+                <div class="input-group-custom">
+                    <input type="text" id="adminInput" placeholder="Escribe tu respuesta aquí..." autocomplete="off">
+                    <button class="send-btn" onclick="enviarMensaje()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
 <script>
-    // Auto-scroll al final del chat
-    const chatBox = document.getElementById('chatBox');
-    chatBox.scrollTop = chatBox.scrollHeight;
+    let usuarioSeleccionado = null;
+
+    function cargarChat(id, nombre, fotoUrl, elemento) {
+        usuarioSeleccionado = id;
+        
+        document.getElementById('chatHeader').classList.remove('d-none');
+        document.getElementById('chatInputArea').classList.remove('d-none');
+        document.getElementById('chatTitle').innerText = nombre;
+        document.getElementById('clientMessageCount').innerText = 'Cargando...';
+        
+        // Quitar alertas visuales
+        const badge = document.getElementById(`badge-${id}`);
+        const contenedorUsuario = document.getElementById(`user-item-${id}`);
+        if (badge) badge.remove(); 
+        if (contenedorUsuario) contenedorUsuario.classList.remove('unread-chat');
+
+        // Manejar Avatar
+        const avatarImg = document.getElementById('headerAvatar');
+        const avatarIcon = document.getElementById('headerAvatarIcon');
+        if (fotoUrl && fotoUrl.trim() !== '') {
+            avatarImg.src = fotoUrl;
+            avatarImg.style.display = 'block';
+            avatarIcon.style.display = 'none';
+        } else {
+            avatarImg.style.display = 'none';
+            avatarIcon.style.display = 'flex';
+        }
+
+        // Marcar activo
+        document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
+        if(elemento) elemento.classList.add('active');
+        
+        const box = document.getElementById('chatBox');
+        box.innerHTML = '<div class="h-100 d-flex justify-content-center align-items-center"><div class="spinner-border" style="color: var(--primary-dunaka);" role="status"></div></div>';
+
+        // Cargar historial
+        fetch(`/admin/soporte/historial/${id}`)
+            .then(res => res.json())
+            .then(mensajes => {
+                box.innerHTML = '';
+                
+                let cantidadMensajesCliente = 0; // Variable para el contador
+
+                if(mensajes.length === 0) {
+                    box.innerHTML = '<p class="text-center text-muted mt-4">No hay mensajes anteriores en esta conversación.</p>';
+                    document.getElementById('clientMessageCount').innerText = '0 mensajes enviados';
+                } else {
+                    mensajes.forEach((m, index) => {
+                        const esAdmin = m.remitente === 'admin';
+                        const claseBox = esAdmin ? 'admin' : 'client';
+                        const hora = m.fecha ? m.fecha.substring(11, 16) : ''; 
+                        
+                        // Contar si el mensaje es del cliente
+                        if(!esAdmin) {
+                            cantidadMensajesCliente++;
+                        }
+
+                        let estadoHtml = '';
+                        if (!esAdmin) {
+                            if (m.leido === 1) {
+                                estadoHtml = `<span class="status-badge visto"><i class="fas fa-check-double"></i> Visto</span>`;
+                            } else {
+                                estadoHtml = `<span class="status-badge novisto"><i class="fas fa-check"></i> Entregado</span>`;
+                            }
+                        }
+
+                        // Añadir un pequeño retraso en la animación para cada mensaje
+                        const delay = index * 0.05;
+
+                        box.innerHTML += `
+                            <div class="message ${claseBox}" style="animation-delay: ${delay}s">
+                                <div class="message-text">${m.mensaje}</div>
+                                <div class="message-meta">
+                                    <span>${hora}</span> ${estadoHtml}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Actualizar el contador en el DOM
+                    document.getElementById('clientMessageCount').innerText = `${cantidadMensajesCliente} mensaje(s) enviado(s) por el cliente`;
+                }
+                
+                // Bajar el scroll al último mensaje suavemente
+                setTimeout(() => {
+                    box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+                }, 100);
+            });
+    }
+
+    function enviarMensaje() {
+        const input = document.getElementById('adminInput');
+        const mensajeTexto = input.value.trim();
+        if (!usuarioSeleccionado || !mensajeTexto) return;
+
+        input.value = '';
+        input.focus();
+
+        fetch('/admin/soporte/responder', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ usuario_id: usuarioSeleccionado, mensaje: mensajeTexto })
+        })
+        .then(res => {
+            if(res.ok) {
+                const txtPreview = document.getElementById(`preview-text-${usuarioSeleccionado}`);
+                if (txtPreview) {
+                    txtPreview.innerText = "Tú: " + mensajeTexto;
+                    txtPreview.style.fontWeight = "400";
+                    txtPreview.style.color = "var(--text-muted)";
+                }
+                
+                // LÓGICA PARA MOVER AL USUARIO DE PRIMERO EN LA LISTA (El más reciente arriba)
+                const filaUsuario = document.getElementById(`user-item-${usuarioSeleccionado}`);
+                const contenedorLista = document.getElementById('usersListContainer');
+                
+                if (filaUsuario && contenedorLista && contenedorLista.firstChild !== filaUsuario) {
+                    // Animación sutil de fondo para notar el cambio
+                    filaUsuario.style.backgroundColor = "#e0e7ff";
+                    contenedorLista.insertBefore(filaUsuario, contenedorLista.firstChild);
+                    setTimeout(() => {
+                        filaUsuario.style.backgroundColor = "";
+                    }, 500);
+                }
+
+                // Simular inserción inmediata en el chat para que se sienta súper rápido
+                const box = document.getElementById('chatBox');
+                const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                // Removemos el mensaje de "no hay mensajes" si existe
+                if(box.innerHTML.includes("No hay mensajes anteriores")) {
+                    box.innerHTML = '';
+                }
+
+                box.innerHTML += `
+                    <div class="message admin">
+                        <div class="message-text">${mensajeTexto}</div>
+                        <div class="message-meta">
+                            <span>${horaActual}</span>
+                        </div>
+                    </div>
+                `;
+                box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+            }
+        });
+    }
+
+    document.getElementById('adminInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') enviarMensaje();
+    });
 </script>
 {% endblock %}

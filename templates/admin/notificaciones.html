@@ -1,337 +1,43 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dunaka | Historial de Notificaciones</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% extends 'admin/base_admin.html' %}
 
-    <style>
-        /* DEFINICIÓN DE VARIABLES DE MARCA */
-        :root {
-            --primary-purple: #6f42c1;
-            --primary-purple-dark: #52279c;
-            --primary-blue: #0d6efd;
-            --primary-blue-light: #e6f0ff;
-            --accent-neon-purple: #d1b3ff;
-            --white-pure: #ffffff;
-            --bg-light-blue: #f4f7fe;
-            --text-dark: #212529;
-            --text-muted: #7c8ba1;
-        }
-
-        /* CONFIGURACIÓN BASE */
-        body {
-            background-color: var(--bg-light-blue);
-            font-family: 'Poppins', sans-serif;
-            color: var(--text-dark);
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-light-blue);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-purple);
-            border-radius: 10px;
-        }
-
-        /* DISEÑO ESTRUCTURAL: MENU LATERAL (SIDEBAR) */
-        .sidebar-container {
-            width: 290px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-blue) 100%);
-            padding: 30px 20px;
-            border-radius: 0 45px 45px 0;
-            box-shadow: 10px 0 40px rgba(111, 66, 193, 0.15);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-brand {
-            padding: 10px 15px;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .sidebar-brand h3 {
-            color: var(--white-pure);
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            font-size: 1.6rem;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
-        .sidebar-brand span {
-            font-size: 0.75rem;
-            color: var(--accent-neon-purple);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex-grow: 1;
-        }
-
-        .menu-item {
-            margin-bottom: 12px;
-        }
-
-        .menu-link {
-            display: flex;
-            align-items: center;
-            padding: 14px 20px;
-            color: rgba(255, 255, 255, 0.75);
-            text-decoration: none;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .menu-icon-wrapper {
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-        }
-
-        .menu-link:hover {
-            background: var(--white-pure);
-            color: var(--primary-purple) !important;
-            transform: translateX(8px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            font-weight: 600;
-        }
-
-        .menu-link:hover .menu-icon-wrapper {
-            background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
-            color: var(--white-pure);
-            transform: rotate(360deg);
-        }
-
-        /* Estado Activo para Notificaciones */
-        .menu-item.active .menu-link {
-            background: var(--white-pure);
-            color: var(--primary-purple) !important;
-            font-weight: 600;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        }
-
-        .menu-item.active .menu-icon-wrapper {
-            background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
-            color: var(--white-pure);
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            padding-top: 20px;
-        }
-
-        .logout-link {
-            background: rgba(220, 53, 69, 0.1);
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            color: #ff8585;
-        }
-        .logout-link:hover {
-            background: #dc3545 !important;
-            color: var(--white-pure) !important;
-            border-color: transparent;
-        }
-
-        /* CONTENIDO PRINCIPAL */
-        .main-workspace {
-            margin-left: 290px;
-            padding: 40px;
-            min-height: 100vh;
-        }
-
-        /* TARJETAS DE NOTIFICACIONES */
-        .notification-card {
-            background-color: var(--white-pure);
-            border: none;
-            border-radius: 25px;
-            padding: 20px 25px;
-            margin-bottom: 15px;
-            box-shadow: 0 10px 30px rgba(111, 66, 193, 0.02);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-left: 5px solid var(--primary-purple);
-        }
-
-        .notification-card:hover {
-            transform: translateY(-3px) scale(1.005);
-            box-shadow: 0 15px 35px rgba(111, 66, 193, 0.08);
-        }
-
-        .notification-body {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .notification-bell-icon {
-            width: 45px;
-            height: 45px;
-            background-color: var(--primary-blue-light);
-            color: var(--primary-blue);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .notification-text {
-            font-weight: 500;
-            color: var(--text-dark);
-            margin: 0;
-        }
-
-        .notification-time {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 400;
-            background: var(--bg-light-blue);
-            padding: 6px 14px;
-            border-radius: 15px;
-        }
-
-        /* BOTÓN VOLVER */
-        .btn-back-premium {
-            padding: 10px 24px;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: 2px solid var(--primary-purple);
-            background-color: transparent;
-            color: var(--primary-purple);
-            text-decoration: none;
-        }
-
-        .btn-back-premium:hover {
-            background-color: var(--primary-purple);
-            color: var(--white-pure);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(111, 66, 193, 0.15);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="sidebar-container">
-        <div class="sidebar-brand">
-            <h3>Dunaka</h3>
-            <span>Panel de Gestión</span>
+{% block content %}
+    <div class="row align-items-center mb-5">
+        <div class="col-md-7">
+            <h1 class="fw-bold mb-1" style="letter-spacing: -1px;">Centro de Notificaciones</h1>
+            <p class="text-muted mb-0">Historial completo y bitácora de ventas automáticas en el sistema</p>
         </div>
-        
-        <ul class="sidebar-menu">
-            <li class="menu-item">
-                <a href="{{ url_for('admin.panel_admin') }}" class="menu-link">
-                    <div class="menu-icon-wrapper"><i class="fas fa-box"></i></div>
-                    Gestión de Productos
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <div class="menu-icon-wrapper"><i class="fas fa-users"></i></div>
-                    Gestión de Usuarios
-                </a>
-            </li>
-            <li class="menu-item active">
-                <a href="{{ url_for('admin.ver_notificaciones') }}" class="menu-link">
-                    <div class="menu-icon-wrapper"><i class="fas fa-bell"></i></div>
-                    Notificaciones
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" class="menu-link">
-                    <div class="menu-icon-wrapper"><i class="fas fa-shopping-bag"></i></div>
-                    Gestión de Pedidos
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-footer">
-            <a href="{{ url_for('auth.logout') }}" class="menu-link logout-link">
-                <div class="menu-icon-wrapper"><i class="fas fa-sign-out-alt"></i></div>
-                Cerrar Sesión
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+            <a href="{{ url_for('admin.panel_admin') }}" class="btn-back-premium">
+                <i class="fas fa-arrow-left"></i> Volver al Inventario
             </a>
         </div>
     </div>
 
-    <div class="main-workspace">
-        <div class="row align-items-center mb-5">
-            <div class="col-md-7">
-                <h1 class="fw-bold mb-1" style="letter-spacing: -1px;">Centro de Notificaciones</h1>
-                <p class="text-muted mb-0">Historial completo y bitácora de ventas automáticas en el sistema</p>
-            </div>
-            <div class="col-md-5 text-md-end mt-3 mt-md-0">
-                <a href="{{ url_for('admin.panel_admin') }}" class="btn-back-premium">
-                    <i class="fas fa-arrow-left"></i> Volver al Inventario
-                </a>
-            </div>
-        </div>
-
-        <div class="mt-4">
-            {% if notificaciones %}
-                {% for n in notificaciones %}
-                <div class="notification-card">
-                    <div class="notification-body">
-                        <div class="notification-bell-icon">
-                            {% if 'venta' in n.mensaje.lower() or 'vendió' in n.mensaje.lower() or 'compró' in n.mensaje.lower() %}
-                                <i class="fas fa-shopping-cart text-primary"></i>
-                            {% else %}
-                                <i class="fas fa-bell text-purple"></i>
-                            {% endif %}
-                        </div>
-                        <p class="notification-text">{{ n.mensaje }}</p>
+    <div class="mt-4">
+        {% if notificaciones %}
+            {% for n in notificaciones %}
+            <div class="notification-card">
+                <div class="notification-body">
+                    <div class="notification-bell-icon">
+                        {% if 'venta' in n.mensaje.lower() or 'vendió' in n.mensaje.lower() or 'compró' in n.mensaje.lower() %}
+                            <i class="fas fa-shopping-cart text-primary"></i>
+                        {% else %}
+                            <i class="fas fa-bell text-purple"></i>
+                        {% endif %}
                     </div>
-                    <span class="notification-time">
-                        <i class="far fa-clock me-1"></i> {{ n.fecha_creacion }}
-                    </span>
+                    <p class="notification-text">{{ n.mensaje }}</p>
                 </div>
-                {% endfor %}
-            {% else %}
-                <div class="text-center py-5 bg-white rounded-5 shadow-sm mt-4">
-                    <div class="text-muted mb-3" style="font-size: 3rem;"><i class="dashed fas fa-bell-slash"></i></div>
-                    <h5 class="fw-semibold text-secondary">No hay notificaciones registradas</h5>
-                    <p class="text-muted small">Los movimientos del inventario aparecerán aquí de forma automática.</p>
-                </div>
-            {% endif %}
-        </div>
+                <span class="notification-time">
+                    <i class="far fa-clock me-1"></i> {{ n.fecha_creacion }}
+                </span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5 bg-white rounded-5 shadow-sm mt-4">
+                <div class="text-muted mb-3" style="font-size: 3rem;"><i class="dashed fas fa-bell-slash"></i></div>
+                <h5 class="fw-semibold text-secondary">No hay notificaciones registradas</h5>
+                <p class="text-muted small">Los movimientos del inventario aparecerán aquí de forma automática.</p>
+            </div>
+        {% endif %}
     </div>
-
-</body>
-</html>
+{% endblock %}
