@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# Script para agregar columna foto_perfil_url si no existe
-
 from database.db import obtener_conexion
 
 try:
