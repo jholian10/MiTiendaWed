@@ -37,6 +37,12 @@ function cambiarCantidad(detalleId, cambio) {
         }
         return response.json();
     })
+    .then(data => {
+        // AQUÍ SE ACTUALIZA EL NÚMERO DEL NAVBAR
+        if (typeof actualizarContadoresNavbar === 'function') {
+            actualizarContadoresNavbar();
+        }
+    })
     .catch(error => {
         console.error("Error en persistencia:", error);
         // Revertimos visualmente por seguridad si falla la red

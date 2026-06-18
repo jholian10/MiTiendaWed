@@ -59,7 +59,6 @@
 
                 <div class="vr d-none d-lg-block mx-2 text-muted" style="height: 25px; align-self: center;"></div>
 
-                <!-- NUEVO BOTÓN DE SOPORTE -->
                 <a href="{{ url_for('support.index') }}" class="nav-icon-btn text-decoration-none" title="Soporte">
                     <i class="bi bi-headset"></i>
                 </a>
@@ -77,3 +76,28 @@
         </div>
     </div>
 </nav>
+
+<script>
+    function actualizarContadoresNavbar() {
+        // Actualizar Carrito
+        fetch('/carrito/api/cantidad')
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById('cart-count');
+                if(el) el.innerText = data.cantidad;
+            })
+            .catch(err => console.error("Error carrito:", err));
+
+        // Actualizar Favoritos
+        fetch('/favoritos/api/cantidad')
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById('fav-count');
+                if(el) el.innerText = data.cantidad;
+            })
+            .catch(err => console.error("Error favoritos:", err));
+    }
+
+    // Se ejecuta apenas la página carga
+    document.addEventListener('DOMContentLoaded', actualizarContadoresNavbar);
+</script>
