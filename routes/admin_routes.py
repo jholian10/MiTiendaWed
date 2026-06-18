@@ -142,7 +142,6 @@ def nuevo_producto():
     if not es_admin(): return redirect(url_for('auth.login'))
     
     if request.method == 'POST':
-        # Obtener datos
         nombre = request.form.get('nombre')
         precio_compra = request.form.get('precio_compra')
         precio_venta = request.form.get('precio_venta')
@@ -150,16 +149,22 @@ def nuevo_producto():
         stock_minimo = int(request.form.get('stock_minimo', 5))
         descripcion = request.form.get('descripcion')
         
-        # Guardar Imagen
+        # Capturar inputs de imagen
+        imagen_url = request.form.get('imagen_url')
         imagen_file = request.files.get('imagen')
-        imagen_path = ""
-        if imagen_file:
+        
+        imagen_final = ""
+        if imagen_file and imagen_file.filename != '':
+            os.makedirs('static/uploads', exist_ok=True)
             filename = secure_filename(imagen_file.filename)
             imagen_file.save(os.path.join('static/uploads', filename))
-            imagen_path = f'uploads/{filename}'
+            # IMPORTANTE: Añadimos /static/ para que la página pueda leerlo bien
+            imagen_final = f'/static/uploads/{filename}'
+        elif imagen_url and imagen_url.strip() != "":
+            imagen_final = imagen_url.strip()
         
-        # Insertar
-        insertar_producto(nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_path)
+        # ORDEN DEL MODELO: nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_url
+        insertar_producto(nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_final)
         
         # Notificar
         conexion = obtener_conexion()
@@ -174,6 +179,7 @@ def nuevo_producto():
         return redirect(url_for('admin.panel_admin'))
         
     return render_template('admin/agregar.html')
+
 
 # =========================================================
 # ACCIÓN: EDITAR UN PRODUCTO EXISTENTE
@@ -191,13 +197,24 @@ def editar_producto(id_producto):
         precio_venta = request.form.get('precio_venta')
         stock = int(request.form.get('stock', 0))
         stock_minimo = int(request.form.get('stock_minimo', 0))
-        imagen_url = request.form.get('imagen_url')
         descripcion = request.form.get('descripcion')
         
-        # 1. Actualizamos los datos del producto
-        actualizar_producto(id_producto, nombre, precio_compra, precio_venta, stock, stock_minimo, imagen_url, descripcion)
+        imagen_url = request.form.get('imagen_url')
+        imagen_file = request.files.get('imagen_archivo')
         
-        # 2. CREAMOS LA NOTIFICACIÓN DESDE PYTHON DEPENDIENDO DEL STOCK
+        # Mantenemos la imagen que ya tenía por defecto
+        imagen_final = imagen_url if imagen_url else producto.get('imagen_url', '')
+        
+        if imagen_file and imagen_file.filename != '':
+            os.makedirs('static/uploads', exist_ok=True)
+            filename = secure_filename(imagen_file.filename)
+            imagen_file.save(os.path.join('static/uploads', filename))
+            imagen_final = f'/static/uploads/{filename}'
+        
+        # ORDEN DEL MODELO ACTUALIZADO: id, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_url
+        actualizar_producto(id_producto, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_final)
+        
+        # Crear la notificación
         conexion = obtener_conexion()
         cursor = conexion.cursor()
         
@@ -209,7 +226,7 @@ def editar_producto(id_producto):
             mensaje_alerta = f'¡Producto Actualizado! El administrador modificó los datos de "{nombre}".'
             
         cursor.execute("INSERT INTO notificaciones (mensaje, fecha_creacion) VALUES (%s, NOW())", (mensaje_alerta,))
-        conexion.commit() # Aseguramos que se guarde en la BD
+        conexion.commit() 
         cursor.close()
         conexion.close()
         

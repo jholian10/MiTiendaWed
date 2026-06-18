@@ -42,7 +42,6 @@
                                 <label class="form-label">Costo Compra</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">$</span>
-                                    <!-- NOTA: Se añadió min="0" -->
                                     <input type="number" step="0.01" min="0" name="precio_compra" class="form-control border-start-0 ps-0" value="{{ producto.precio_compra }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
@@ -50,7 +49,6 @@
                                 <label class="form-label text-primary">Precio Venta</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">$</span>
-                                    <!-- NOTA: Se añadió min="0" -->
                                     <input type="number" step="0.01" min="0" name="precio_venta" class="form-control border-start-0 ps-0" value="{{ producto.precio_venta }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
@@ -63,7 +61,6 @@
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">
                                         <i class="bi bi-box-seam text-muted"></i>
                                     </span>
-                                    <!-- NOTA: Se añadió min="0" -->
                                     <input type="number" min="0" name="stock" class="form-control border-start-0 ps-0" value="{{ producto.stock }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
@@ -73,27 +70,32 @@
                                     <span class="input-group-text bg-light border-end-0" style="border-radius: var(--radius-input) 0 0 var(--radius-input); border-color: var(--border-color);">
                                         <i class="bi bi-exclamation-triangle text-muted"></i>
                                     </span>
-                                    <!-- NOTA: Se añadió min="0" -->
                                     <input type="number" min="0" name="stock_minimo" class="form-control border-start-0 ps-0" value="{{ producto.stock_minimo }}" required style="border-radius: 0 var(--radius-input) var(--radius-input) 0;">
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- COLUMNA DERECHA: Imagen -->
+                    <!-- COLUMNA DERECHA: Imagen y URL -->
                     <div class="col-md-5 d-flex flex-column">
                         <div class="mb-3">
                             <label class="form-label">Subir nueva imagen</label>
-                            <!-- NOTA: Cambiado type="url" a type="file" y se añadió accept="image/*" -->
                             <input type="file" name="imagen_archivo" id="img_input" class="form-control" accept="image/*">
                         </div>
+
+                        <!-- Nueva opción: Campo para ingresar o modificar URL de la imagen -->
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-semibold">O usar URL de imagen</label>
+                            <input type="url" name="imagen_url" id="url_input" class="form-control" value="{{ producto.imagen_url or '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                        </div>
+
                         <div class="flex-grow-1 d-flex flex-column">
                             <span class="form-label mb-2">Previsualización</span>
                             <div class="preview-box">
                                 <img id="img_preview" src="{{ producto.imagen_url or '' }}" style="width:100%; height:100%; object-fit:cover; {% if producto.imagen_url %} display:block; {% else %} display:none; {% endif %}">
                                 <div id="preview_text" class="text-center" style="{% if producto.imagen_url %} display:none; {% endif %}">
                                     <i class="bi bi-image text-muted fs-1 mb-2 d-block"></i>
-                                    <span class="text-muted small px-2">Selecciona un archivo para ver la imagen</span>
+                                    <span class="text-muted small px-2">Selecciona un archivo o añade una URL para ver la imagen</span>
                                 </div>
                             </div>
                         </div>
@@ -124,33 +126,53 @@
 
     <script>
         const imgInput = document.getElementById('img_input');
+        const urlInput = document.getElementById('url_input');
         const imgPreview = document.getElementById('img_preview');
         const previewText = document.getElementById('preview_text');
         
-        // Guardamos la imagen original en caso de que cancelen la selección
+        // Guardamos la imagen original de la base de datos
         const originalSrc = imgPreview.src;
         const hasOriginal = "{{ producto.imagen_url }}" !== "" && "{{ producto.imagen_url }}" !== "None";
 
-        imgInput.addEventListener('change', function(event) {
-            // Obtenemos el archivo seleccionado
-            const file = event.target.files[0];
-            
-            if (file) {
-                // Si hay archivo, creamos una URL local para previsualizarlo
-                imgPreview.src = URL.createObjectURL(file);
+        // Función reutilizable para gestionar los cambios de estado en la vista previa
+        function actualizarVistaPrevia() {
+            if (imgInput.files && imgInput.files[0]) {
+                // Prioridad 1: Si seleccionaron un archivo local nuevo
+                imgPreview.src = URL.createObjectURL(imgInput.files[0]);
+                imgPreview.style.display = 'block';
+                previewText.style.display = 'none';
+            } else if (urlInput.value.trim() !== "") {
+                // Prioridad 2: Si el campo URL tiene texto
+                imgPreview.src = urlInput.value.trim();
+                imgPreview.style.display = 'block';
+                previewText.style.display = 'none';
+            } else if (hasOriginal) {
+                // Prioridad 3: Si no hay nada nuevo, regresar a la imagen original del producto
+                imgPreview.src = originalSrc;
                 imgPreview.style.display = 'block';
                 previewText.style.display = 'none';
             } else {
-                // Si cancelan la selección, volvemos al estado anterior
-                if (hasOriginal) {
-                    imgPreview.src = originalSrc;
-                    imgPreview.style.display = 'block';
-                    previewText.style.display = 'none';
-                } else {
-                    imgPreview.style.display = 'none';
-                    previewText.style.display = 'block';
-                }
+                // Estado vacío: No hay imagen alguna
+                imgPreview.src = "";
+                imgPreview.style.display = 'none';
+                previewText.style.display = 'block';
             }
+        }
+
+        // Escuchar cuando el usuario sube un archivo
+        imgInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                urlInput.value = ""; // Limpiamos la URL para evitar conflictos en el envío
+            }
+            actualizarVistaPrevia();
+        });
+
+        // Escuchar cuando el usuario escribe o pega una URL
+        urlInput.addEventListener('input', function() {
+            if (this.value.trim() !== "") {
+                imgInput.value = ""; // Limpiamos el input file si decide usar URL
+            }
+            actualizarVistaPrevia();
         });
     </script>
 </body>
