@@ -1,4 +1,5 @@
 import os
+import hashlib
 from werkzeug.utils import secure_filename # <--- AGREGA ESTA LÍNEA AQUÍ
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.db import obtener_conexion
@@ -34,7 +35,7 @@ def panel_admin():
     return render_template('admin/dashboard.html', productos=productos, notificaciones=notificaciones)
 
 # =========================================================
-# VISTA: GESTIÓN DE TODOS LOS USUARIOS RESTRISTRADOS
+# VISTA: GESTIÓN DE TODOS LOS USUARIOS REGISTRADOS
 # =========================================================
 @admin_blueprint.route('/usuarios')
 def gestion_usuarios():
@@ -49,6 +50,89 @@ def gestion_usuarios():
     conexion.close()
     
     return render_template('admin/usuarios.html', usuarios=lista_usuarios)
+
+# =========================================================
+# ACCIÓN: AGREGAR NUEVO USUARIO DESDE ADMIN
+# =========================================================
+@admin_blueprint.route('/usuarios/agregar', methods=['POST'])
+def agregar_usuario():
+    if not es_admin(): 
+        return redirect(url_for('auth.login'))
+    
+    nombre = request.form.get('nombre')
+    correo = request.form.get('correo')
+    password = request.form.get('password')
+    rol = request.form.get('rol')
+    
+    # Encriptar la contraseña usando SHA-256
+    password_enc = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+    try:
+        # Consulta SQL limpia usando la columna password_hash
+        query = "INSERT INTO usuarios (nombre, correo, password_hash, rol) VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (nombre, correo, password_enc, rol))
+        conexion.commit()
+        flash('Usuario agregado exitosamente.', 'success')
+    except Exception as e:
+        # Esto imprimirá el error exacto en tu consola/terminal de VS Code para saber qué falla
+        print("\n" + "="*50)
+        print(f"ERROR EN BASE DE DATOS AL AGREGAR USUARIO: {e}")
+        print("="*50 + "\n")
+        flash(f'Error en la base de datos: {e}', 'danger')
+    finally:
+        cursor.close()
+        conexion.close()
+        
+    return redirect(url_for('admin.gestion_usuarios'))
+
+# =========================================================
+# ACCIÓN: ELIMINAR USUARIO DESDE ADMIN
+# =========================================================
+@admin_blueprint.route('/usuarios/eliminar/<int:id>', methods=['POST'])
+def eliminar_usuario(id):
+    if not es_admin(): 
+        return redirect(url_for('auth.login'))
+    
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
+        conexion.commit()
+        flash('Usuario eliminado del sistema.', 'success')
+    except Exception as e:
+        flash(f'Error al eliminar usuario: {e}', 'danger')
+    finally:
+        cursor.close()
+        conexion.close()
+        
+    return redirect(url_for('admin.gestion_usuarios'))
+
+# =========================================================
+# ACCIÓN: CAMBIAR ROL DE USUARIO DESDE ADMIN
+# =========================================================
+@admin_blueprint.route('/usuarios/cambiar_rol', methods=['POST'])
+def cambiar_rol_usuario():
+    if not es_admin(): 
+        return redirect(url_for('auth.login'))
+    
+    usuario_id = request.form.get('usuario_id')
+    nuevo_rol = request.form.get('rol')
+    
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("UPDATE usuarios SET rol = %s WHERE id = %s", (nuevo_rol, usuario_id))
+        conexion.commit()
+        flash('Rol actualizado correctamente.', 'success')
+    except Exception as e:
+        flash(f'Error al actualizar rol: {e}', 'danger')
+    finally:
+        cursor.close()
+        conexion.close()
+        
+    return redirect(url_for('admin.gestion_usuarios'))
 
 # =========================================================
 # ACCIÓN: REGISTRAR UN NUEVO PRODUCTO
@@ -231,4 +315,3 @@ def ver_reportes():
     }
     
     return render_template('admin/reportes.html', reportes=reportes_data)
-

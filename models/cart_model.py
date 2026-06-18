@@ -76,15 +76,23 @@ def vaciar_carrito_completo(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     try:
-        # Primero buscamos el carrito
+        # 1. Buscamos el carrito activo del usuario
         cursor.execute("SELECT id FROM carritos WHERE usuario_id = %s", (usuario_id,))
         carrito = cursor.fetchone()
+        
         if carrito:
-            # Borramos los productos dentro
-            cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id = %s", (carrito['id'],))
-            # Borramos el carrito
-            cursor.execute("DELETE FROM carritos WHERE id = %s", (carrito['id'],))
-        conexion.commit()
+            carrito_id = carrito['id']
+            # 2. Borramos los detalles primero (por integridad referencial)
+            cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id = %s", (carrito_id,))
+            # 3. Borramos el carrito principal
+            cursor.execute("DELETE FROM carritos WHERE id = %s", (carrito_id,))
+            conexion.commit()
+            return True # Éxito
+        return False # No había nada que borrar
+    except Exception as e:
+        print(f"Error al vaciar carrito completo: {e}")
+        conexion.rollback() # Revertimos cambios si algo falla
+        return False
     finally:
         cursor.close()
         conexion.close()
