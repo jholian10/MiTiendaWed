@@ -57,25 +57,40 @@ def obtener_clientes_soporte():
         conexion.close()
 
 def obtener_historial_chat(usuario_id):
-    """Obtiene todos los mensajes entre un cliente y el admin"""
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
+    # CORREGIDO: Usamos 'fecha_creacion' en lugar de 'fecha'
     query = """
-        SELECT id, usuario_id, mensaje, remitente, fecha as hora
+        SELECT id, usuario_id, mensaje, remitente, fecha_creacion as hora
         FROM soporte 
         WHERE usuario_id = %s
-        ORDER BY fecha ASC
+        ORDER BY fecha_creacion ASC
     """
     try:
         cursor.execute(query, (usuario_id,))
-        mensajes = cursor.fetchall()
-        return mensajes or []
+        return cursor.fetchall()
     except Exception as e:
-        print(f"Error obtener_historial_chat: {e}")
+        print(f"Error en obtener_historial_chat: {e}")
         return []
     finally:
         cursor.close()
         conexion.close()
+
+def obtener_todos_los_mensajes():
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    # CORREGIDO: Aseguramos que la tabla soporte esté bien referenciada
+    query = """
+        SELECT s.*, u.nombre 
+        FROM soporte s 
+        JOIN usuarios u ON s.usuario_id = u.Id 
+        WHERE s.estado = 'pendiente'
+    """
+    cursor.execute(query)
+    mensajes = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+    return mensajes
 
 def guardar_respuesta_admin(usuario_id, mensaje):
     """Guarda un mensaje del admin en respuesta a un cliente"""

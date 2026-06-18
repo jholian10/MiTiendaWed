@@ -8,11 +8,6 @@ from models.support_model import (
 
 support_blueprint = Blueprint('support', __name__)
 
-# ==========================================
-# RUTAS CLIENTE
-# ==========================================
-
-# RUTA 1: La página principal del chat cliente
 @support_blueprint.route('/support', methods=['GET'])
 def index():
     if 'usuario' not in session:
