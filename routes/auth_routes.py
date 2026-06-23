@@ -14,7 +14,6 @@ auth_blueprint = Blueprint('auth', __name__, url_prefix='/auth')
 oauth = OAuth()
 
 def init_oauth(app):
-    """Inicializa la configuración de Google OAuth."""
     oauth.init_app(app)
     oauth.register(
         name='google',
@@ -24,15 +23,7 @@ def init_oauth(app):
         client_kwargs={'scope': 'openid email profile'}
     )
 
-# ==========================================
-# PLANTILLAS DE CORREO Y FUNCIONES DE ENVÍO
-# ==========================================
-
 def enviar_correo_bienvenida(correo_destino, nombre_usuario):
-    """
-    Envía un correo de bienvenida con diseño HTML premium.
-    Utiliza el contexto de la aplicación actual para evitar errores fuera de contexto.
-    """
     try:
         msg = Message(
             subject="¡Bienvenido a Dunaka! Descubre lo mejor para ti",
@@ -40,7 +31,6 @@ def enviar_correo_bienvenida(correo_destino, nombre_usuario):
             recipients=[correo_destino]
         )
         
-        # Diseño HTML Moderno y Responsivo
         msg.html = f"""
         <!DOCTYPE html>
         <html lang="es">
@@ -59,7 +49,7 @@ def enviar_correo_bienvenida(correo_destino, nombre_usuario):
                     <h2 style="color: #0f172a; margin: 0 0 20px 0; font-size: 24px; font-weight: 700;">¡Hola, {nombre_usuario}! 👋</h2>
                     <p style="color: #475569; line-height: 1.8; font-size: 16px; margin: 0 0 25px 0;">
                         Tu cuenta ha sido creada exitosamente. Estamos emocionados de tenerte en nuestra comunidad. 
-                        En Dunaka, nos esforzamos por ofrecerte los mejores productos con una experiencia de compra inigualable.
+                        En Dunaka, nos esforzamos por ofrecerte los mejores productos con una experience de compra inigualable.
                     </p>
                     
                     <div style="background-color: #f8fafc; border-radius: 16px; padding: 25px; margin-bottom: 30px; text-align: left; border: 1px solid #e2e8f0;">
@@ -88,16 +78,12 @@ def enviar_correo_bienvenida(correo_destino, nombre_usuario):
         </body>
         </html>
         """
-        # IMPORTANTE: Usamos current_app para evitar problemas de contexto
         current_app.extensions['mail'].send(msg)
         print(f"DEBUG: Correo de bienvenida enviado a {correo_destino}")
     except Exception as e:
         print(f"ERROR: No se pudo enviar el correo de bienvenida: {e}")
 
 def enviar_correo_recuperacion(correo_destino, codigo):
-    """
-    Envía el código de seguridad de 6 dígitos con diseño HTML premium.
-    """
     try:
         msg = Message(
             subject="Código de Recuperación de Contraseña - Dunaka",
@@ -136,18 +122,12 @@ def enviar_correo_recuperacion(correo_destino, codigo):
     except Exception as e:
         print(f"ERROR: No se pudo enviar el correo de recuperación: {e}")
 
-# ==========================================
-# RUTAS DE AUTENTICACIÓN
-# ==========================================
-
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
-    """Maneja el inicio de sesión tradicional."""
     if request.method == 'POST':
         correo = request.form.get('correo')
         password_plana = request.form.get('password')
         
-        # Validar entradas vacías
         if not correo or not password_plana:
             flash('Por favor, ingresa tu correo y contraseña.', 'warning')
             return render_template('auth/login.html')
@@ -157,16 +137,12 @@ def login():
         if usuario:
             hash_en_bd = usuario.get('password_hash')
             
-            # Protección contra contraseñas generadas por OAuth o formatos inválidos
             if not hash_en_bd or ":" not in hash_en_bd:
                 flash('Error: Formato de contraseña inválido o cuenta de Google. Usa "Olvidé mi contraseña" o inicia con Google.', 'danger')
                 return render_template('auth/login.html')
 
             try:
-                # Validar la contraseña de forma segura
                 if check_password_hash(hash_en_bd, password_plana):
-                    
-                    # Guardamos los datos completos en la sesión
                     session['usuario'] = {
                         'id': usuario['id'],
                         'nombre': usuario['nombre'],
@@ -178,7 +154,6 @@ def login():
                         'foto_perfil_url': usuario.get('foto_perfil_url')
                     }
                     
-                    # Redirección según rol (Admin/Superadmin vs Cliente)
                     if usuario['rol'] in ['admin', 'superadmin']:
                         flash(f"Bienvenido de nuevo, {usuario['nombre']}. Tienes acceso administrativo.", 'success')
                         return redirect(url_for('admin.panel_admin'))
@@ -197,13 +172,11 @@ def login():
 
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
-    """Maneja el registro de nuevos usuarios."""
     if request.method == 'POST':
         nombre = request.form.get('nombre', '').strip()
         correo = request.form.get('correo', '').strip()
         password = request.form.get('password', '')
         
-        # Validaciones de seguridad básicas
         if len(nombre) < 3:
             flash('El nombre debe tener al menos 3 caracteres.', 'warning')
             return render_template('auth/register.html')
@@ -212,17 +185,133 @@ def register():
             flash('La contraseña debe tener al menos 6 caracteres por seguridad.', 'warning')
             return render_template('auth/register.html')
         
-        # Asignación de Rol
         rol = 'superadmin' if correo == "jholianmanuel10@gmail.com" else 'cliente'
         
-        # Intentar registrar al usuario en BD
         if registrar_usuario(nombre, correo, password, rol):
-            
-            # --- ENVÍO DE CORREO DE BIENVENIDA ---
-            # Ahora la función está bien ubicada, solo se ejecuta si el registro fue exitoso
             enviar_correo_bienvenida(correo, nombre)
-            
             flash('¡Registro exitoso! Por favor, inicia sesión.', 'success')
             return redirect(url_for('auth.login'))
         
-        flash('Error al registrar. Es probable que el correo ya esté en
+        flash('Error al registrar. Es probable que el correo ya esté en uso.', 'danger')
+            
+    return render_template('auth/register.html')
+
+@auth_blueprint.route('/recuperar', methods=['GET', 'POST'])
+def recuperar_password():
+    if request.method == 'POST':
+        correo = request.form.get('correo', '').strip()
+        
+        if not correo:
+            flash('Ingresa un correo electrónico.', 'warning')
+            return render_template('auth/recuperar.html')
+
+        usuario = obtener_usuario_por_correo(correo)
+        
+        if usuario:
+            codigo = str(random.randint(100000, 999999))
+            
+            if guardar_codigo_recuperacion(correo, codigo):
+                session['recuperacion_email'] = correo
+                enviar_correo_recuperacion(correo, codigo)
+                flash('Código de seguridad enviado a tu correo.', 'success')
+                return redirect(url_for('auth.verificar_codigo'))
+            else:
+                flash('Ocurrió un error al generar el código en el sistema.', 'danger')
+        else:
+            flash('No encontramos una cuenta con ese correo electrónico.', 'danger')
+            
+    return render_template('auth/recuperar.html')
+
+@auth_blueprint.route('/verificar', methods=['GET', 'POST'])
+def verificar_codigo():
+    if 'recuperacion_email' not in session:
+        flash('Por favor, solicita un código de recuperación primero.', 'warning')
+        return redirect(url_for('auth.recuperar_password'))
+
+    if request.method == 'POST':
+        codigo = request.form.get('codigo', '').strip()
+        correo_en_sesion = session.get('recuperacion_email')
+        
+        if verificar_codigo_y_correo(correo_en_sesion, codigo):
+            flash('Código verificado con éxito. Ingresa tu nueva contraseña.', 'success')
+            return redirect(url_for('auth.reset_password_final'))
+            
+        flash('Código inválido o expirado. Verifica tu correo e intenta de nuevo.', 'danger')
+        
+    return render_template('auth/verificar.html')
+
+@auth_blueprint.route('/reset-final', methods=['GET', 'POST'])
+def reset_password_final():
+    if 'recuperacion_email' not in session:
+        flash('Sesión de recuperación inválida o caducada.', 'warning')
+        return redirect(url_for('auth.recuperar_password'))
+
+    if request.method == 'POST':
+        nueva_password = request.form.get('password')
+        confirmar_password = request.form.get('confirm_password')
+        
+        if len(nueva_password) < 6:
+            flash('La contraseña debe tener al menos 6 caracteres.', 'warning')
+            return render_template('auth/nueva_password.html')
+            
+        if nueva_password != confirmar_password and confirmar_password:
+            flash('Las contraseñas no coinciden.', 'warning')
+            return render_template('auth/nueva_password.html')
+
+        correo = session.pop('recuperacion_email', None)
+        
+        if correo and actualizar_password(correo, nueva_password):
+            flash('¡Contraseña actualizada correctamente! Ya puedes iniciar sesión.', 'success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('Hubo un error al actualizar la base de datos.', 'danger')
+            
+    return render_template('auth/nueva_password.html')
+
+@auth_blueprint.route('/login/google')
+def google_login():
+    return oauth.google.authorize_redirect(url_for('auth.google_callback', _external=True))
+
+@auth_blueprint.route('/login/google/callback')
+def google_callback():
+    try:
+        token = oauth.google.authorize_access_token()
+        user_info = token.get('userinfo') or oauth.google.parse_id_token(token, nonce=token.get('nonce'))
+        
+        email = user_info.get('email')
+        nombre = user_info.get('name', 'Usuario de Google')
+        
+        if not email:
+            flash('Google no proporcionó un correo electrónico. No se pudo iniciar sesión.', 'danger')
+            return redirect(url_for('auth.login'))
+
+        usuario = obtener_usuario_por_correo(email)
+        
+        if not usuario:
+            if registrar_usuario_oauth(nombre, email):
+                enviar_correo_bienvenida(email, nombre)
+                usuario = obtener_usuario_por_correo(email)
+            else:
+                flash('Error interno al crear tu cuenta con Google.', 'danger')
+                return redirect(url_for('auth.login'))
+        
+        session['usuario'] = {
+            'id': usuario['id'],
+            'nombre': usuario['nombre'],
+            'correo': usuario['correo'],
+            'rol': usuario['rol']
+        }
+        
+        flash(f'Bienvenido, {usuario["nombre"]}. Iniciaste sesión con Google.', 'success')
+        return redirect(url_for('products.index'))
+        
+    except Exception as e:
+        print(f"Error en Google Auth: {e}")
+        flash('Ocurrió un error al conectarse con Google. Intenta más tarde.', 'danger')
+        return redirect(url_for('auth.login'))
+
+@auth_blueprint.route('/logout')
+def logout():
+    session.clear()
+    flash('Has cerrado sesión exitosamente. ¡Vuelve pronto!', 'info')
+    return redirect(url_for('products.index'))

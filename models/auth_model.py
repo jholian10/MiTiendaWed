@@ -1,8 +1,6 @@
-# models/auth_model.py
 from database.db import obtener_conexion
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Constante para el método de hashing (Mantenemos scrypt para máxima seguridad)
 HASH_METHOD = 'scrypt'
 
 def obtener_usuario_por_correo(correo):
@@ -16,7 +14,6 @@ def obtener_usuario_por_correo(correo):
         conexion.close()
 
 def registrar_usuario(nombre, correo, password_plana, rol='cliente'):
-    # Usamos la constante HASH_METHOD
     pwd = generate_password_hash(password_plana, method=HASH_METHOD)
     conexion = obtener_conexion()
     cursor = conexion.cursor()
@@ -38,7 +35,6 @@ def registrar_usuario_oauth(nombre, correo):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
-        # Nota: Google ya valida el usuario, por eso ponemos 'google_auth'
         cursor.execute(
             "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, 'google_auth', 'cliente', 1)", 
             (nombre, correo)
@@ -61,6 +57,10 @@ def guardar_codigo_recuperacion(correo, codigo):
             (codigo, correo)
         )
         conexion.commit()
+        return True
+    except Exception as e:
+        print(f"Error en BD al guardar código: {e}")
+        return False
     finally:
         cursor.close()
         conexion.close()
@@ -79,7 +79,6 @@ def verificar_codigo_y_correo(correo, codigo):
         conexion.close()
 
 def actualizar_password(correo, nueva_pwd):
-    # Usamos el método consistente
     pwd = generate_password_hash(nueva_pwd, method=HASH_METHOD)
     conexion = obtener_conexion()
     cursor = conexion.cursor()
@@ -89,6 +88,10 @@ def actualizar_password(correo, nueva_pwd):
             (pwd, correo)
         )
         conexion.commit()
+        return True
+    except Exception as e:
+        print(f"Error al actualizar password: {e}")
+        return False
     finally:
         cursor.close()
         conexion.close()
@@ -107,13 +110,10 @@ def cambiar_password(usuario_id, password_actual, nuevo_password):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     try:
-        # Verificamos si el usuario existe y obtenemos su hash actual
         cursor.execute("SELECT password_hash FROM usuarios WHERE id = %s", (usuario_id,))
         usuario = cursor.fetchone()
         
-        # Validamos la contraseña actual
         if usuario and check_password_hash(usuario['password_hash'], password_actual):
-            # Generamos el nuevo hash con nuestro método estándar
             hashed_pw = generate_password_hash(nuevo_password, method=HASH_METHOD)
             cursor.execute("UPDATE usuarios SET password_hash = %s WHERE id = %s", (hashed_pw, usuario_id))
             conexion.commit()
