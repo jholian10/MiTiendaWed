@@ -4,7 +4,9 @@ import time
 from flask import Blueprint, render_template, redirect, url_for, flash, session, request, render_template_string
 from database.db import obtener_conexion
 from models.order_model import obtener_pedidos_usuario
-from utils.email_notifications import enviar_alerta_stock
+
+# Corregido: Importamos el servicio de correos real desde tu carpeta models
+from models.notificaciones_service import enviar_alerta_stock_email
 
 order_custom_bp = Blueprint('orders', __name__, url_prefix='/pedidos')
 
@@ -87,18 +89,18 @@ def crear_pedido():
             # A) Descontar stock del producto
             cursor.execute("UPDATE productos SET stock = stock - %s WHERE id = %s", (item['cantidad'], item['producto_id']))
             
-            # B) Obtener datos para verificar el stock actual
+            # B) Obtener datos para verificar el stock actual reflejado
             cursor.execute("SELECT nombre, stock, stock_minimo FROM productos WHERE id = %s", (item['producto_id'],))
             prod_actual = cursor.fetchone()
             
-            # C) Disparar alerta si stock bajo
-            if prod_actual:
-                enviar_alerta_stock(prod_actual['nombre'], prod_actual['stock'], prod_actual['stock_minimo'])
+            # C) Corregido: Disparar la alerta por correo electrónico si bajó del stock mínimo tras la compra
+            if prod_actual and prod_actual['stock'] <= prod_actual['stock_minimo']:
+                enviar_alerta_stock_email(prod_actual['nombre'], prod_actual['stock'])
 
             # D) Insertar detalle de venta
             cursor.execute(sql_detalle, (pedido_id, item['producto_id'], item['cantidad'], item['precio_venta']))
         
-        conexion.commit() # Confirmar todos los cambios
+        conexion.commit() # Confirmar todos los cambios si todo salió bien
         
         # 4. Firma Wompi para pago
         cadena_firma = f"{referencia_pago}{monto_en_centavos}COP{WOMPI_INTEGRITY_SECRET}"
@@ -120,7 +122,7 @@ def crear_pedido():
         return render_template_string(html_form)
         
     except Exception as e:
-        conexion.rollback() # Revertir cambios si algo falla
+        conexion.rollback() # Revertir cambios en la BD si algo falla
         print(f"❌ Error crítico en orden: {e}")
         flash('No se pudo procesar la transacción.', 'error')
         return redirect(url_for('cart.ver_carrito'))

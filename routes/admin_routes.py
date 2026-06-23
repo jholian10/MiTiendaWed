@@ -1,11 +1,13 @@
 import os
 from werkzeug.utils import secure_filename
-from werkzeug.security import generate_password_hash # <- Usamos el de Werkzeug por seguridad
+from werkzeug.security import generate_password_hash 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.db import obtener_conexion
 from models.product_model import listar_productos, obtener_producto_por_id
 from models.support_model import obtener_todos_los_mensajes
-from utils.email_notifications import enviar_alerta_stock
+
+# Corregido: Importamos el servicio de correos real desde tu carpeta models
+from models.notificaciones_service import enviar_alerta_stock_email
 
 # IMPORTANTE: Renombramos 'eliminar_producto' como 'eliminar_producto_db' 
 from models.admin_product_model import insertar_producto, actualizar_producto, eliminar_producto as eliminar_producto_db
@@ -18,7 +20,6 @@ admin_blueprint = Blueprint('admin', __name__, url_prefix='/admin')
 def es_admin():
     """Verifica si el usuario en sesión es administrador o superadministrador."""
     user = session.get('usuario')
-    # Permite acceso a ambos roles superiores
     return user is not None and user.get('rol') in ['admin', 'superadmin']
 
 def es_superadmin():
@@ -75,12 +76,10 @@ def agregar_usuario():
     password = request.form.get('password')
     rol = request.form.get('rol')
     
-    # Prevenir que un 'admin' normal cree un 'superadmin'
     if rol == 'superadmin' and not es_superadmin():
         flash('No tienes permisos para crear un Super Administrador.', 'danger')
         return redirect(url_for('admin.gestion_usuarios'))
     
-    # Encriptar la contraseña usando generate_password_hash para evitar ValueError en Login
     password_enc = generate_password_hash(password)
 
     conexion = obtener_conexion()
@@ -109,7 +108,6 @@ def eliminar_usuario(id):
     if not es_admin(): 
         return redirect(url_for('auth.login'))
     
-    # --- PROTECCIÓN CRÍTICA DE SUPER ADMIN ---
     if id == 1:
         flash('¡Operación bloqueada! El Super Administrador principal no puede ser eliminado.', 'danger')
         return redirect(url_for('admin.gestion_usuarios'))
@@ -117,7 +115,6 @@ def eliminar_usuario(id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     try:
-        # Validar si el usuario que se quiere borrar existe y qué rol tiene
         cursor.execute("SELECT rol FROM usuarios WHERE id = %s", (id,))
         usuario_a_borrar = cursor.fetchone()
         
@@ -147,7 +144,6 @@ def cambiar_rol_usuario():
     usuario_id = int(request.form.get('usuario_id'))
     nuevo_rol = request.form.get('rol')
     
-    # --- PROTECCIÓN CRÍTICA ---
     if usuario_id == 1 or nuevo_rol == 'superadmin':
         if not es_superadmin():
             flash('No tienes permisos para modificar este rol ni ascender usuarios a Super Admin.', 'danger')
@@ -196,6 +192,10 @@ def nuevo_producto():
         
         insertar_producto(nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_final)
         
+        # Alerta por correo si el producto nuevo se registra con stock bajo de una vez
+        if stock <= stock_minimo:
+            enviar_alerta_stock_email(nombre, stock)
+        
         conexion = obtener_conexion()
         cursor = conexion.cursor()
         cursor.execute("INSERT INTO notificaciones (mensaje, fecha_creacion) VALUES (%s, NOW())", 
@@ -239,7 +239,10 @@ def editar_producto(id_producto):
             imagen_final = f'/static/uploads/{filename}'
         
         actualizar_producto(id_producto, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_final)
-        enviar_alerta_stock(nombre, stock, stock_minimo)
+        
+        # Corregido: Dispara el correo real solo si cumple la condición de stock mínimo o agotado
+        if stock <= stock_minimo:
+            enviar_alerta_stock_email(nombre, stock)
         
         conexion = obtener_conexion()
         cursor = conexion.cursor()
