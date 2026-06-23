@@ -1,6 +1,6 @@
 import os
-import hashlib
-from werkzeug.utils import secure_filename # <--- AGREGA ESTA LÍNEA AQUÍ
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash # <- Usamos el de Werkzeug por seguridad
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.db import obtener_conexion
 from models.product_model import listar_productos, obtener_producto_por_id
@@ -11,9 +11,19 @@ from models.admin_product_model import insertar_producto, actualizar_producto, e
 
 admin_blueprint = Blueprint('admin', __name__, url_prefix='/admin')
 
+# =========================================================
+# FUNCIÓN DE VALIDACIÓN GLOBAL CORREGIDA
+# =========================================================
 def es_admin():
+    """Verifica si el usuario en sesión es administrador o superadministrador."""
     user = session.get('usuario')
-    return user is not None and user.get('rol') == 'admin'
+    # Permite acceso a ambos roles superiores
+    return user is not None and user.get('rol') in ['admin', 'superadmin']
+
+def es_superadmin():
+    """Verifica si el usuario en sesión es específicamente un superadministrador."""
+    user = session.get('usuario')
+    return user is not None and user.get('rol') == 'superadmin'
 
 # =========================================================
 # VISTA PRINCIPAL: DASHBOARD DEL ADMINISTRADOR
@@ -64,19 +74,22 @@ def agregar_usuario():
     password = request.form.get('password')
     rol = request.form.get('rol')
     
-    # Encriptar la contraseña usando SHA-256
-    password_enc = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    # Prevenir que un 'admin' normal cree un 'superadmin'
+    if rol == 'superadmin' and not es_superadmin():
+        flash('No tienes permisos para crear un Super Administrador.', 'danger')
+        return redirect(url_for('admin.gestion_usuarios'))
+    
+    # Encriptar la contraseña usando generate_password_hash para evitar ValueError en Login
+    password_enc = generate_password_hash(password)
 
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
-        # Consulta SQL limpia usando la columna password_hash
         query = "INSERT INTO usuarios (nombre, correo, password_hash, rol) VALUES (%s, %s, %s, %s)"
         cursor.execute(query, (nombre, correo, password_enc, rol))
         conexion.commit()
         flash('Usuario agregado exitosamente.', 'success')
     except Exception as e:
-        # Esto imprimirá el error exacto en tu consola/terminal de VS Code para saber qué falla
         print("\n" + "="*50)
         print(f"ERROR EN BASE DE DATOS AL AGREGAR USUARIO: {e}")
         print("="*50 + "\n")
@@ -95,9 +108,22 @@ def eliminar_usuario(id):
     if not es_admin(): 
         return redirect(url_for('auth.login'))
     
+    # --- PROTECCIÓN CRÍTICA DE SUPER ADMIN ---
+    if id == 1:
+        flash('¡Operación bloqueada! El Super Administrador principal no puede ser eliminado.', 'danger')
+        return redirect(url_for('admin.gestion_usuarios'))
+        
     conexion = obtener_conexion()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(dictionary=True)
     try:
+        # Validar si el usuario que se quiere borrar existe y qué rol tiene
+        cursor.execute("SELECT rol FROM usuarios WHERE id = %s", (id,))
+        usuario_a_borrar = cursor.fetchone()
+        
+        if usuario_a_borrar and usuario_a_borrar['rol'] == 'superadmin':
+            flash('¡Operación bloqueada! No está permitido eliminar cuentas de Super Administrador.', 'danger')
+            return redirect(url_for('admin.gestion_usuarios'))
+            
         cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
         conexion.commit()
         flash('Usuario eliminado del sistema.', 'success')
@@ -117,8 +143,14 @@ def cambiar_rol_usuario():
     if not es_admin(): 
         return redirect(url_for('auth.login'))
     
-    usuario_id = request.form.get('usuario_id')
+    usuario_id = int(request.form.get('usuario_id'))
     nuevo_rol = request.form.get('rol')
+    
+    # --- PROTECCIÓN CRÍTICA ---
+    if usuario_id == 1 or nuevo_rol == 'superadmin':
+        if not es_superadmin():
+            flash('No tienes permisos para modificar este rol ni ascender usuarios a Super Admin.', 'danger')
+            return redirect(url_for('admin.gestion_usuarios'))
     
     conexion = obtener_conexion()
     cursor = conexion.cursor()
@@ -149,7 +181,6 @@ def nuevo_producto():
         stock_minimo = int(request.form.get('stock_minimo', 5))
         descripcion = request.form.get('descripcion')
         
-        # Capturar inputs de imagen
         imagen_url = request.form.get('imagen_url')
         imagen_file = request.files.get('imagen')
         
@@ -158,15 +189,12 @@ def nuevo_producto():
             os.makedirs('static/uploads', exist_ok=True)
             filename = secure_filename(imagen_file.filename)
             imagen_file.save(os.path.join('static/uploads', filename))
-            # IMPORTANTE: Añadimos /static/ para que la página pueda leerlo bien
             imagen_final = f'/static/uploads/{filename}'
         elif imagen_url and imagen_url.strip() != "":
             imagen_final = imagen_url.strip()
         
-        # ORDEN DEL MODELO: nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_url
         insertar_producto(nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_final)
         
-        # Notificar
         conexion = obtener_conexion()
         cursor = conexion.cursor()
         cursor.execute("INSERT INTO notificaciones (mensaje, fecha_creacion) VALUES (%s, NOW())", 
@@ -179,7 +207,6 @@ def nuevo_producto():
         return redirect(url_for('admin.panel_admin'))
         
     return render_template('admin/agregar.html')
-
 
 # =========================================================
 # ACCIÓN: EDITAR UN PRODUCTO EXISTENTE
@@ -202,7 +229,6 @@ def editar_producto(id_producto):
         imagen_url = request.form.get('imagen_url')
         imagen_file = request.files.get('imagen_archivo')
         
-        # Mantenemos la imagen que ya tenía por defecto
         imagen_final = imagen_url if imagen_url else producto.get('imagen_url', '')
         
         if imagen_file and imagen_file.filename != '':
@@ -211,10 +237,8 @@ def editar_producto(id_producto):
             imagen_file.save(os.path.join('static/uploads', filename))
             imagen_final = f'/static/uploads/{filename}'
         
-        # ORDEN DEL MODELO ACTUALIZADO: id, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_url
         actualizar_producto(id_producto, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_final)
         
-        # Crear la notificación
         conexion = obtener_conexion()
         cursor = conexion.cursor()
         
@@ -248,7 +272,6 @@ def eliminar_producto(id_producto):
     
     eliminar_producto_db(id_producto)
     
-    # OPCIONAL: También te crea notificación cuando eliminas algo
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     cursor.execute("INSERT INTO notificaciones (mensaje, fecha_creacion) VALUES (%s, NOW())", 
@@ -288,15 +311,12 @@ def ver_reportes():
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     
-    # Total de productos
     cursor.execute("SELECT COUNT(*) as total FROM productos WHERE estado = 1")
     total_productos = cursor.fetchone()['total']
     
-    # Stock bajo (menor a 5)
     cursor.execute("SELECT id, nombre, stock FROM productos WHERE stock < 5 AND estado = 1 ORDER BY stock ASC")
     stock_bajo = cursor.fetchall() or []
     
-    # Productos más vendidos (si existe tabla de órdenes)
     cursor.execute("""
         SELECT p.id, p.nombre, COUNT(*) as cantidad_vendida, p.precio_venta
         FROM productos p
@@ -307,7 +327,6 @@ def ver_reportes():
     """)
     top_productos = cursor.fetchall() or []
     
-    # Ingresos totales
     cursor.execute("""
         SELECT SUM(p.precio_venta * cd.cantidad) as ingresos_totales
         FROM productos p
@@ -316,7 +335,6 @@ def ver_reportes():
     result = cursor.fetchone()
     ingresos_totales = result['ingresos_totales'] if result['ingresos_totales'] else 0
     
-    # Mensajes de soporte pendientes
     cursor.execute("SELECT COUNT(*) as total FROM soporte WHERE estado = 'pendiente'")
     soporte_pendiente = cursor.fetchone()['total']
     

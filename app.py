@@ -13,7 +13,7 @@ from routes.favorite_routes import favorite_blueprint
 from routes.payment_routes import payment_blueprint
 from routes.profile_routes import profile_blueprint
 from routes.order_routes import order_custom_bp 
-# AGREGADO: Importa tu blueprint de soporte
+from routes.admin_routes import admin_blueprint
 from routes.support_routes import support_blueprint 
 
 app = Flask(__name__)

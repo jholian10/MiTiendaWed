@@ -41,7 +41,9 @@ def admin_soporte_panel():
         return redirect(url_for('auth.login'))
     
     usuario_info = session.get('usuario', {})
-    if usuario_info.get('rol') != 'admin':
+    
+    # CORRECCIÓN: Permite acceso si el rol es admin o superadmin
+    if usuario_info.get('rol') not in ['admin', 'superadmin']:
         return redirect(url_for('auth.login'))
     
     clientes = obtener_clientes_soporte()
@@ -53,8 +55,10 @@ def api_historial_chat(usuario_id):
         return jsonify({"error": "No autorizado"}), 403
     
     usuario_info = session.get('usuario', {})
-    if usuario_info.get('rol') != 'admin':
-        return jsonify({"error": "Solo admins"}), 403
+    
+    # CORRECCIÓN: Permite acceso si el rol es admin o superadmin
+    if usuario_info.get('rol') not in ['admin', 'superadmin']:
+        return jsonify({"error": "Acceso denegado. Se requiere nivel de administrador."}), 403
     
     historial = obtener_historial_chat(usuario_id)
     datos = [dict(msg) if hasattr(msg, 'keys') else msg for msg in (historial or [])]
@@ -66,8 +70,10 @@ def api_responder_soporte():
         return jsonify({"error": "No autorizado"}), 403
     
     usuario_info = session.get('usuario', {})
-    if usuario_info.get('rol') != 'admin':
-        return jsonify({"error": "Solo admins pueden responder"}), 403
+    
+    # CORRECCIÓN: Permite acceso si el rol es admin o superadmin
+    if usuario_info.get('rol') not in ['admin', 'superadmin']:
+        return jsonify({"error": "Solo los administradores pueden responder."}), 403
     
     data = request.json
     usuario_id = data.get('usuario_id')
