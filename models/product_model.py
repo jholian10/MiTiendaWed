@@ -22,7 +22,7 @@ def obtener_producto_por_id(id_producto):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     cursor.execute("""
-        SELECT p.*, 
+        SELECT p.*,
                COALESCE(AVG(r.calificacion), 0) AS promedio_estrellas,
                COUNT(r.id) AS total_resenas
         FROM productos p
@@ -39,7 +39,7 @@ def buscar_productos_por_nombre(termino):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     cursor.execute("""
-        SELECT p.*, 
+        SELECT p.*,
                COALESCE(AVG(r.calificacion), 0) AS promedio_estrellas,
                COUNT(r.id) AS total_resenas
         FROM productos p

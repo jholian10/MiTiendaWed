@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, jsonify
+﻿from flask import Blueprint, render_template, session, redirect, url_for, flash, jsonify
 from models.favorite_model import conmutar_favorito, obtener_ids_favoritos, obtener_productos_favoritos
 
 favorite_blueprint = Blueprint('favorites', __name__, url_prefix='/favoritos')
@@ -10,12 +10,12 @@ def obtener_usuario_id_sesion():
 
 @favorite_blueprint.route('/')
 @favorite_blueprint.route('/')
-def ver_favoritos():  # <--- Cambiado a español
+def ver_favoritos():
     usuario_id = obtener_usuario_id_sesion()
     if not usuario_id:
         flash('Debes iniciar sesión para ver tus favoritos.', 'warning')
         return redirect(url_for('auth.login'))
-        
+
     productos = obtener_productos_favoritos(usuario_id)
     return render_template('favoritos.html', productos=productos, usuario_sesion=session.get('usuario'))
 
@@ -24,12 +24,12 @@ def toggle(producto_id):
     usuario_id = obtener_usuario_id_sesion()
     if not usuario_id:
         return jsonify({'status': 'login_required', 'message': 'Inicia sesión primero'}), 401
-        
+
     try:
         agregado = conmutar_favorito(usuario_id, producto_id)
         mensaje = "Añadido a tus favoritos" if agregado else "Eliminado de tus favoritos"
         return jsonify({
-            'status': 'success', 
+            'status': 'success',
             'message': mensaje,
             'agregado': agregado
         })
@@ -41,7 +41,7 @@ def obtener_cantidad_api():
     usuario_id = obtener_usuario_id_sesion()
     if not usuario_id:
         return jsonify({'cantidad': 0, 'ids': []})
-        
+
     try:
         ids = obtener_ids_favoritos(usuario_id)
         return jsonify({'cantidad': len(ids), 'ids': ids})

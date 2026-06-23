@@ -1,9 +1,9 @@
-const toastElement = document.getElementById('liveToast');
+﻿const toastElement = document.getElementById('liveToast');
 const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
 
 function mostrarNotificacion(mensaje, tipo = 'success') {
     const toastBody = document.getElementById('toastMessage');
-    
+
     let icon = '';
     if (tipo === 'success') {
         icon = '<i class="bi bi-check-circle-fill"></i>';
@@ -12,7 +12,7 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     } else {
         icon = '<i class="bi bi-info-circle-fill"></i>';
     }
-    
+
     toastBody.innerHTML = `${icon} ${mensaje}`;
     toast.show();
 }
@@ -27,8 +27,8 @@ function removerFavorito(btn, productoId) {
                     setTimeout(() => cardElement.remove(), 300);
                 }
                 mostrarNotificacion('Removido de favoritos', 'info');
-                
-                // Verificar si quedan productos
+
+
                 const fav = document.getElementById('fav-container');
                 if (fav.children.length === 1) {
                     document.getElementById('empty-msg').classList.remove('d-none');

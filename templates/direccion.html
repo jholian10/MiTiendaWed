@@ -21,7 +21,7 @@
     <div class="container mb-5">
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8">
-                
+
                 <div class="glass-card p-4 p-md-5">
                     <div class="text-center mb-4">
                         <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 60px; height: 60px; color: var(--primary-color);">
@@ -30,9 +30,9 @@
                         <h4 class="fw-bold text-dark">Información de Envío</h4>
                         <p class="text-muted small">Completa los datos exactos para realizar tu entrega</p>
                     </div>
-                    
+
                     <form action="{{ url_for('cart.guardar_direccion_route') }}" method="POST">
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-medium">Departamento</label>
@@ -47,7 +47,7 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label fw-medium">Barrio</label>
                             <input type="text" name="barrio" class="form-control shadow-none" placeholder="Ej: Centro, El Bosque, etc." required>
@@ -61,7 +61,7 @@
                         <button type="submit" class="btn btn-gradient w-100 py-3 text-white border-0 shadow-sm fw-semibold">
                             Guardar y continuar al pago <i class="bi bi-arrow-right ms-2"></i>
                         </button>
-                        
+
                     </form>
                 </div>
 

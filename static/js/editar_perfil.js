@@ -1,4 +1,4 @@
-/* Editar Perfil - Minimal JS */
+﻿
 document.addEventListener("DOMContentLoaded", function() {
     const fileInput = document.querySelector('input[name="foto_perfil"]');
     if (fileInput) {

@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleButton.addEventListener("click", () => {
             const isInputPassword = passwordInput.type === "password";
             passwordInput.type = isInputPassword ? "text" : "password";
-            
+
             const iconElement = toggleButton.querySelector("i");
             if (isInputPassword) {
                 iconElement.classList.replace("bi-eye", "bi-eye-slash");

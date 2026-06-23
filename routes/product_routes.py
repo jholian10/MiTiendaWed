@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from models.product_model import (
-    listar_productos, 
-    buscar_productos_por_nombre, 
+    listar_productos,
+    buscar_productos_por_nombre,
     obtener_producto_por_id
 )
 from models.review_model import guardar_reseña, obtener_reseñas_por_producto
@@ -19,8 +19,8 @@ def index():
     else:
         bolsos = listar_productos()
     return render_template(
-        'index.html', 
-        productos=bolsos, 
+        'index.html',
+        productos=bolsos,
         usuario_sesion=obtener_usuario_sesion(),
         busqueda=termino_busqueda
     )
@@ -33,8 +33,8 @@ def ver_producto(producto_id):
         return redirect(url_for('products.index'))
     reseñas = obtener_reseñas_por_producto(producto_id)
     return render_template(
-        'ver_producto.html', 
-        producto=producto, 
+        'ver_producto.html',
+        producto=producto,
         usuario_sesion=obtener_usuario_sesion(),
         reseñas=reseñas
     )
@@ -45,13 +45,13 @@ def enviar_reseña(producto_id):
     if not usuario_datos:
         flash('Debes iniciar sesión para acceder al sistema de opiniones.', 'warning')
         return redirect(url_for('auth.login'))
-        
+
     calificacion = request.form.get('calificacion')
     comentario = request.form.get('comentario', '').strip()
     if not calificacion:
         flash('Por favor selecciona una cantidad de estrellas válida.', 'warning')
         return redirect(url_for('products.ver_producto', producto_id=producto_id))
-        
+
     exito = guardar_reseña(
         producto_id=producto_id,
         usuario_id=usuario_datos['id'],

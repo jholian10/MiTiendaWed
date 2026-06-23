@@ -20,10 +20,10 @@ def obtener_reseñas_por_producto(producto_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     query = """
-        SELECT r.*, u.nombre AS usuario_nombre 
-        FROM reseñas r 
-        INNER JOIN usuarios u ON r.usuario_id = u.id 
-        WHERE r.producto_id = %s 
+        SELECT r.*, u.nombre AS usuario_nombre
+        FROM reseñas r
+        INNER JOIN usuarios u ON r.usuario_id = u.id
+        WHERE r.producto_id = %s
         ORDER BY r.fecha_creacion DESC
     """
     cursor.execute(query, (producto_id,))

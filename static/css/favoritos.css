@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --azul-brand: #4f46e5;
     --azul-hover: #3b32d1;
     --texto-principal: #1e2229;
@@ -23,7 +23,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Barra de Navegación Premium */
+
 .custom-navbar {
     background-color: var(--bg-card);
     border-bottom: 1px solid #edf2f7;
@@ -55,7 +55,7 @@ body {
     border-radius: 30px;
 }
 
-/* Título de Sección Superior */
+
 .section-header-title {
     font-size: 1.8rem;
     font-weight: 700;
@@ -63,7 +63,7 @@ body {
     color: var(--texto-principal);
 }
 
-/* Tarjetas de Favoritos Rediseñadas */
+
 .fav-card {
     border: 1px solid #edf2f7;
     border-radius: var(--radio-borde);
@@ -79,14 +79,14 @@ body {
     border-color: rgba(79, 70, 229, 0.2);
 }
 
-/* Contenedor de Imagen de Producto */
+
 .product-image-wrapper {
     position: relative;
     overflow: hidden;
     background-color: #f8fafc;
 }
 
-/* Botón Eliminar de Favoritos */
+
 .btn-remove {
     position: absolute;
     top: 14px;
@@ -111,7 +111,7 @@ body {
     transform: scale(1.08);
 }
 
-/* Marcador de posición elegante cuando no hay imagen */
+
 .img-placeholder-client {
     height: 240px;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
@@ -122,7 +122,7 @@ body {
     text-transform: uppercase;
 }
 
-/* Cuerpo de la Tarjeta */
+
 .card-product-body {
     padding: 20px;
     text-align: left;
@@ -145,7 +145,7 @@ body {
     color: var(--azul-brand);
 }
 
-/* Botón de Añadir al Carrito Directo */
+
 .btn-add-cart-direct {
     background-color: #f1f5f9;
     color: var(--texto-principal);
@@ -168,7 +168,7 @@ body {
     color: #ffffff;
 }
 
-/* Contenedor Vista Vacía Estilizado */
+
 .empty-state-box {
     background-color: var(--bg-card);
     border-radius: var(--radio-borde);
@@ -209,7 +209,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* Notificación Toast Refinada */
+
 .custom-premium-toast {
     border-radius: 16px;
     border: none;

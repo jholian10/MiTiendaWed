@@ -7,14 +7,14 @@ function mostrarNotificacion(mensaje, tipo = 'success', titulo = '') {
     const container = document.getElementById('toastContainer');
     const template = document.getElementById('toastTemplate');
     const clone = template.content.cloneNode(true);
-    
+
     const toastEl = clone.querySelector('.toast');
     const iconEl = clone.querySelector('.toast-icon');
     const titleEl = clone.querySelector('.toast-title');
     const msgEl = clone.querySelector('.toast-message');
 
     toastEl.classList.add(`toast-${tipo}`);
-    
+
     if (tipo === 'success') {
         iconEl.classList.add('bi-check-circle-fill');
         titleEl.textContent = titulo || '¡Operación Exitosa!';
@@ -97,7 +97,7 @@ async function agregarAlCarritoAsincrono(button, productoId) {
         if (response.ok) {
             const data = await response.json();
             mostrarNotificacion(data.message || "Producto añadido a tu pedido.", "success");
-            
+
             const resCart = await fetch("/carrito/cantidad-api");
             if (resCart.ok) {
                 const dataCart = await resCart.json();
@@ -122,9 +122,9 @@ async function toggleFavorito(button, productoId) {
         const url = `/favoritos/toggle/${productoId}`;
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 
-                'X-Requested-With': 'XMLHttpRequest', 
-                'Content-Type': 'application/json' 
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
             }
         });
 
@@ -136,7 +136,7 @@ async function toggleFavorito(button, productoId) {
 
         if (response.ok) {
             const data = await response.json();
-            
+
             if(data.agregado) {
                 button.classList.add('active');
                 mostrarNotificacion(data.message || "Guardado en tus favoritos", "success", "Favorito Añadido");
@@ -144,7 +144,7 @@ async function toggleFavorito(button, productoId) {
                 button.classList.remove('active');
                 mostrarNotificacion(data.message || "Eliminado de tus favoritos", "success", "Favorito Removido");
             }
-            
+
             const resFav = await fetch("/favoritos/cantidad-api");
             if (resFav.ok) {
                 const dataFav = await resFav.json();
@@ -164,11 +164,11 @@ function inicializarAnimaciones() {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        
+
         setTimeout(() => {
             card.style.opacity = '1';
             card.style.transform = 'translateY(0)';
-            
+
             setTimeout(() => {
                 card.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
             }, 500);

@@ -1,14 +1,14 @@
-:root {
+﻿:root {
     --bg-sistema: #f4f5fa;
-    /* El fondo exacto de tu panel */
-    --azul-brand: #4f46e5;
-    /* El color del botón "Registrar Nuevo Bolso" */
-    --texto-principal: #1e2229;
-    /* El color de tus títulos principales */
-    --texto-mutado: #788293;
-    /* El color de tus subtítulos de control */
 
-    /* Colores de los componentes de tu tabla */
+    --azul-brand: #4f46e5;
+
+    --texto-principal: #1e2229;
+
+    --texto-mutado: #788293;
+
+
+
     --badge-disponible-bg: #eaf7f0;
     --badge-disponible-txt: #1ea962;
     --btn-editar-bg: #edf5ff;
@@ -26,7 +26,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* NAVBAR ADAPTADO AL PANEL */
+
 .custom-navbar {
     background-color: #ffffff !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.04);
@@ -61,7 +61,7 @@ body {
     font-weight: 600;
 }
 
-/* CONTENEDORES ESTILO DASHBOARD (Tarjetas Blancas Redondeadas) */
+
 .panel-card {
     background: #ffffff;
     border-radius: 24px;
@@ -92,7 +92,7 @@ body {
     font-weight: 500;
 }
 
-/* BADGE DISPONIBLE EXACTO A TU TABLA */
+
 .badge-status-disponible {
     background-color: var(--badge-disponible-bg);
     color: var(--badge-disponible-txt);
@@ -119,7 +119,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* BOTONES COPIADOS DE TU PANEL DE GESTIÓN */
+
 .btn-panel-primary {
     background-color: var(--azul-brand);
     color: #ffffff;
@@ -139,7 +139,7 @@ body {
     box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
 }
 
-/* Estilo idéntico a tu botón "Editar" */
+
 .btn-panel-secondary {
     background-color: var(--btn-editar-bg);
     color: var(--btn-editar-txt);
@@ -156,7 +156,7 @@ body {
     color: var(--btn-editar-txt);
 }
 
-/* Botón redondo de favoritos */
+
 .btn-panel-fav {
     width: 52px;
     height: 52px;
@@ -177,7 +177,7 @@ body {
     color: var(--btn-baja-txt);
 }
 
-/* SELECTOR DE CANTIDAD */
+
 .quantity-control-wrapper {
     display: inline-flex;
     align-items: center;
@@ -215,7 +215,7 @@ body {
     color: var(--texto-principal);
 }
 
-/* CAJA DE TEXTO DE RESEÑAS */
+
 .panel-textarea {
     border: 2px solid var(--bg-sistema);
     background-color: var(--bg-sistema);
@@ -231,7 +231,7 @@ body {
     box-shadow: none;
 }
 
-/* ESTRELLAS */
+
 .stars-container-panel {
     display: inline-flex;
     flex-direction: row-reverse;
@@ -252,7 +252,7 @@ body {
     color: #ffb703;
 }
 
-/* FILAS DE COMENTARIOS */
+
 .review-row-item {
     border-bottom: 1px solid var(--bg-sistema);
     padding-bottom: 20px;

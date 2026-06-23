@@ -22,12 +22,12 @@
             {% for p in productos %}
             <div class="col-6 col-md-4 col-lg-3 product-item" id="product-card-{{ p.id }}">
                 <div class="card fav-card h-100">
-                    
+
                     <div class="product-image-wrapper">
                         <button class="btn-remove" onclick="removerFavorito(this, '{{ p.id }}')" title="Quitar de favoritos">
                             <i class="bi bi-heart-break-fill"></i>
                         </button>
-                        
+
                         {% if p.imagen_url %}
                             <img src="{{ p.imagen_url }}" class="card-img-top" style="height: 240px; object-fit: cover;" alt="{{ p.nombre }}">
                         {% else %}
@@ -40,7 +40,7 @@
                     <div class="card-product-body">
                         <h6 class="product-title-text text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h6>
                         <div class="product-price-badge">${{ p.precio_venta }}</div>
-                        
+
                         <button class="btn-add-cart-direct" onclick="mostrarNotificacion('Agregado al carrito de compras', 'success')">
                             <i class="bi bi-bag-plus"></i> Añadir al carro
                         </button>
@@ -49,7 +49,7 @@
                 </div>
             </div>
             {% endfor %}
-            
+
             <div class="col-12 text-center py-4 {% if productos %}d-none{% endif %}" id="empty-msg">
                 <div class="empty-state-box">
                     <div class="empty-state-icon-circle">

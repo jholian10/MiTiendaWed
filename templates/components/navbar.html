@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg sticky-top custom-navbar">
+﻿<nav class="navbar navbar-expand-lg sticky-top custom-navbar">
     <div class="container">
         <a class="navbar-brand brand-title fs-3 m-0 d-flex align-items-center gap-2" href="{{ url_for('products.index') }}">
             <i class="bi bi-layers-half text-primary" style="color: var(--primary-solid) !important;"></i>
@@ -19,7 +19,7 @@
         </button>
 
         <div class="collapse navbar-collapse flex-grow-0 mt-3 mt-lg-0" id="navbarContent">
-            
+
             <form class="d-block d-lg-none mb-4" action="{{ url_for('products.index') }}" method="GET">
                 <div class="search-box-container w-100">
                     <input type="text" name="q" class="search-box" placeholder="Buscar bolsos..." value="{{ busqueda or '' }}">
@@ -30,7 +30,7 @@
             </form>
 
             <div class="d-flex align-items-center justify-content-center justify-content-lg-end gap-3">
-                
+
                 {% if usuario_sesion %}
                     <div class="dropdown">
                         <a class="nav-icon-btn text-decoration-none dropdown-toggle d-flex align-items-center gap-2 px-3 w-auto rounded-pill" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="background: var(--primary-light);">
@@ -79,7 +79,7 @@
 
 <script>
     function actualizarContadoresNavbar() {
-        // Actualizar Carrito
+
         fetch('/carrito/api/cantidad')
             .then(res => res.json())
             .then(data => {
@@ -88,7 +88,7 @@
             })
             .catch(err => console.error("Error carrito:", err));
 
-        // Actualizar Favoritos
+
         fetch('/favoritos/api/cantidad')
             .then(res => res.json())
             .then(data => {
@@ -98,6 +98,6 @@
             .catch(err => console.error("Error favoritos:", err));
     }
 
-    // Se ejecuta apenas la página carga
+
     document.addEventListener('DOMContentLoaded', actualizarContadoresNavbar);
 </script>

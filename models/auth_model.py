@@ -19,7 +19,7 @@ def registrar_usuario(nombre, correo, password_plana, rol='cliente'):
     cursor = conexion.cursor()
     try:
         cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, %s, %s, 1)", 
+            "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, %s, %s, 1)",
             (nombre, correo, pwd, rol)
         )
         conexion.commit()
@@ -36,7 +36,7 @@ def registrar_usuario_oauth(nombre, correo):
     cursor = conexion.cursor()
     try:
         cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, 'google_auth', 'cliente', 1)", 
+            "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, 'google_auth', 'cliente', 1)",
             (nombre, correo)
         )
         conexion.commit()
@@ -53,7 +53,7 @@ def guardar_codigo_recuperacion(correo, codigo):
     cursor = conexion.cursor()
     try:
         cursor.execute(
-            "UPDATE usuarios SET codigo_recuperacion = %s, codigo_expira = NOW() + INTERVAL 10 MINUTE WHERE correo = %s", 
+            "UPDATE usuarios SET codigo_recuperacion = %s, codigo_expira = NOW() + INTERVAL 10 MINUTE WHERE correo = %s",
             (codigo, correo)
         )
         conexion.commit()
@@ -70,7 +70,7 @@ def verificar_codigo_y_correo(correo, codigo):
     cursor = conexion.cursor(dictionary=True)
     try:
         cursor.execute(
-            "SELECT id FROM usuarios WHERE correo = %s AND codigo_recuperacion = %s AND codigo_expira > NOW()", 
+            "SELECT id FROM usuarios WHERE correo = %s AND codigo_recuperacion = %s AND codigo_expira > NOW()",
             (correo, codigo)
         )
         return cursor.fetchone()
@@ -84,7 +84,7 @@ def actualizar_password(correo, nueva_pwd):
     cursor = conexion.cursor()
     try:
         cursor.execute(
-            "UPDATE usuarios SET password_hash = %s, codigo_recuperacion = NULL, codigo_expira = NULL WHERE correo = %s", 
+            "UPDATE usuarios SET password_hash = %s, codigo_recuperacion = NULL, codigo_expira = NULL WHERE correo = %s",
             (pwd, correo)
         )
         conexion.commit()
@@ -112,7 +112,7 @@ def cambiar_password(usuario_id, password_actual, nuevo_password):
     try:
         cursor.execute("SELECT password_hash FROM usuarios WHERE id = %s", (usuario_id,))
         usuario = cursor.fetchone()
-        
+
         if usuario and check_password_hash(usuario['password_hash'], password_actual):
             hashed_pw = generate_password_hash(nuevo_password, method=HASH_METHOD)
             cursor.execute("UPDATE usuarios SET password_hash = %s WHERE id = %s", (hashed_pw, usuario_id))

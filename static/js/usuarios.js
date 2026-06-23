@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById('userSearchInput');
     const tableRows = document.querySelectorAll('#userTable tbody tr');
-    
+
     if(searchInput) {
         searchInput.addEventListener('keyup', function() {
             const query = this.value.toLowerCase().trim();

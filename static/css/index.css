@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --bg-admin: #f4f7fe;
     --bg-card: #ffffff;
     --primary-gradient: linear-gradient(135deg, #3f51b5 0%, #7e57c2 100%);
@@ -164,7 +164,7 @@ a:hover {
     text-align: center;
 }
 
-/* Menú de usuario */
+
 .user-dropdown-menu {
     border: none;
     border-radius: var(--border-radius-md);

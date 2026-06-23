@@ -1,18 +1,18 @@
-from database.db import obtener_conexion
+﻿from database.db import obtener_conexion
 
 def obtener_o_crear_carrito(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     cursor.execute("SELECT id FROM carritos WHERE usuario_id = %s", (usuario_id,))
     carrito = cursor.fetchone()
-    
+
     if carrito:
         carrito_id = carrito['id']
     else:
         cursor.execute("INSERT INTO carritos (usuario_id) VALUES (%s)", (usuario_id,))
         conexion.commit()
         carrito_id = cursor.lastrowid
-        
+
     cursor.close()
     conexion.close()
     return carrito_id
@@ -21,11 +21,11 @@ def agregar_producto_al_carrito(usuario_id, producto_id, cantidad=1):
     carrito_id = obtener_o_crear_carrito(usuario_id)
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    
+
     query_verificar = "SELECT id, cantidad FROM carrito_detalles WHERE carrito_id = %s AND producto_id = %s"
     cursor.execute(query_verificar, (carrito_id, producto_id))
     detalle = cursor.fetchone()
-    
+
     if detalle:
         nueva_cantidad = detalle['cantidad'] + cantidad
         query_update = "UPDATE carrito_detalles SET cantidad = %s WHERE id = %s"
@@ -33,7 +33,7 @@ def agregar_producto_al_carrito(usuario_id, producto_id, cantidad=1):
     else:
         query_insert = "INSERT INTO carrito_detalles (carrito_id, producto_id, cantidad) VALUES (%s, %s, %s)"
         cursor.execute(query_insert, (carrito_id, producto_id, cantidad))
-        
+
     conexion.commit()
     cursor.close()
     conexion.close()
@@ -44,7 +44,7 @@ def obtener_detalles_carrito(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     query = """
-        SELECT cd.id AS detalle_id, p.id AS producto_id, p.nombre, p.precio_venta, 
+        SELECT cd.id AS detalle_id, p.id AS producto_id, p.nombre, p.precio_venta,
                p.imagen_url, cd.cantidad, (p.precio_venta * cd.cantidad) AS subtotal
         FROM carrito_detalles cd
         JOIN productos p ON cd.producto_id = p.id
@@ -71,27 +71,27 @@ def eliminar_del_carrito(detalle_id):
     conexion.commit()
     cursor.close()
     conexion.close()
-    
+
 def vaciar_carrito_completo(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     try:
-        # 1. Buscamos el carrito activo del usuario
+
         cursor.execute("SELECT id FROM carritos WHERE usuario_id = %s", (usuario_id,))
         carrito = cursor.fetchone()
-        
+
         if carrito:
             carrito_id = carrito['id']
-            # 2. Borramos los detalles primero (por integridad referencial)
+
             cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id = %s", (carrito_id,))
-            # 3. Borramos el carrito principal
+
             cursor.execute("DELETE FROM carritos WHERE id = %s", (carrito_id,))
             conexion.commit()
-            return True # Éxito
-        return False # No había nada que borrar
+            return True
+        return False
     except Exception as e:
         print(f"Error al vaciar carrito completo: {e}")
-        conexion.rollback() # Revertimos cambios si algo falla
+        conexion.rollback()
         return False
     finally:
         cursor.close()

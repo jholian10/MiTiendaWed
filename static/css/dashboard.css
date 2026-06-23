@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --primary-purple: #6f42c1;
     --primary-purple-dark: #52279c;
     --primary-blue: #0d6efd;
@@ -9,7 +9,7 @@
     --text-dark: #212529;
     --text-muted: #7c8ba1;
 
-    /* Estados coloridos de inventario */
+
     --status-success-bg: #d1e7dd;
     --status-success-text: #0f5132;
     --status-warning-bg: #fff3cd;
@@ -18,7 +18,7 @@
     --status-danger-text: #842029;
 }
 
-/* CONFIGURACIÓN BASE DEL SISTEMA */
+
 body {
     background-color: var(--bg-light-blue);
     font-family: "Poppins", sans-serif;
@@ -28,7 +28,7 @@ body {
     padding: 0;
 }
 
-/* Personalización de la barra de desplazamiento (Scrollbar) */
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -43,7 +43,7 @@ body {
     border-radius: 10px;
 }
 
-/* DISEÑO ESTRUCTURAL: MENU LATERAL (SIDEBAR) ASIMÉTRICO */
+
 .sidebar-container {
     width: 290px;
     height: 100vh;
@@ -85,7 +85,7 @@ body {
     font-weight: 500;
 }
 
-/* ENLACES E ICONOS CON COLORES VIVOS INTERACTIVOS */
+
 .sidebar-menu {
     list-style: none;
     padding: 0;
@@ -109,7 +109,7 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Círculo de fondo vivo para los iconos del menú */
+
 .menu-icon-wrapper {
     width: 36px;
     height: 36px;
@@ -123,7 +123,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* Colores específicos y vivos cuando pasas el mouse por encima */
+
 .menu-link:hover {
     background: var(--white-pure);
     color: var(--primary-purple) !important;
@@ -140,7 +140,7 @@ body {
     transform: rotate(360deg);
 }
 
-/* Variaciones de colores vivos para estados activos */
+
 .menu-item.active .menu-link {
     background: var(--white-pure);
     color: var(--primary-purple) !important;
@@ -173,7 +173,7 @@ body {
     border-color: transparent;
 }
 
-/* DISEÑO DEL CONTENIDO PRINCIPAL ENLAZADO */
+
 .main-workspace {
     margin-left: 290px;
     padding: 40px;
@@ -181,7 +181,7 @@ body {
     transition: all 0.4s ease;
 }
 
-/* TARJETAS DE ESTADÍSTICAS (WIDGETS DINÁMICOS) */
+
 .stat-card-box {
     background: var(--white-pure);
     border-radius: 30px;
@@ -201,7 +201,7 @@ body {
     box-shadow: 0 20px 40px rgba(111, 66, 193, 0.08);
 }
 
-/* Burbujas de iconos altamente vivas y llamativas */
+
 .stat-icon-circle {
     width: 60px;
     height: 60px;
@@ -228,7 +228,7 @@ body {
     color: #fd7e14;
 }
 
-/* BARRA DE BÚSQUEDA AVANZADA ESTILO GLOW */
+
 .search-container-box {
     position: relative;
     margin-bottom: 35px;
@@ -263,7 +263,7 @@ body {
     transition: all 0.3s ease;
 }
 
-/* CONTENEDOR DE LA TABLA Y DISEÑO INTERNO */
+
 .workspace-table-card {
     background-color: var(--white-pure);
     border-radius: 35px;
@@ -326,7 +326,7 @@ body {
     border-radius: 0 20px 20px 0;
 }
 
-/* BADGES ULTRA REDONDEADOS Y BRILLANTES */
+
 .status-badge-vibrant {
     padding: 8px 18px;
     border-radius: 30px;
@@ -353,7 +353,7 @@ body {
     color: var(--status-danger-text);
 }
 
-/* BOTONES DE ACCIÓN FLUIDOS */
+
 .btn-action-premium {
     padding: 10px 24px;
     border-radius: 20px;
@@ -389,7 +389,7 @@ body {
     color: var(--white-pure);
 }
 
-        /* DEFINICIÓN DE VARIABLES DE MARCA */
+
 
         :root {
 
@@ -415,7 +415,7 @@ body {
 
 
 
-        /* CONFIGURACIÓN BASE */
+
 
         body {
 
@@ -435,7 +435,7 @@ body {
 
 
 
-        /* Scrollbar */
+
 
         ::-webkit-scrollbar {
 
@@ -459,7 +459,7 @@ body {
 
 
 
-        /* DISEÑO ESTRUCTURAL: MENU LATERAL (SIDEBAR) */
+
 
         .sidebar-container {
 
@@ -637,7 +637,7 @@ body {
 
 
 
-        /* Estado Activo para Notificaciones */
+
 
         .menu-item.active .menu-link {
 
@@ -697,7 +697,7 @@ body {
 
 
 
-        /* CONTENIDO PRINCIPAL */
+
 
         .main-workspace {
 
@@ -711,7 +711,7 @@ body {
 
 
 
-        /* TARJETAS DE NOTIFICACIONES */
+
 
         .notification-card {
 
@@ -817,7 +817,7 @@ body {
 
 
 
-        /* BOTÓN VOLVER */
+
 
         .btn-back-premium {
 

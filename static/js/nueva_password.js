@@ -1,16 +1,16 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
     const passwordInput = document.getElementById("password-field");
     const toggleButton = document.getElementById("password-toggle");
     const statusMsg = document.getElementById("password-status-msg");
     const statusIcon = document.getElementById("status-icon");
     const resetForm = document.getElementById("reset-password-form");
 
-    // Alternador de visualización (Ojo)
+
     if (toggleButton && passwordInput) {
         toggleButton.addEventListener("click", () => {
             const isPassword = passwordInput.type === "password";
             passwordInput.type = isPassword ? "text" : "password";
-            
+
             const icon = toggleButton.querySelector("i");
             if (isPassword) {
                 icon.classList.replace("bi-eye", "bi-eye-slash");
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Validación en tiempo real (Mínimo 6 caracteres con cambio de color e ícono)
+
     if (passwordInput) {
         passwordInput.addEventListener("input", () => {
             if (passwordInput.value.length >= 6) {
