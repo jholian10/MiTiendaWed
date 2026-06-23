@@ -31,17 +31,31 @@ def procesar_pago():
     monto_en_centavos = int(round(total_cop * 100))
     referencia_pago = f"ORD_{usuario_id}_{int(time.time() * 1000)}"
     
-    conexion = obtener_conexion()
-    cursor = conexion.cursor()
-    
-    sql = """INSERT INTO pedidos (usuario_id, referencia, total, estado, direccion_envio, ciudad_envio, telefono_contacto, fecha_creacion) 
-             VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())"""
-    cursor.execute(sql, (usuario_id, referencia_pago, total_cop, 'PENDIENTE', direccion, ciudad, telefono))
-    
-    conexion.commit()
-    cursor.close()
-    conexion.close()
-    
+    # --- DEBUGGING ---
+    print(f"DEBUG: Intentando insertar -> User: {usuario_id}, Ref: {referencia_pago}, Total: {total_cop}")
+
+    conexion = None
+    cursor = None
+    try:
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
+        
+        sql = """INSERT INTO pedidos (usuario_id, referencia, total, estado, direccion_envio, ciudad_envio, telefono_contacto, fecha_creacion) 
+                 VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())"""
+        
+        cursor.execute(sql, (usuario_id, referencia_pago, total_cop, 'PENDIENTE', direccion, ciudad, telefono))
+        conexion.commit()
+        print("DEBUG: ÉXITO - Pedido guardado en la base de datos.")
+        
+    except Exception as e:
+        print(f"❌ ERROR CRÍTICO AL GUARDAR PEDIDO: {e}")
+        flash('Hubo un error al procesar tu pedido. Intenta de nuevo.', 'danger')
+        return redirect(url_for('cart.ver_carrito'))
+    finally:
+        if cursor: cursor.close()
+        if conexion: conexion.close()
+
+    # --- PREPARAR PAGO WOMPI ---
     cadena_firma = f"{referencia_pago}{monto_en_centavos}COP{WOMPI_INTEGRITY_SECRET}"
     firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
 
@@ -50,10 +64,6 @@ def procesar_pago():
     html_form = f"""
     <!DOCTYPE html>
     <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <title>Procesando pago...</title>
-    </head>
     <body onload="document.getElementById('wompi_form').submit()">
         <form id="wompi_form" action="https://checkout.wompi.co/p/" method="GET">
             <input type="hidden" name="public-key" value="{WOMPI_PUBLIC_KEY}" />
@@ -71,17 +81,28 @@ def procesar_pago():
 @payment_blueprint.route('/webhooks/wompi', methods=['POST'])
 def webhook_wompi():
     data = request.json
-    if data and data.get('event') == 'transaction.updated':
-        transaction = data['data']['transaction']
-        referencia = transaction['reference']
-        estado = transaction['status']
+    print(f"DEBUG: Webhook recibido: {data}")
 
-        if estado == 'APPROVED':
-            conexion = obtener_conexion()
-            cursor = conexion.cursor(dictionary=True)
-            try:
-                # 1. Actualizar estado
-                cursor.execute("UPDATE pedidos SET estado = 'EMPACANDO' WHERE referencia = %s", (referencia,))
+    if not data or data.get('event') != 'transaction.updated':
+        return '', 200
+
+    transaction = data['data']['transaction']
+    referencia = transaction['reference']
+    estado = transaction['status']
+
+    print(f"DEBUG: Procesando transacción {referencia} con estado {estado}")
+
+    if estado == 'APPROVED':
+        conexion = obtener_conexion()
+        cursor = conexion.cursor(dictionary=True)
+        try:
+            # 1. Intentar actualizar
+            cursor.execute("UPDATE pedidos SET estado = 'EMPACANDO' WHERE referencia = %s", (referencia,))
+            conexion.commit() # Guardamos el cambio
+            
+            # Verificamos si realmente se actualizó alguna fila
+            if cursor.rowcount > 0:
+                print(f"DEBUG: ÉXITO - Pedido {referencia} actualizado a EMPACANDO")
                 
                 # 2. Obtener usuario para limpiar carrito
                 cursor.execute("SELECT usuario_id FROM pedidos WHERE referencia = %s", (referencia,))
@@ -89,19 +110,30 @@ def webhook_wompi():
                 
                 if pedido:
                     u_id = pedido['usuario_id']
-                    # Limpiar carrito
+                    # Borrar carrito
                     cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id IN (SELECT id FROM carritos WHERE usuario_id = %s)", (u_id,))
                     cursor.execute("DELETE FROM carritos WHERE usuario_id = %s", (u_id,))
+                    conexion.commit()
+                    print(f"DEBUG: Carrito del usuario {u_id} vaciado correctamente")
+            else:
+                # DIAGNÓSTICO: Si llega aquí, es porque la referencia no existe
+                print(f"DEBUG: ¡ALERTA! No se encontró pedido con referencia '{referencia}'")
                 
-                conexion.commit()
-            except Exception as e:
-                print(f"Error en webhook: {e}")
-                conexion.rollback()
-            finally:
-                cursor.close()
-                conexion.close()
+                # DEBUG EXTRA: Imprimimos qué hay en la base de datos para comparar
+                cursor.execute("SELECT referencia FROM pedidos ORDER BY fecha_creacion DESC LIMIT 5")
+                ultimos_pedidos = cursor.fetchall()
+                print(f"DEBUG: Las últimas 5 referencias en la BD son: {ultimos_pedidos}")
+                print(f"DEBUG: ¿Quizás la referencia tiene espacios o es distinta? Verifica el log de arriba.")
+                
+        except Exception as e:
+            print(f"❌ ERROR CRÍTICO EN WEBHOOK: {e}")
+            conexion.rollback()
+        finally:
+            cursor.close()
+            conexion.close()
     
     return '', 200
+
 
 @payment_blueprint.route('/test-borrar-carrito/<int:u_id>')
 def test_borrado(u_id):
@@ -113,3 +145,18 @@ def test_borrado(u_id):
     cursor.close()
     conexion.close()
     return "¡Carrito borrado con éxito!"
+
+@payment_blueprint.route('/test-db-connection')
+def test_db():
+    try:
+        conexion = obtener_conexion()
+        cursor = conexion.cursor()
+        # Intentamos insertar un dato falso
+        cursor.execute("INSERT INTO pedidos (usuario_id, referencia, total, estado) VALUES (%s, %s, %s, %s)", 
+                       (1, 'PRUEBA_123', 0, 'PENDIENTE'))
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+        return "¡Conexión y escritura exitosa! Revisa tu tabla pedidos."
+    except Exception as e:
+        return f"Error crítico de conexión: {str(e)}"

@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from database.db import obtener_conexion
 from models.product_model import listar_productos, obtener_producto_por_id
 from models.support_model import obtener_todos_los_mensajes
+from utils.email_notifications import enviar_alerta_stock
 
 # IMPORTANTE: Renombramos 'eliminar_producto' como 'eliminar_producto_db' 
 from models.admin_product_model import insertar_producto, actualizar_producto, eliminar_producto as eliminar_producto_db
@@ -238,6 +239,7 @@ def editar_producto(id_producto):
             imagen_final = f'/static/uploads/{filename}'
         
         actualizar_producto(id_producto, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_final)
+        enviar_alerta_stock(nombre, stock, stock_minimo)
         
         conexion = obtener_conexion()
         cursor = conexion.cursor()

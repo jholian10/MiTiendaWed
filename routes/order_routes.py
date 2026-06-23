@@ -4,10 +4,11 @@ import time
 from flask import Blueprint, render_template, redirect, url_for, flash, session, request, render_template_string
 from database.db import obtener_conexion
 from models.order_model import obtener_pedidos_usuario
+from utils.email_notifications import enviar_alerta_stock
 
 order_custom_bp = Blueprint('orders', __name__, url_prefix='/pedidos')
 
-# Credenciales (Asegúrate de que coincidan con tu ambiente Wompi)
+# Credenciales de Wompi
 WOMPI_PUBLIC_KEY = os.getenv('WOMPI_PUBLIC_KEY', 'pub_test_GHpuOWhHiYzNcAX5EZX9Fy4lTKxfBTWT').strip()
 WOMPI_INTEGRITY_SECRET = os.getenv('WOMPI_INTEGRITY_SECRET', 'test_integrity_P0flJ5cCmnqd6LtVHARxwxVSFy6rI6Ft').strip()
 
@@ -49,7 +50,7 @@ def crear_pedido():
     cursor = conexion.cursor(dictionary=True)
     
     try:
-        conexion.autocommit = False
+        conexion.autocommit = False # Transacción manual para seguridad
         
         # 1. Obtener carrito
         query_carrito = """
@@ -69,7 +70,7 @@ def crear_pedido():
         monto_en_centavos = int(round(total_pedido * 100))
         referencia_pago = f"ORD_{usuario_sesion['id']}_{int(time.time() * 1000)}"
         
-        # 2. Insertar en tabla 'pedidos' (Corregido: 7 valores, 7 placeholders)
+        # 2. Insertar cabecera del pedido
         sql_pedido = """
             INSERT INTO pedidos (usuario_id, referencia, total, estado, direccion_envio, ciudad_envio, telefono_contacto, fecha_creacion)
             VALUES (%s, %s, %s, 'PENDIENTE', %s, %s, %s, NOW())
@@ -77,21 +78,33 @@ def crear_pedido():
         cursor.execute(sql_pedido, (usuario_sesion['id'], referencia_pago, total_pedido, direccion, ciudad, telefono))
         pedido_id = cursor.lastrowid 
         
-        # 3. Insertar detalles
+        # 3. Procesar artículos: Restar stock, notificar si es necesario e insertar detalle
         sql_detalle = """
             INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, precio_unitario)
             VALUES (%s, %s, %s, %s)
         """
         for item in carro_items:
+            # A) Descontar stock del producto
+            cursor.execute("UPDATE productos SET stock = stock - %s WHERE id = %s", (item['cantidad'], item['producto_id']))
+            
+            # B) Obtener datos para verificar el stock actual
+            cursor.execute("SELECT nombre, stock, stock_minimo FROM productos WHERE id = %s", (item['producto_id'],))
+            prod_actual = cursor.fetchone()
+            
+            # C) Disparar alerta si stock bajo
+            if prod_actual:
+                enviar_alerta_stock(prod_actual['nombre'], prod_actual['stock'], prod_actual['stock_minimo'])
+
+            # D) Insertar detalle de venta
             cursor.execute(sql_detalle, (pedido_id, item['producto_id'], item['cantidad'], item['precio_venta']))
         
-        conexion.commit()
+        conexion.commit() # Confirmar todos los cambios
         
-        # 4. Firma Wompi
+        # 4. Firma Wompi para pago
         cadena_firma = f"{referencia_pago}{monto_en_centavos}COP{WOMPI_INTEGRITY_SECRET}"
         firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
 
-        # Formulario de redirección
+        # Formulario de redirección automática
         html_form = f"""
         <body onload="document.getElementById('wompi_form').submit()">
             <form id="wompi_form" action="https://checkout.wompi.co/p/" method="GET">
@@ -107,8 +120,8 @@ def crear_pedido():
         return render_template_string(html_form)
         
     except Exception as e:
-        conexion.rollback()
-        print(f"❌ Error crítico: {e}")
+        conexion.rollback() # Revertir cambios si algo falla
+        print(f"❌ Error crítico en orden: {e}")
         flash('No se pudo procesar la transacción.', 'error')
         return redirect(url_for('cart.ver_carrito'))
     finally:
@@ -126,27 +139,22 @@ def webhook_wompi():
             conexion = obtener_conexion()
             cursor = conexion.cursor(dictionary=True)
             try:
-                # 1. Actualizar estado del pedido a 'PAGADO' o 'EMPACANDO'
+                # 1. Actualizar estado del pedido
                 cursor.execute("UPDATE pedidos SET estado = 'EMPACANDO' WHERE referencia = %s", (referencia,))
                 
-                # 2. Obtener el usuario que hizo el pedido
+                # 2. Obtener el usuario
                 cursor.execute("SELECT usuario_id FROM pedidos WHERE referencia = %s", (referencia,))
                 pedido = cursor.fetchone()
                 
                 if pedido:
                     u_id = pedido['usuario_id']
-                    # 3. Vaciar carrito de forma segura:
-                    # Primero borramos los detalles (hijos)
-                    cursor.execute("""
-                        DELETE FROM carrito_detalles 
-                        WHERE carrito_id IN (SELECT id FROM carritos WHERE usuario_id = %s)
-                    """, (u_id,))
-                    # Luego borramos el carrito principal (padre)
+                    # 3. Vaciar carrito tras pago exitoso
+                    cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id IN (SELECT id FROM carritos WHERE usuario_id = %s)", (u_id,))
                     cursor.execute("DELETE FROM carritos WHERE usuario_id = %s", (u_id,))
                 
                 conexion.commit()
             except Exception as e:
-                print(f"Error al vaciar carrito: {e}")
+                print(f"Error al procesar webhook: {e}")
                 conexion.rollback()
             finally:
                 cursor.close()
