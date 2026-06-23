@@ -23,17 +23,17 @@ def procesar_pago():
         flash('Tu carrito está vacío.', 'warning')
         return redirect(url_for('cart.ver_carrito'))
 
+    # Obtenemos datos del formulario
     direccion = request.form.get('direccion', 'No especificada')
     ciudad = request.form.get('ciudad', 'No especificada')
     telefono = request.form.get('telefono', 'No especificado')
 
+    # Cálculos
     total_cop = sum(float(item['precio_venta']) * int(item['cantidad']) for item in items_carrito)
     monto_en_centavos = int(round(total_cop * 100))
     referencia_pago = f"ORD_{usuario_id}_{int(time.time() * 1000)}"
     
-    # --- DEBUGGING ---
-    print(f"DEBUG: Intentando insertar -> User: {usuario_id}, Ref: {referencia_pago}, Total: {total_cop}")
-
+    # 1. Guardar en Base de Datos
     conexion = None
     cursor = None
     try:
@@ -45,22 +45,27 @@ def procesar_pago():
         
         cursor.execute(sql, (usuario_id, referencia_pago, total_cop, 'PENDIENTE', direccion, ciudad, telefono))
         conexion.commit()
-        print("DEBUG: ÉXITO - Pedido guardado en la base de datos.")
+        print(f"DEBUG: Pedido {referencia_pago} guardado correctamente.")
         
     except Exception as e:
         print(f"❌ ERROR CRÍTICO AL GUARDAR PEDIDO: {e}")
-        flash('Hubo un error al procesar tu pedido. Intenta de nuevo.', 'danger')
+        flash('Hubo un error al procesar tu pedido.', 'danger')
         return redirect(url_for('cart.ver_carrito'))
     finally:
         if cursor: cursor.close()
         if conexion: conexion.close()
 
-    # --- PREPARAR PAGO WOMPI ---
+    # 2. Preparar datos para Wompi
     cadena_firma = f"{referencia_pago}{monto_en_centavos}COP{WOMPI_INTEGRITY_SECRET}"
     firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
 
+    # IMPORTANTE: Aquí está la variable que usa el formulario
     correo_usuario = session['usuario'].get('correo') or session['usuario'].get('email', '')
 
+    # --- SI TIENES UNA FUNCIÓN DE EMAIL, LLÁMALA AQUÍ ---
+    # Ejemplo: enviar_email(correo_usuario, "Confirmación de Orden", "...")
+    # Asegúrate de usar 'correo_usuario' y no 'correo'
+    
     html_form = f"""
     <!DOCTYPE html>
     <html lang="es">
