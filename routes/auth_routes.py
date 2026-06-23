@@ -75,49 +75,46 @@ def register():
         correo = request.form.get('correo')
         password = request.form.get('password')
         
-        if registrar_usuario(nombre, correo, password):
-            # --- ENVÍO DE CORREO DE BIENVENIDA ---
-            try:
-                msg = Message(
-                    '¡Bienvenido a la comunidad Dunaka!',
-                    sender=os.getenv('MAIL_USERNAME'),
-                    recipients=[correo]
-                )
-                # Diseño profesional del correo en HTML
-                msg.html = f"""
-                <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #f0f0f0; border-radius: 12px; background-color: #ffffff;">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <h1 style="color: #1a1a1a; margin: 0; font-size: 28px; letter-spacing: 1px;">Dunaka</h1>
-                        <span style="font-size: 12px; color: #888888; text-transform: uppercase;">Panel de Gestión</span>
-                    </div>
-                    <hr style="border: 0; border-top: 1px solid #eeeeee; margin-bottom: 25px;">
-                    <h2 style="color: #2c3e50; font-size: 20px;">¡Hola, {nombre}!</h2>
-                    <p style="color: #555555; font-size: 15px; line-height: 1.6;">
-                        Te damos una gran bienvenida a nuestra plataforma. Tu cuenta ha sido creada exitosamente como parte de nuestra comunidad artesanal.
-                    </p>
-                    <p style="color: #555555; font-size: 15px; line-height: 1.6;">
-                        A partir de ahora podrás gestionar tus pedidos, guardar tus favoritos y explorar todo nuestro catálogo personalizado.
-                    </p>
-                    <div style="text-align: center; margin: 35px 0;">
-                        <a href="{url_for('auth.login', _external=True)}" style="background-color: #000000; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 15px; display: inline-block;">Acceder a mi Cuenta</a>
-                    </div>
-                    <hr style="border: 0; border-top: 1px solid #eeeeee; margin-top: 30px;">
-                    <p style="font-size: 12px; color: #aaaaaa; text-align: center; margin-top: 15px;">
-                        Este es un correo automático, por favor no respondas a este mensaje.<br>&copy; 2026 Dunaka. Todos los derechos reservados.
-                    </p>
-                </div>
-                """
-                current_app.extensions['mail'].send(msg)
-                flash('Usuario registrado exitosamente. Se ha enviado un correo de bienvenida.', 'success')
-            except Exception as e:
-                # Si el correo falla por configuración de red, el usuario igual fue creado sin tumbar la app
-                print(f"Error enviando correo de bienvenida: {e}")
-                flash('Usuario registrado exitosamente, pero hubo un inconveniente al enviar el correo.', 'warning')
-                
-            return redirect(url_for('auth.login'))
+        # 1. Determinación de Rol (Lógica de negocio clara)
+        # Si es tu correo, eres superadmin, si no, cliente.
+        rol = 'superadmin' if correo == "jholianmanuel10@gmail.com" else 'cliente'
+        
+        # 2. Intentar registrar (pasando el nuevo parámetro rol)
+        # NOTA: Asegúrate de que registrar_usuario en models/auth_model.py acepte 4 argumentos
+        if registrar_usuario(nombre, correo, password, rol):
             
-        flash('Error al registrar usuario.', 'danger')
+            # 3. Notificación (Si falla, no bloquea el registro del usuario)
+            try:
+                enviar_correo_bienvenida_dunaka(correo, nombre)
+            except Exception as e:
+                print(f"Error enviando correo: {e}")
+            
+            flash('¡Registro exitoso! Ya puedes iniciar sesión.', 'success')
+            return redirect(url_for('auth.login'))
+        
+        flash('Error al registrar. Verifica si el correo ya está en uso.', 'danger')
+            
     return render_template('auth/register.html')
+
+def enviar_correo_bienvenida_dunaka(correo, nombre):
+    msg = Message("¡Bienvenido a Dunaka!",
+                  sender=os.getenv('MAIL_USERNAME'),
+                  recipients=[correo])
+    
+    # Aquí puedes pegar el diseño HTML que definimos antes
+    msg.html = f"""
+    <div style="background-color: #f4f7fa; padding: 40px 20px; font-family: sans-serif;">
+        <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 20px; text-align: center; padding: 40px;">
+            <h1 style="color: #5d58ef;">Dunaka</h1>
+            <h2>¡Hola, {nombre}!</h2>
+            <p>Tu cuenta ha sido creada con éxito. Estamos felices de tenerte.</p>
+            <a href="{url_for('auth.login', _external=True)}" style="padding: 15px 30px; background-color: #5d58ef; color: #ffffff; text-decoration: none; border-radius: 50px;">
+                Ir a la Tienda
+            </a>
+        </div>
+    </div>
+    """
+    current_app.extensions['mail'].send(msg)
 
 @auth_blueprint.route('/recuperar', methods=['GET', 'POST'])
 def recuperar_password():
@@ -181,3 +178,44 @@ def logout():
     session.clear()
     flash('Has cerrado sesión.', 'info')
     return redirect(url_for('products.index'))
+
+def enviar_correo_bienvenida(correo_destino, nombre_usuario):
+    msg = Message("¡Bienvenido a DUYNBACA!",
+                  sender=os.environ.get('MAIL_USERNAME'),
+                  recipients=[correo_destino])
+    
+    msg.html = f"""
+    <div style="background-color: #f4f7fa; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eef2f6;">
+        
+        <div style="padding: 40px 30px 20px 30px; text-align: center;">
+            <h1 style="color: #5d58ef; margin: 0; font-size: 28px; font-weight: 700;">Dunaka</h1>
+        </div>
+
+        <div style="padding: 20px 40px 40px 40px; text-align: center;">
+            <h2 style="color: #1e293b; margin: 0 0 15px 0; font-size: 24px;">¡Hola, {nombre_usuario}!</h2>
+            <p style="color: #64748b; line-height: 1.6; font-size: 16px; margin: 0 0 30px 0;">
+                Gracias por unirte a Dunaka. Estamos muy emocionados de tenerte aquí.
+                Explora nuestro catálogo y descubre piezas únicas que hemos seleccionado para ti.
+            </p>
+
+            <a href="http://192.168.1.8:3000" style="display: inline-block; padding: 16px 40px; background-color: #5d58ef; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 16px; transition: background 0.3s ease;">
+                Ir a la Tienda
+            </a>
+        </div>
+
+        <div style="background-color: #fcfcfc; padding: 25px; text-align: center; border-top: 1px solid #f1f5f9;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                ¿Tienes alguna pregunta? Contáctanos a través de nuestro panel de soporte.<br>
+                &copy; 2026 Dunaka. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</div>
+    """
+    mail.send(msg)
+
+try:
+    enviar_correo_bienvenida(correo, nombre)
+except Exception as e:
+    print(f"Error enviando correo: {e}")

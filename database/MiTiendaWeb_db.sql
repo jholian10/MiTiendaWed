@@ -160,3 +160,7 @@ CREATE TABLE notificaciones (
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+UPDATE usuarios 
+SET rol = 'superadmin' 
+WHERE correo = 'jholianmanuel10@gmail.com'; -- Asegúrate de que el correo sea el correcto

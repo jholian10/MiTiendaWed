@@ -1,22 +1,23 @@
 # models/auth_model.py
 from database.db import obtener_conexion
-from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
+# Constante para el método de hashing (Mantenemos scrypt para máxima seguridad)
+HASH_METHOD = 'scrypt'
 
 def obtener_usuario_por_correo(correo):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM usuarios WHERE correo = %s AND activo = 1", (correo,))
-        usuario = cursor.fetchone()
-        return usuario
+        return cursor.fetchone()
     finally:
         cursor.close()
         conexion.close()
 
 def registrar_usuario(nombre, correo, password_plana, rol='cliente'):
-    pwd = generate_password_hash(password_plana, method='scrypt')
+    # Usamos la constante HASH_METHOD
+    pwd = generate_password_hash(password_plana, method=HASH_METHOD)
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
@@ -37,6 +38,7 @@ def registrar_usuario_oauth(nombre, correo):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
+        # Nota: Google ya valida el usuario, por eso ponemos 'google_auth'
         cursor.execute(
             "INSERT INTO usuarios (nombre, correo, password_hash, rol, activo) VALUES (%s, %s, 'google_auth', 'cliente', 1)", 
             (nombre, correo)
@@ -71,14 +73,14 @@ def verificar_codigo_y_correo(correo, codigo):
             "SELECT id FROM usuarios WHERE correo = %s AND codigo_recuperacion = %s AND codigo_expira > NOW()", 
             (correo, codigo)
         )
-        usuario = cursor.fetchone()
-        return usuario
+        return cursor.fetchone()
     finally:
         cursor.close()
         conexion.close()
 
 def actualizar_password(correo, nueva_pwd):
-    pwd = generate_password_hash(nueva_pwd, method='scrypt')
+    # Usamos el método consistente
+    pwd = generate_password_hash(nueva_pwd, method=HASH_METHOD)
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
@@ -90,34 +92,36 @@ def actualizar_password(correo, nueva_pwd):
     finally:
         cursor.close()
         conexion.close()
-        
+
 def obtener_datos_envio_usuario(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    cursor.execute("SELECT telefono, direccion, ciudad FROM usuarios WHERE id = %s", (usuario_id,))
-    usuario = cursor.fetchone()
-    cursor.close()
-    conexion.close()
-    return usuario
+    try:
+        cursor.execute("SELECT telefono, direccion, ciudad FROM usuarios WHERE id = %s", (usuario_id,))
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        conexion.close()
 
 def cambiar_password(usuario_id, password_actual, nuevo_password):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    
-    # 1. Cambia 'password' por 'password_hash' aquí:
-    cursor.execute("SELECT password_hash FROM usuarios WHERE id = %s", (usuario_id,))
-    usuario = cursor.fetchone()
-    
-    # Nota: Asegúrate de que check_password_hash esté comparando contra el valor correcto
-    if usuario and check_password_hash(usuario['password_hash'], password_actual):
-        # 2. Cambia 'password' por 'password_hash' aquí también:
-        hashed_pw = generate_password_hash(nuevo_password)
-        cursor.execute("UPDATE usuarios SET password_hash = %s WHERE id = %s", (hashed_pw, usuario_id))
-        conexion.commit()
-        success = True
-    else:
-        success = False
+    try:
+        # Verificamos si el usuario existe y obtenemos su hash actual
+        cursor.execute("SELECT password_hash FROM usuarios WHERE id = %s", (usuario_id,))
+        usuario = cursor.fetchone()
         
-    cursor.close()
-    conexion.close()
-    return success
+        # Validamos la contraseña actual
+        if usuario and check_password_hash(usuario['password_hash'], password_actual):
+            # Generamos el nuevo hash con nuestro método estándar
+            hashed_pw = generate_password_hash(nuevo_password, method=HASH_METHOD)
+            cursor.execute("UPDATE usuarios SET password_hash = %s WHERE id = %s", (hashed_pw, usuario_id))
+            conexion.commit()
+            return True
+        return False
+    except Exception as e:
+        print(f"Error al cambiar password: {e}")
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
