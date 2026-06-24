@@ -39,13 +39,13 @@ function mostrarNotificacion(mensaje, tipo = 'success', titulo = '') {
 
 async function inicializarEstados() {
     try {
-        const resCart = await fetch("/carrito/cantidad-api");
+        const resCart = await fetch("/carrito/api/cantidad");
         if (resCart.ok) {
             const dataCart = await resCart.json();
             actualizarBadge('cart-count', dataCart.cantidad);
         }
 
-        const resFav = await fetch("/favoritos/cantidad-api");
+        const resFav = await fetch("/favoritos/api/cantidad");
         if (resFav.ok) {
             const dataFav = await resFav.json();
             actualizarBadge('fav-count', dataFav.cantidad || 0);
@@ -98,7 +98,7 @@ async function agregarAlCarritoAsincrono(button, productoId) {
             const data = await response.json();
             mostrarNotificacion(data.message || "Producto añadido a tu pedido.", "success");
 
-            const resCart = await fetch("/carrito/cantidad-api");
+            const resCart = await fetch("/carrito/api/cantidad");
             if (resCart.ok) {
                 const dataCart = await resCart.json();
                 actualizarBadge('cart-count', dataCart.cantidad);
@@ -145,7 +145,7 @@ async function toggleFavorito(button, productoId) {
                 mostrarNotificacion(data.message || "Eliminado de tus favoritos", "success", "Favorito Removido");
             }
 
-            const resFav = await fetch("/favoritos/cantidad-api");
+            const resFav = await fetch("/favoritos/api/cantidad");
             if (resFav.ok) {
                 const dataFav = await resFav.json();
                 actualizarBadge('fav-count', dataFav.cantidad || 0);
