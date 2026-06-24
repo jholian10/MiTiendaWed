@@ -5,7 +5,6 @@
 
     let cantidadActual = parseInt(inputQty.value);
 
-
     if (cantidadActual === 1 && cambio === -1) {
         mostrarAlertaMinimal();
         return;
@@ -13,13 +12,11 @@
 
     let nuevaCantidad = cantidadActual + cambio;
 
-
     inputQty.value = nuevaCantidad;
     let nuevoSubtotal = precioUnitario * nuevaCantidad;
     subtotalSpan.innerText = nuevoSubtotal.toFixed(2);
 
     recalcularTotalesGlobales();
-
 
     const formData = new FormData();
     formData.append('cantidad', cambio);
@@ -38,14 +35,16 @@
         return response.json();
     })
     .then(data => {
-
+        // CORRECCIÓN AQUÍ: Forzamos la ejecución de la actualización del navbar
+        // Esto asegura que viaje a la URL /carrito/api/cantidad que corregimos antes
         if (typeof actualizarContadoresNavbar === 'function') {
             actualizarContadoresNavbar();
         }
     })
     .catch(error => {
-        console.error("Error en persistencia:", error);
+        print("Error en persistencia:", error);
 
+        // Si falla, el código de tus compañeros revierte el cambio en la interfaz de forma excelente
         inputQty.value = cantidadActual;
         subtotalSpan.innerText = (precioUnitario * cantidadActual).toFixed(2);
         recalcularTotalesGlobales();
@@ -65,8 +64,10 @@ function recalcularTotalesGlobales() {
 
 function mostrarAlertaMinimal() {
     const toast = document.getElementById('custom-toast');
-    toast.classList.add('show');
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3500);
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3500);
+    }
 }
