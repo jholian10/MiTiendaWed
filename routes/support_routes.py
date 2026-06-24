@@ -26,14 +26,26 @@ def api_support():
 
     data = request.json
     mensaje = data.get('mensaje')
-    usuario_id = session.get('usuario', {}).get('id')
+
+    usuario = session.get('usuario', {})
+
+    usuario_id = usuario.get('id')
+    nombre = usuario.get('nombre')
+    correo = usuario.get('correo')
 
     if not mensaje or not mensaje.strip():
         return jsonify({"error": "Mensaje vacío"}), 400
 
-    guardar_mensaje_soporte(usuario_id, mensaje)
+    guardar_mensaje_soporte(
+        usuario_id,
+        nombre,
+        correo,
+        mensaje
+    )
 
-    return jsonify({"respuesta": "Gracias por contactarnos. Un administrador revisará tu caso pronto."})
+    return jsonify({
+        "respuesta": "Gracias por contactarnos. Un administrador revisará tu caso pronto."
+    })
 
 @support_blueprint.route('/admin/soporte', methods=['GET'])
 def admin_soporte_panel():

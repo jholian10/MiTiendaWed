@@ -1,13 +1,13 @@
 ﻿
 from database.db import obtener_conexion
 
-def guardar_mensaje_soporte(id_usuario, mensaje):
+def guardar_mensaje_soporte(id_usuario, nombre, correo, mensaje):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     try:
 
-        query = "INSERT INTO soporte (usuario_id, mensaje, remitente) VALUES (%s, %s, 'cliente')"
-        cursor.execute(query, (id_usuario, mensaje))
+        query = "INSERT INTO soporte (usuario_id, nombre, correo, mensaje, remitente) VALUES (%s, %s, %s, %s, 'cliente')"
+        cursor.execute(query, (id_usuario, nombre, correo, mensaje))
         conexion.commit()
         return True
 
