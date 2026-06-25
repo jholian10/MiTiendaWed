@@ -33,7 +33,7 @@ def editar_perfil():
     if not usuario_datos:
         flash('Debes iniciar sesión para editar tu perfil.', 'warning')
         return redirect(url_for('auth.login'))
-        
+
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         correo = request.form.get('correo')
@@ -46,7 +46,7 @@ def editar_perfil():
         confirmar_contrasena = request.form.get('confirmar_contrasena')
 
         foto_url = usuario_datos.get('foto_perfil_url')
-        
+
         if file and file.filename != '':
             if archivo_permitido(file.filename):
                 ext = file.filename.rsplit('.', 1)[1].lower()
@@ -119,7 +119,7 @@ def editar_perfil():
             session.modified = True
             flash('Perfil actualizado con éxito.', 'success')
             return redirect(url_for('profile.ver_perfil'))
-            
+
         except Exception as e:
             print(f"Error al actualizar el perfil: {str(e)}")
             import traceback
@@ -133,18 +133,18 @@ def editar_perfil():
 def actualizar_password():
     if 'usuario' not in session:
         return redirect(url_for('auth.login'))
-        
+
     actual = request.form.get('password_actual')
     nueva = request.form.get('nueva_password')
     confirmacion = request.form.get('confirmar_password')
-    
+
     if nueva != confirmacion:
         flash('Las contraseñas nuevas no coinciden.', 'error')
         return redirect(url_for('profile.ver_perfil'))
-        
+
     if cambiar_password(session['usuario']['id'], actual, nueva):
         flash('Contraseña actualizada con éxito.', 'success')
     else:
         flash('Error: La contraseña actual es incorrecta.', 'error')
-        
+
     return redirect(url_for('profile.ver_perfil'))

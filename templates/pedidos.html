@@ -27,7 +27,7 @@
     <main class="container flex-grow-1 main-content mb-5">
         <div class="row">
             <div class="col-lg-10 mx-auto">
-                
+
                 <div class="mb-5 text-white" style="padding-top: 20px;">
                     <h2 class="fw-bold mb-1" style="letter-spacing: -0.5px;">Historial de Pedidos</h2>
                     <p class="opacity-75 small">Rastrea el estado de tus compras y revisa tus detalles.</p>
@@ -62,7 +62,7 @@
                         {% for item in pedido.detalles %}
                         <div class="d-flex align-items-center justify-content-between {% if not loop.last %}border-bottom pb-3 mb-3{% endif %}">
                             <div class="d-flex align-items-center gap-4">
-                                <img src="{{ item.producto_imagen if item.producto_imagen.startswith('http') else url_for('static', filename='uploads/' + item.producto_imagen) }}" 
+                                <img src="{{ item.producto_imagen if item.producto_imagen.startswith('http') else url_for('static', filename='uploads/' + item.producto_imagen) }}"
                                      class="product-img-mini" alt="{{ item.producto_nombre }}">
                                 <div>
                                     <h6 class="mb-1 fw-bold" style="color: var(--text-dark); font-size: 1rem;">{{ item.producto_nombre }}</h6>
@@ -74,7 +74,7 @@
                             </div>
                         </div>
                         {% endfor %}
-                        
+
                         <div class="d-flex justify-content-end mt-4">
                             <a href="#" class="btn-detalle">
                                 <i class="bi bi-receipt me-2"></i>Ver comprobante

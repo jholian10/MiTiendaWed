@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -44,10 +44,10 @@
                                 <textarea name="descripcion" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
-                        
+
                         <div class="col-md-5">
                             <label class="fw-semibold">Imagen del Producto (Opcional)</label>
-                            
+
                             <div class="upload-zone mb-3" onclick="document.getElementById('file_input').click()" style="cursor: pointer;">
                                 <input type="file" name="imagen" id="file_input" accept="image/*" style="display: none;">
                                 <img id="preview" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
@@ -75,7 +75,7 @@
     const preview = document.getElementById('preview');
     const msg = document.getElementById('msg');
 
-    // Manejo seguro del archivo local (Evita romperse si cancelas la selección)
+
     fileInput.onchange = function() {
         if (this.files && this.files[0]) {
             let reader = new FileReader();
@@ -83,19 +83,19 @@
                 preview.src = e.target.result;
                 preview.style.display = 'block';
                 msg.style.display = 'none';
-                urlInput.value = ""; // Limpia la URL si sube archivo local
+                urlInput.value = "";
             };
             reader.readAsDataURL(this.files[0]);
         }
     };
 
-    // Manejo de la URL remota
+
     urlInput.addEventListener('input', function() {
         if (this.value.trim() !== "") {
             preview.src = this.value;
             preview.style.display = 'block';
             msg.style.display = 'none';
-            fileInput.value = ""; // Limpia el archivo local si escribe una URL
+            fileInput.value = "";
         } else if (!fileInput.files.length) {
             preview.src = "";
             preview.style.display = 'none';

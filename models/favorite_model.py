@@ -6,7 +6,7 @@ def conmutar_favorito(usuario_id, producto_id):
     query_check = "SELECT 1 FROM favoritos WHERE usuario_id = %s AND producto_id = %s"
     cursor.execute(query_check, (usuario_id, producto_id))
     existe = cursor.fetchone()
-    
+
     if existe:
         query_delete = "DELETE FROM favoritos WHERE usuario_id = %s AND producto_id = %s"
         cursor.execute(query_delete, (usuario_id, producto_id))
@@ -15,7 +15,7 @@ def conmutar_favorito(usuario_id, producto_id):
         query_insert = "INSERT INTO favoritos (usuario_id, producto_id) VALUES (%s, %s)"
         cursor.execute(query_insert, (usuario_id, producto_id))
         agregado = True
-        
+
     conexion.commit()
     cursor.close()
     conexion.close()

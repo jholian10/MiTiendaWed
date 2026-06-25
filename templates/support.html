@@ -17,20 +17,20 @@
                 <small>Hola, {{ nombre_usuario }}</small>
             </div>
         </div>
-        
+
         <div id="chat-messages" class="chat-body">
             <div class="message bot">¡Hola, {{ nombre_usuario }}! 👋 ¿En qué podemos ayudarte hoy?</div>
             {% for m in mensajes %}
                 <div class="message {{ 'user' if m.remitente == 'cliente' else 'bot' }}">{{ m.mensaje }}</div>
             {% endfor %}
         </div>
-        
+
         <div class="chat-footer">
             <input type="text" id="user-input" placeholder="Escribe tu mensaje...">
             <button onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
         </div>
     </div>
-    
+
     <script src="{{ url_for('static', filename='js/support.js') }}"></script>
 </body>
 </html>

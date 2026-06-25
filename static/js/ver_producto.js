@@ -1,5 +1,5 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // Controles de cantidad
+﻿document.addEventListener("DOMContentLoaded", () => {
+
     const inputCantidad = document.getElementById("input-cantidad");
     const btnMas = document.getElementById("btn-mas");
     const btnMenos = document.getElementById("btn-menos");
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Estrellas Interactivas
+
     const estrellas = document.querySelectorAll(".star-panel-item");
     const inputCalificacion = document.getElementById("input-calificacion");
     const labelRating = document.getElementById("label-rating");
@@ -80,8 +80,8 @@ async function actualizarContadores() {
             const data = await resFav.json();
             document.getElementById('fav-count').innerText = data.cantidad;
         }
-    } catch (e) { 
-        console.error("Error contadores:", e); 
+    } catch (e) {
+        console.error("Error contadores:", e);
     }
 }
 

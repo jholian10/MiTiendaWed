@@ -1,4 +1,4 @@
-from flask import current_app
+﻿from flask import current_app
 from flask_mail import Message
 from database.db import obtener_conexion
 
@@ -13,12 +13,12 @@ def obtener_correos_admins():
 
 def enviar_alerta_stock(nombre_producto, stock_actual, stock_minimo):
     if stock_actual > stock_minimo:
-        return 
+        return
 
     destinatarios = obtener_correos_admins()
-    print(f"DEBUG: Intentando enviar correo a {destinatarios} para el producto {nombre_producto}") # <-- AGREGA ESTO
-    
-    if not destinatarios: 
+    print(f"DEBUG: Intentando enviar correo a {destinatarios} para el producto {nombre_producto}")
+
+    if not destinatarios:
         print("DEBUG: No se encontraron administradores para enviar el correo.")
         return
 
@@ -28,6 +28,6 @@ def enviar_alerta_stock(nombre_producto, stock_actual, stock_minimo):
     try:
         msg = Message(asunto, recipients=destinatarios, body=mensaje)
         current_app.extensions['mail'].send(msg)
-        print("DEBUG: ¡Correo enviado con éxito!") # <-- AGREGA ESTO
+        print("DEBUG: ¡Correo enviado con éxito!")
     except Exception as e:
-        print(f"DEBUG: ¡ERROR CRÍTICO AL ENVIAR CORREO! Error: {e}") # <-- MIRA ESTO EN TU CONSOLA
+        print(f"DEBUG: ¡ERROR CRÍTICO AL ENVIAR CORREO! Error: {e}")

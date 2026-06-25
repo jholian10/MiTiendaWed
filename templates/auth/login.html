@@ -12,7 +12,7 @@
 <body>
 
     <div class="login-centered-container">
-        
+
         <div class="brand-header-area">
             <h1 class="brand-logo-title">Dunaka</h1>
             <span class="brand-tagline">Panel de Gestión</span>
@@ -89,7 +89,7 @@
                 toggleButton.addEventListener("click", () => {
                     const isInputPassword = passwordInput.type === "password";
                     passwordInput.type = isInputPassword ? "text" : "password";
-                    
+
                     const iconElement = toggleButton.querySelector("i");
                     if (isInputPassword) {
                         iconElement.classList.replace("bi-eye", "bi-eye-slash");

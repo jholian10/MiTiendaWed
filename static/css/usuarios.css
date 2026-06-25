@@ -1,4 +1,4 @@
-
+﻿
         :root {
             --primary-purple: #6f42c1;
             --primary-purple-dark: #52279c;
@@ -9,7 +9,7 @@
             --bg-light-blue: #f4f7fe;
             --text-dark: #212529;
             --text-muted: #7c8ba1;
-            
+
             --status-success-bg: #d1e7dd;
             --status-success-text: #0f5132;
             --status-purple-bg: #e8dbff;
@@ -25,7 +25,7 @@
             padding: 0;
         }
 
-        /* DISEÑO ESTRUCTURAL: MENU LATERAL (SIDEBAR) */
+
         .sidebar-container {
             width: 290px;
             height: 100vh;
@@ -129,14 +129,14 @@
             border-color: transparent;
         }
 
-        /* CONTENIDO PRINCIPAL */
+
         .main-workspace {
             margin-left: 290px;
             padding: 40px;
             min-height: 100vh;
         }
 
-        /* BARRA DE BÚSQUEDA */
+
         .search-container-box {
             position: relative;
             margin-bottom: 35px;
@@ -165,7 +165,7 @@
             color: var(--primary-purple);
         }
 
-        /* TABLA DE USUARIOS */
+
         .workspace-table-card {
             background-color: var(--white-pure);
             border-radius: 35px;
@@ -209,7 +209,7 @@
         .premium-table tbody td:first-child { border-radius: 20px 0 0 20px; }
         .premium-table tbody td:last-child { border-radius: 0 20px 20px 0; }
 
-        /* BADGES */
+
         .status-badge-vibrant {
             padding: 8px 18px;
             border-radius: 30px;

@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS mitiendaweb_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+﻿CREATE DATABASE IF NOT EXISTS mitiendaweb_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE mitiendaweb_db;
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -161,6 +161,6 @@ CREATE TABLE notificaciones (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
-UPDATE usuarios 
-SET rol = 'superadmin' 
-WHERE correo = 'jholianmanuel10@gmail.com'; -- Asegúrate de que el correo sea el correcto
+UPDATE usuarios
+SET rol = 'superadmin'
+WHERE correo = 'jholianmanuel10@gmail.com';

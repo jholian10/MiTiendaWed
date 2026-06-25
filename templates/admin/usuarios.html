@@ -1,4 +1,4 @@
-{% extends 'admin/base_admin.html' %}
+﻿{% extends 'admin/base_admin.html' %}
 
 {% block content %}
     <div class="row align-items-center mb-4">
@@ -98,10 +98,10 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Buscador dinámico en tiempo real
+
             const searchInput = document.getElementById('userSearchInput');
             const tableRows = document.querySelectorAll('#userTable tbody tr');
-            
+
             searchInput.addEventListener('keyup', function() {
                 const query = this.value.toLowerCase().trim();
                 tableRows.forEach(row => {

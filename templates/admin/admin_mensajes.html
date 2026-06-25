@@ -1,8 +1,8 @@
-{% extends 'admin/base_admin.html' %}
+﻿{% extends 'admin/base_admin.html' %}
 
 {% block content %}
 <style>
-    /* VARIABLES DE COLOR DUNAKA */
+
     :root {
         --primary-dunaka: #5840d8;
         --primary-hover: #4632b3;
@@ -14,7 +14,7 @@
         --chat-bg: #f8fafc;
     }
 
-    /* SCROLLBARS PERSONALIZADOS */
+
     ::-webkit-scrollbar {
         width: 6px;
     }
@@ -29,7 +29,7 @@
         background: #94a3b8;
     }
 
-    /* CONTENEDOR PRINCIPAL */
+
     .dunaka-chat-wrapper {
         display: flex;
         background: #ffffff;
@@ -42,7 +42,7 @@
         border: 1px solid var(--border-color);
     }
 
-    /* SIDEBAR IZQUIERDO */
+
     .chat-users-panel {
         width: 360px;
         border-right: 1px solid var(--border-color);
@@ -72,7 +72,7 @@
         scroll-behavior: smooth;
     }
 
-    /* TARJETA DE USUARIO */
+
     .user-item {
         padding: 16px 24px;
         display: flex;
@@ -86,14 +86,14 @@
 
     .user-item:hover {
         background-color: #f8fafc;
-        padding-left: 28px; /* Pequeño efecto de movimiento al pasar el mouse */
+        padding-left: 28px;
     }
 
-    /* RESALTADO EN MORADITO SI NO ESTÁ LEÍDO */
+
     .user-item.unread-chat {
         background-color: var(--unread-bg);
     }
-    
+
     .user-item.unread-chat::before,
     .user-item.active::before {
         content: '';
@@ -111,7 +111,7 @@
         box-shadow: inset 0 0 20px rgba(88, 64, 216, 0.03);
     }
 
-    /* CONTENEDOR DEL AVATAR */
+
     .avatar-wrapper {
         position: relative;
         display: inline-block;
@@ -133,7 +133,7 @@
         box-shadow: 0 3px 6px rgba(0,0,0,0.08);
     }
 
-    /* CONTADOR ROJO */
+
     .badge-unread {
         background-color: #ef4444;
         color: white;
@@ -179,7 +179,7 @@
         font-weight: 600;
     }
 
-    /* PANEL DE CONVERSACIÓN */
+
     .chat-conversation-panel {
         flex-grow: 1;
         display: flex;
@@ -229,13 +229,13 @@
         gap: 18px;
     }
 
-    /* ANIMACIÓN DE ENTRADA PARA MENSAJES */
+
     @keyframes slideUp {
         from { opacity: 0; transform: translateY(15px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* BURBUJAS DE MENSAJE */
+
     .message {
         max-width: 70%;
         display: flex;
@@ -258,7 +258,7 @@
         background-color: #ffffff;
         border: 1px solid #f1f5f9;
         color: var(--text-dark);
-        border-radius: 20px 20px 20px 4px; /* Cola de globo a la izquierda */
+        border-radius: 20px 20px 20px 4px;
     }
 
     .message.admin {
@@ -268,10 +268,10 @@
     .message.admin .message-text {
         background: linear-gradient(135deg, var(--primary-dunaka), #7c3aed);
         color: #ffffff;
-        border-radius: 20px 20px 4px 20px; /* Cola de globo a la derecha */
+        border-radius: 20px 20px 4px 20px;
     }
 
-    /* ESTADO DEL MENSAJE */
+
     .message-meta {
         font-size: 0.75rem;
         margin-top: 6px;
@@ -280,10 +280,10 @@
         gap: 8px;
         font-weight: 500;
     }
-    
+
     .message.admin .message-meta {
         align-self: flex-end;
-        color: #94a3b8; 
+        color: #94a3b8;
     }
 
     .message.client .message-meta {
@@ -299,7 +299,7 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
-    
+
     .status-badge.visto {
         color: #059669;
         background-color: #d1fae5;
@@ -310,7 +310,7 @@
         background-color: #ede9fe;
     }
 
-    /* ÁREA DE INPUT */
+
     .chat-input-area {
         padding: 20px 30px;
         background: #ffffff;
@@ -366,7 +366,7 @@
         background-color: var(--primary-hover);
         transform: scale(1.05);
     }
-    
+
     .send-btn:active {
         transform: scale(0.95);
     }
@@ -379,18 +379,18 @@
     </div>
 
     <div class="dunaka-chat-wrapper">
-        
+
         <div class="chat-users-panel">
             <div class="sidebar-title-panel">
                 <h6>Conversaciones activas</h6>
             </div>
-            
+
             <div class="users-list" id="usersListContainer">
                 {% for c in clientes %}
-                <div class="user-item {% if c.no_leidos and c.no_leidos > 0 %}unread-chat{% endif %}" 
+                <div class="user-item {% if c.no_leidos and c.no_leidos > 0 %}unread-chat{% endif %}"
                      id="user-item-{{ c.id }}"
                      onclick="cargarChat({{ c.id }}, '{{ c.nombre }}', '{{ c.foto_url if c.foto_url else '' }}', this)">
-                    
+
                     <div class="avatar-wrapper">
                         {% if c.no_leidos and c.no_leidos > 0 %}
                             <span class="badge-unread" id="badge-{{ c.id }}">{{ c.no_leidos }}</span>
@@ -404,7 +404,7 @@
                             </div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="user-info">
                         <div class="user-name">{{ c.nombre }}</div>
                         <p class="user-preview" id="preview-text-{{ c.id }}">{{ c.ultimo_mensaje }}</p>
@@ -415,13 +415,13 @@
         </div>
 
         <div class="chat-conversation-panel">
-            
+
             <div class="chat-header d-none" id="chatHeader">
                 <img src="" alt="Avatar" class="user-avatar" id="headerAvatar" style="display: none; width: 48px; height: 48px;">
                 <div class="user-avatar" id="headerAvatarIcon" style="width: 48px; height: 48px;">
                     <i class="fas fa-user"></i>
                 </div>
-                
+
                 <div class="chat-header-info">
                     <h5 id="chatTitle">Nombre del Cliente</h5>
                     <div class="chat-header-meta">
@@ -459,19 +459,19 @@
 
     function cargarChat(id, nombre, fotoUrl, elemento) {
         usuarioSeleccionado = id;
-        
+
         document.getElementById('chatHeader').classList.remove('d-none');
         document.getElementById('chatInputArea').classList.remove('d-none');
         document.getElementById('chatTitle').innerText = nombre;
         document.getElementById('clientMessageCount').innerText = 'Cargando...';
-        
-        // Quitar alertas visuales
+
+
         const badge = document.getElementById(`badge-${id}`);
         const contenedorUsuario = document.getElementById(`user-item-${id}`);
-        if (badge) badge.remove(); 
+        if (badge) badge.remove();
         if (contenedorUsuario) contenedorUsuario.classList.remove('unread-chat');
 
-        // Manejar Avatar
+
         const avatarImg = document.getElementById('headerAvatar');
         const avatarIcon = document.getElementById('headerAvatarIcon');
         if (fotoUrl && fotoUrl.trim() !== '') {
@@ -483,20 +483,20 @@
             avatarIcon.style.display = 'flex';
         }
 
-        // Marcar activo
+
         document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
         if(elemento) elemento.classList.add('active');
-        
+
         const box = document.getElementById('chatBox');
         box.innerHTML = '<div class="h-100 d-flex justify-content-center align-items-center"><div class="spinner-border" style="color: var(--primary-dunaka);" role="status"></div></div>';
 
-        // Cargar historial
+
         fetch(`/admin/soporte/historial/${id}`)
             .then(res => res.json())
             .then(mensajes => {
                 box.innerHTML = '';
-                
-                let cantidadMensajesCliente = 0; // Variable para el contador
+
+                let cantidadMensajesCliente = 0;
 
                 if(mensajes.length === 0) {
                     box.innerHTML = '<p class="text-center text-muted mt-4">No hay mensajes anteriores en esta conversación.</p>';
@@ -505,9 +505,9 @@
                     mensajes.forEach((m, index) => {
                         const esAdmin = m.remitente === 'admin';
                         const claseBox = esAdmin ? 'admin' : 'client';
-                        const hora = m.fecha ? m.fecha.substring(11, 16) : ''; 
-                        
-                        // Contar si el mensaje es del cliente
+                        const hora = m.fecha ? m.fecha.substring(11, 16) : '';
+
+
                         if(!esAdmin) {
                             cantidadMensajesCliente++;
                         }
@@ -521,7 +521,7 @@
                             }
                         }
 
-                        // Añadir un pequeño retraso en la animación para cada mensaje
+
                         const delay = index * 0.05;
 
                         box.innerHTML += `
@@ -533,12 +533,12 @@
                             </div>
                         `;
                     });
-                    
-                    // Actualizar el contador en el DOM
+
+
                     document.getElementById('clientMessageCount').innerText = `${cantidadMensajesCliente} mensaje(s) enviado(s) por el cliente`;
                 }
-                
-                // Bajar el scroll al último mensaje suavemente
+
+
                 setTimeout(() => {
                     box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
                 }, 100);
@@ -566,13 +566,13 @@
                     txtPreview.style.fontWeight = "400";
                     txtPreview.style.color = "var(--text-muted)";
                 }
-                
-                // LÓGICA PARA MOVER AL USUARIO DE PRIMERO EN LA LISTA (El más reciente arriba)
+
+
                 const filaUsuario = document.getElementById(`user-item-${usuarioSeleccionado}`);
                 const contenedorLista = document.getElementById('usersListContainer');
-                
+
                 if (filaUsuario && contenedorLista && contenedorLista.firstChild !== filaUsuario) {
-                    // Animación sutil de fondo para notar el cambio
+
                     filaUsuario.style.backgroundColor = "#e0e7ff";
                     contenedorLista.insertBefore(filaUsuario, contenedorLista.firstChild);
                     setTimeout(() => {
@@ -580,11 +580,11 @@
                     }, 500);
                 }
 
-                // Simular inserción inmediata en el chat para que se sienta súper rápido
+
                 const box = document.getElementById('chatBox');
                 const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                
-                // Removemos el mensaje de "no hay mensajes" si existe
+
+
                 if(box.innerHTML.includes("No hay mensajes anteriores")) {
                     box.innerHTML = '';
                 }

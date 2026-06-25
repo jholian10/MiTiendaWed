@@ -4,7 +4,7 @@ def insertar_producto(nombre, descripcion, precio_compra, precio_venta, stock, s
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     query = """
-        INSERT INTO productos (nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_url) 
+        INSERT INTO productos (nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_url)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
     cursor.execute(query, (nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, imagen_url))
@@ -17,8 +17,8 @@ def actualizar_producto(id_producto, nombre, descripcion, precio_compra, precio_
     conexion = obtener_conexion()
     cursor = conexion.cursor()
     query = """
-        UPDATE productos 
-        SET nombre = %s, descripcion = %s, precio_compra = %s, precio_venta = %s, 
+        UPDATE productos
+        SET nombre = %s, descripcion = %s, precio_compra = %s, precio_venta = %s,
             stock = %s, stock_minimo = %s, imagen_url = %s
         WHERE id = %s
     """
