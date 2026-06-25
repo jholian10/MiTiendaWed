@@ -56,24 +56,6 @@
                     <h3>100% Original</h3>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon success">
-                    <i class="bi bi-truck"></i>
-                </div>
-                <div class="stat-info">
-                    <h5>Envíos Nacionales</h5>
-                    <h3>Gratis > $200k</h3>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon warning">
-                    <i class="bi bi-arrow-repeat"></i>
-                </div>
-                <div class="stat-info">
-                    <h5>Satisfacción</h5>
-                    <h3>Devolución 30 días</h3>
-                </div>
-            </div>
         </section>
 
         <section class="mb-5">
@@ -106,7 +88,7 @@
                         <a href="{{ url_for('products.ver_producto', producto_id=p.id) }}" class="text-decoration-none">
                             <div class="product-img-wrapper">
                                 {% if p.imagen_url %}
-                                    <img src="{{ p.imagen_url }}" class="product-img" alt="Bolso artesanal {{ p.nombre }}">
+                                    <img src="{{ url_for('static', filename='img/' + p.imagen_url) if p.imagen_url else url_for('static', filename='img/default.jpg') }}" class="product-img" alt="Bolso artesanal {{ p.nombre }}">
                                 {% else %}
                                     <div class="img-placeholder">
                                         <i class="bi bi-image text-muted opacity-25" style="font-size: 4rem;"></i>

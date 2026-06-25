@@ -100,8 +100,20 @@ def obtener_datos_envio_usuario(usuario_id):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT telefono, direccion, ciudad FROM usuarios WHERE id = %s", (usuario_id,))
+        # Corregido: Buscamos en 'direcciones_usuario' que es donde se guardan los datos de envío
+        # Ordenamos por id DESC para obtener siempre la última dirección guardada
+        query = """
+            SELECT direccion, ciudad, barrio, departamento 
+            FROM direcciones_usuario 
+            WHERE usuario_id = %s 
+            ORDER BY id DESC 
+            LIMIT 1
+        """
+        cursor.execute(query, (usuario_id,))
         return cursor.fetchone()
+    except Exception as e:
+        print(f"❌ Error al obtener datos de envío: {e}")
+        return None
     finally:
         cursor.close()
         conexion.close()

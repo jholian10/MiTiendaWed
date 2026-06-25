@@ -1,36 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Soporte Técnico</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/support.css') }}">
-</head>
-<body>
-
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/support.css') }}"
+    />
+  </head>
+  <body>
     <div class="chat-container">
-        <div class="chat-header">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Support" class="avatar">
-            <div>
-                <h5 style="margin:0">Soporte Dunaka</h5>
-                <small>Hola, {{ nombre_usuario }}</small>
-            </div>
+      <div class="chat-header">
+        <img
+          src="https://api.dicebear.com/7.x/bottts/svg?seed=Support"
+          class="avatar"
+        />
+        <div>
+          <h5 style="margin: 0">Soporte Dunaka</h5>
+          <small>Hola, {{ nombre_usuario }}</small>
         </div>
+      </div>
 
-        <div id="chat-messages" class="chat-body">
-            <div class="message bot">¡Hola, {{ nombre_usuario }}! 👋 ¿En qué podemos ayudarte hoy?</div>
-            {% for m in mensajes %}
-                <div class="message {{ 'user' if m.remitente == 'cliente' else 'bot' }}">{{ m.mensaje }}</div>
-            {% endfor %}
+      <div id="chat-messages" class="chat-body">
+        <div class="message bot">
+          ¡Hola, {{ nombre_usuario }}! 👋 ¿En qué podemos ayudarte hoy?
         </div>
+        {% for m in mensajes %}
+        <div
+          class="message {{ 'user' if m.remitente == 'cliente' else 'bot' }}"
+        >
+          {{ m.mensaje }}
+        </div>
+        {% endfor %}
+      </div>
 
-        <div class="chat-footer">
-            <input type="text" id="user-input" placeholder="Escribe tu mensaje...">
-            <button onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
-        </div>
+      <div class="chat-footer">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="Escribe tu mensaje..."
+        />
+        <button onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
+      </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/support.js') }}"></script>
-</body>
+  </body>
 </html>

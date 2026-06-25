@@ -13,15 +13,12 @@
 </head>
 <body>
 
-
-
     <div class="alert-container">
         <div id="custom-toast" class="toast-minimal">
             <i class="bi bi-exclamation-circle-fill toast-icon"></i>
             <span id="toast-message" class="small fw-medium">El mínimo permitido es 1 unidad.</span>
         </div>
     </div>
-
 
     <main class="container mb-5 fade-in-up" style="margin-top: 120px; max-width: 1140px;">
 
@@ -112,7 +109,6 @@
                 </div>
             </div>
 
-
             <div class="col-lg-4">
                 <div class="glass-card p-4 p-md-5 position-sticky" style="top: 100px;">
                     <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-receipt me-2 text-primary"></i>Resumen</h5>
@@ -122,21 +118,17 @@
                         <span class="fw-bold text-dark">$<span id="summary-subtotal">{{ total }}</span></span>
                     </div>
 
-                    <div class="d-flex justify-content-between mb-4 align-items-center text-muted">
-                        <span class="fw-medium">Envío Nacional</span>
-                        <span class="text-success-badge"><i class="bi bi-check2-circle me-1"></i>Gratis</span>
-                    </div>
-
                     <div class="d-flex justify-content-between align-items-center mb-5 pt-4 border-top" style="border-color: var(--border-color) !important;">
                         <span class="fw-bold text-dark fs-5">Total</span>
                         <span class="fs-2 fw-bold" style="color: var(--primary-color); letter-spacing: -1px;">$<span id="summary-total">{{ total }}</span></span>
                     </div>
 
-                    <a href="{{ url_for('cart.configurar_direccion') }}"
-   class="btn btn-gradient w-100 py-3 {% if not items %}disabled{% endif %}"
-   style="text-decoration: none; display: block; text-align: center;">
-    Proceder al pago <i class="bi bi-shield-lock-fill ms-2"></i>
-</a>
+                    <!-- MEJORA: El botón ahora apunta a 'cart.validar_envio' para verificar si el usuario ya tiene dirección registrada -->
+                    <a href="{{ url_for('cart.validar_envio') }}"
+                       class="btn btn-gradient w-100 py-3 {% if not items %}disabled{% endif %}"
+                       style="text-decoration: none; display: block; text-align: center;">
+                        Proceder al pago <i class="bi bi-shield-lock-fill ms-2"></i>
+                    </a>
 
                     <div class="text-center mt-4">
                         <p class="small text-muted m-0"><i class="bi bi-lock me-1"></i> Transacción 100% segura</p>

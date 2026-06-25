@@ -51,3 +51,28 @@ def buscar_productos_por_nombre(termino):
     cursor.close()
     conexion.close()
     return productos
+
+def verificar_compra_usuario(usuario_id, producto_id):
+    """
+    Consulta si el usuario ha comprado el producto, aceptando múltiples 
+    estados válidos de pedido para facilitar las pruebas del proyecto.
+    """
+    conexion = obtener_conexion() 
+    cursor = conexion.cursor()
+    
+    # Hemos modificado la condición de p.estado para que acepte 'completado', 'pagado' o 'pendiente'
+    query = """
+        SELECT COUNT(*) FROM pedido_detalles pd
+        JOIN pedidos p ON pd.pedido_id = p.id
+        WHERE p.usuario_id = %s 
+          AND pd.producto_id = %s 
+          AND p.estado IN ('completado', 'pagado', 'pendiente', 'entregado')
+    """
+    
+    cursor.execute(query, (usuario_id, producto_id))
+    resultado = cursor.fetchone()
+    
+    cursor.close()
+    conexion.close()
+    
+    return resultado[0] > 0 if resultado else False

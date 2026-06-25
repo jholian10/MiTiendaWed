@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, reques
 from models.product_model import (
     listar_productos,
     buscar_productos_por_nombre,
-    obtener_producto_por_id
+    obtener_producto_por_id, verificar_compra_usuario
 )
 from models.review_model import guardar_reseña, obtener_reseñas_por_producto
 
@@ -31,12 +31,24 @@ def ver_producto(producto_id):
     if not producto:
         flash('El producto solicitado no está disponible o no existe.', 'warning')
         return redirect(url_for('products.index'))
+    
+    usuario_sesion = obtener_usuario_sesion()
     reseñas = obtener_reseñas_por_producto(producto_id)
+    
+    # 1. Inicializamos la variable en False por defecto
+    ha_comprado = False
+    
+    # 2. Si hay un usuario logueado, verificamos si ya compró este artículo
+    if usuario_sesion:
+        # Pasamos el ID del usuario y el ID del producto a una función verificadora
+        ha_comprado = verificar_compra_usuario(usuario_sesion['id'], producto_id)
+    
     return render_template(
         'ver_producto.html',
         producto=producto,
-        usuario_sesion=obtener_usuario_sesion(),
-        reseñas=reseñas
+        usuario_sesion=usuario_sesion,
+        reseñas=reseñas,
+        ha_comprado=ha_comprado  # 3. Enviamos el resultado al HTML
     )
 
 @product_blueprint.route('/producto/<int:producto_id>/reseña', methods=['POST'])

@@ -75,7 +75,7 @@
             <div class="col-lg-6">
                 <div class="img-container-panel position-relative">
                     {% if producto.imagen_url %}
-                        <img src="{{ producto.imagen_url }}" class="detail-img" alt="{{ producto.nombre }}">
+                        <img src="{{ url_for('static', filename='img/' + producto.imagen_url) }}" class="detail-img" alt="{{ producto.nombre }}">
                     {% else %}
                         <div class="d-flex align-items-center justify-content-center img-placeholder-detail fs-4">
                             <i class="bi bi-image me-2"></i> Sin Imagen Asignada
@@ -142,8 +142,8 @@
                             <div class="d-flex flex-column gap-2">
                                 <div class="d-flex gap-2">
                                     <button type="submit" name="comprar_ahora" value="true" class="btn btn-panel-primary w-100 py-3">
-                                    <i class="bi bi-lightning-fill me-2"></i>Comprar ya
-                                </button>
+                                        <i class="bi bi-lightning-fill me-2"></i>Comprar ya
+                                    </button>
                                     <button type="submit" class="btn btn-panel-secondary flex-grow-1 py-3">
                                         <i class="bi bi-bag-plus-fill me-2"></i>Añadir al carrito
                                     </button>
@@ -169,30 +169,41 @@
                     <h3 class="fw-bold mb-4" style="font-size: 1.3rem;">Historial de valoraciones y opiniones</h3>
 
                     {% if usuario_sesion %}
-                    <div class="p-4 rounded-4 mb-5 border border-2" style="border-color: var(--bg-sistema) !important;">
-                        <h5 class="fw-bold mb-1" style="font-size: 0.95rem;">Registrar nueva opinión</h5>
-                        <p class="text-muted small mb-3">Asigna una calificación al producto seleccionando las estrellas.</p>
+                        {% if ha_comprado %}
+                            <div class="p-4 rounded-4 mb-5 border border-2" style="border-color: var(--bg-sistema) !important;">
+                                <h5 class="fw-bold mb-1" style="font-size: 0.95rem;">Registrar nueva opinión</h5>
+                                <p class="text-muted small mb-3">Asigna una calificación al producto seleccionando las estrellas.</p>
 
-                        <form action="{{ url_for('products.enviar_reseña', producto_id=producto.id) }}" method="POST">
-                            <input type="hidden" name="calificacion" id="input-calificacion" value="5" required>
+                                <form action="{{ url_for('products.enviar_reseña', producto_id=producto.id) }}" method="POST">
+                                    <input type="hidden" name="calificacion" id="input-calificacion" value="5" required>
 
-                            <div class="mb-3 d-flex align-items-center gap-3">
-                                <div class="stars-container-panel">
-                                    <i class="bi bi-star-fill star-panel-item" data-value="5"></i>
-                                    <i class="bi bi-star-fill star-panel-item" data-value="4"></i>
-                                    <i class="bi bi-star-fill star-panel-item" data-value="3"></i>
-                                    <i class="bi bi-star-fill star-panel-item" data-value="2"></i>
-                                    <i class="bi bi-star-fill star-panel-item" data-value="1"></i>
-                                </div>
-                                <span id="label-rating" class="small fw-bold text-muted">Excelente (5/5)</span>
+                                    <div class="mb-3 d-flex align-items-center gap-3">
+                                        <div class="stars-container-panel">
+                                            <i class="bi bi-star-fill star-panel-item" data-value="5"></i>
+                                            <i class="bi bi-star-fill star-panel-item" data-value="4"></i>
+                                            <i class="bi bi-star-fill star-panel-item" data-value="3"></i>
+                                            <i class="bi bi-star-fill star-panel-item" data-value="2"></i>
+                                            <i class="bi bi-star-fill star-panel-item" data-value="1"></i>
+                                        </div>
+                                        <span id="label-rating" class="small fw-bold text-muted">Excelente (5/5)</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <textarea name="comentario" class="form-control panel-textarea" rows="3" placeholder="Escribe un comentario opcional sobre el estado o calidad de la pieza..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-panel-primary py-2 px-4 fs-7" style="font-size: 0.8rem;">Publicar reseña</button>
+                                </form>
                             </div>
-
-                            <div class="mb-3">
-                                <textarea name="comentario" class="form-control panel-textarea" rows="3" placeholder="Escribe un comentario opcional sobre el estado o calidad de la pieza..."></textarea>
+                        {% else %}
+                            <div class="alert alert-info rounded-4 border-0 shadow-sm p-3 mb-5 small" role="alert">
+                                <i class="bi bi-info-circle-fill me-2"></i> Solo los clientes que han adquirido este producto pueden dejar una valoración. ¡Anímate a comprarlo para calificar tu experiencia!
                             </div>
-                            <button type="submit" class="btn btn-panel-primary py-2 px-4 fs-7" style="font-size: 0.8rem;">Publicar reseña</button>
-                        </form>
-                    </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-light rounded-4 border p-3 mb-5 small text-center" role="alert">
+                            <i class="bi bi-person-lock me-2"></i> Para dejar una opinión, primero debes 
+                            <a href="{{ url_for('auth.login') }}" class="fw-bold text-primary text-decoration-none">Iniciar Sesión</a> y haber adquirido el producto.
+                        </div>
                     {% endif %}
 
                     <div class="reviews-list">
@@ -231,8 +242,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/ver_producto.js') }}"></script>
-</body>
-</html>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

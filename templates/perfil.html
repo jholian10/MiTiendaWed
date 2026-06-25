@@ -1,212 +1,341 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mi Panel Personal - Dunaka</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
-</head>
-<body>
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/perfil.css') }}"
+    />
+  </head>
+  <body>
     <nav class="navbar navbar-expand-lg fixed-top custom-navbar py-3">
-        <div class="container">
-            <a class="navbar-brand brand-title fs-3 m-0" href="{{ url_for('products.index') }}">Dunaka</a>
-            <div class="ms-auto d-flex gap-3 align-items-center">
-                <a href="{{ url_for('cart.ver_carrito') }}" class="text-dark position-relative me-3">
-                    <i class="bi bi-bag fs-5"></i>
-                </a>
-                <a href="{{ url_for('products.index') }}" class="btn-outline-custom text-decoration-none btn-sm px-4">
-                    <i class="bi bi-shop me-2"></i>Ir a la Tienda
-                </a>
-            </div>
+      <div class="container">
+        <a
+          class="navbar-brand brand-title fs-3 m-0"
+          href="{{ url_for('products.index') }}"
+          >Dunaka</a
+        >
+        <div class="ms-auto d-flex gap-3 align-items-center">
+          <a
+            href="{{ url_for('cart.ver_carrito') }}"
+            class="text-dark position-relative me-3"
+          >
+            <i class="bi bi-bag fs-5"></i>
+          </a>
+          <a
+            href="{{ url_for('products.index') }}"
+            class="btn-outline-custom text-decoration-none btn-sm px-4"
+          >
+            <i class="bi bi-shop me-2"></i>Ir a la Tienda
+          </a>
         </div>
+      </div>
     </nav>
 
     <div class="profile-banner"></div>
 
     <main class="container main-container mb-5">
+      <div class="row justify-content-center mb-4 fade-in-up">
+        <div class="col-lg-10">
+          {% with messages = get_flashed_messages(with_categories=true) %} {% if
+          messages %} {% for category, message in messages %}
+          <div
+            class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show border-0 shadow-sm rounded-4"
+            role="alert"
+            style="
+              background-color: white;
+              border-left: 5px solid var(--primary-color) !important;
+            "
+          >
+            <i
+              class="bi bi-info-circle-fill me-2 text-{{ category if category != 'error' else 'danger' }}"
+            ></i>
+            {{ message }}
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+          {% endfor %} {% endif %} {% endwith %}
+        </div>
+      </div>
 
-        <div class="row justify-content-center mb-4 fade-in-up">
-            <div class="col-lg-10">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show border-0 shadow-sm rounded-4" role="alert" style="background-color: white; border-left: 5px solid var(--primary-color) !important;">
-                                <i class="bi bi-info-circle-fill me-2 text-{{ category if category != 'error' else 'danger' }}"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+      <div class="row justify-content-center g-4">
+        <div class="col-lg-4 fade-in-up delay-1">
+          <div class="glass-card p-4 text-center h-100">
+            <div class="avatar-container">
+              {% if usuario.foto_perfil_url %}
+              <img
+                src="{{ usuario.foto_perfil_url }}"
+                class="avatar-img"
+                alt="Foto de {{ usuario.nombre }}"
+              />
+              {% else %}
+              <div class="avatar-img">
+                <i class="bi bi-person"></i>
+              </div>
+              {% endif %}
             </div>
+
+            <h4 class="fw-bold mb-1">{{ usuario.nombre }}</h4>
+            <p class="text-muted small mb-3">{{ usuario.correo }}</p>
+            <div class="user-role-badge mb-4">
+              <i class="bi bi-patch-check-fill me-1"></i> Miembro Verificado
+            </div>
+
+            <div class="row g-2 mb-4">
+              <div class="col-6">
+                <div class="stat-box">
+                  <div class="stat-num">0</div>
+                  <div class="stat-label">Pedidos</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="stat-box">
+                  <div class="stat-num">0</div>
+                  <div class="stat-label">Favoritos</div>
+                </div>
+              </div>
+            </div>
+
+            <a
+              href="{{ url_for('profile.editar_perfil') }}"
+              class="btn-gradient w-100"
+            >
+              <i class="bi bi-pencil-square"></i> Editar Perfil
+            </a>
+          </div>
         </div>
 
-        <div class="row justify-content-center g-4">
+        <div class="col-lg-8 fade-in-up delay-2">
+          <div class="glass-card p-4 p-md-5 h-100">
+            <ul class="nav nav-custom-tabs" id="profileTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link active"
+                  id="overview-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#overview"
+                  type="button"
+                  role="tab"
+                >
+                  <i class="bi bi-person-lines-fill me-2"></i>Vista General
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="security-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#security"
+                  type="button"
+                  role="tab"
+                >
+                  <i class="bi bi-shield-lock-fill me-2"></i>Seguridad
+                </button>
+              </li>
+            </ul>
 
-            <div class="col-lg-4 fade-in-up delay-1">
-                <div class="glass-card p-4 text-center h-100">
-                    <div class="avatar-container">
-                        {% if usuario.foto_perfil_url %}
-                            <img src="{{ usuario.foto_perfil_url }}" class="avatar-img" alt="Foto de {{ usuario.nombre }}">
-                        {% else %}
-                            <div class="avatar-img">
-                                <i class="bi bi-person"></i>
-                            </div>
-                        {% endif %}
+            <div class="tab-content" id="profileTabsContent">
+              <div
+                class="tab-pane fade show active"
+                id="overview"
+                role="tabpanel"
+              >
+                <h5 class="fw-bold mb-4 text-dark">Información Personal</h5>
+                <ul class="info-list">
+                  <li>
+                    <div class="info-icon"><i class="bi bi-person"></i></div>
+                    <div class="info-content">
+                      <h6>Nombre Completo</h6>
+                      <p>{{ usuario.nombre }}</p>
                     </div>
-
-                    <h4 class="fw-bold mb-1">{{ usuario.nombre }}</h4>
-                    <p class="text-muted small mb-3">{{ usuario.correo }}</p>
-                    <div class="user-role-badge mb-4">
-                        <i class="bi bi-patch-check-fill me-1"></i> Miembro Verificado
+                  </li>
+                  <li>
+                    <div class="info-icon"><i class="bi bi-envelope"></i></div>
+                    <div class="info-content">
+                      <h6>Correo Electrónico</h6>
+                      <p>{{ usuario.correo }}</p>
                     </div>
-
-                    <div class="row g-2 mb-4">
-                        <div class="col-6">
-                            <div class="stat-box">
-                                <div class="stat-num">0</div>
-                                <div class="stat-label">Pedidos</div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="stat-box">
-                                <div class="stat-num">0</div>
-                                <div class="stat-label">Favoritos</div>
-                            </div>
-                        </div>
+                  </li>
+                  <li>
+                    <div class="info-icon"><i class="bi bi-telephone"></i></div>
+                    <div class="info-content">
+                      <h6>Teléfono de Contacto</h6>
+                      <p>{{ usuario.telefono or 'No registrado aún' }}</p>
                     </div>
+                  </li>
+                  <li>
+                    <div class="info-icon"><i class="bi bi-geo-alt"></i></div>
+                    <div class="info-content">
+                      <h6>Dirección</h6>
+                      <p>{{ usuario.direccion or 'No registrada' }}</p>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="info-icon"><i class="bi bi-building"></i></div>
+                    <div class="info-content">
+                      <h6>Ciudad</h6>
+                      <p>{{ usuario.ciudad or 'No registrada' }}</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
 
-                    <a href="{{ url_for('profile.editar_perfil') }}" class="btn-gradient w-100">
-                        <i class="bi bi-pencil-square"></i> Editar Perfil
-                    </a>
+              <div class="tab-pane fade" id="security" role="tabpanel">
+                <h5 class="fw-bold mb-4 text-dark">Ajustes de Cuenta</h5>
+                <div class="p-4 border border-color rounded-4 mb-4">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <h6 class="fw-bold mb-1">
+                        <i class="bi bi-key me-2 text-primary"></i>Contraseña
+                      </h6>
+                      <p class="text-muted small m-0">
+                        Actualizada por última vez recientemente
+                      </p>
+                    </div>
+                    <button
+                      class="btn btn-sm btn-outline-custom"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modalCambiarPassword"
+                    >
+                      Cambiar
+                    </button>
+                  </div>
                 </div>
+              </div>
             </div>
-
-            <div class="col-lg-8 fade-in-up delay-2">
-                <div class="glass-card p-4 p-md-5 h-100">
-
-                    <ul class="nav nav-custom-tabs" id="profileTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
-                                <i class="bi bi-person-lines-fill me-2"></i>Vista General
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
-                                <i class="bi bi-shield-lock-fill me-2"></i>Seguridad
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content" id="profileTabsContent">
-
-                        <div class="tab-pane fade show active" id="overview" role="tabpanel">
-                            <h5 class="fw-bold mb-4 text-dark">Información Personal</h5>
-                            <ul class="info-list">
-                                <li>
-                                    <div class="info-icon"><i class="bi bi-person"></i></div>
-                                    <div class="info-content">
-                                        <h6>Nombre Completo</h6>
-                                        <p>{{ usuario.nombre }}</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="info-icon"><i class="bi bi-envelope"></i></div>
-                                    <div class="info-content">
-                                        <h6>Correo Electrónico</h6>
-                                        <p>{{ usuario.correo }}</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="info-icon"><i class="bi bi-telephone"></i></div>
-                                    <div class="info-content">
-                                        <h6>Teléfono de Contacto</h6>
-                                        <p>{{ usuario.telefono or 'No registrado aún' }}</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="info-icon"><i class="bi bi-geo-alt"></i></div>
-                                    <div class="info-content">
-                                        <h6>Dirección</h6>
-                                        <p>{{ usuario.direccion or 'No registrada' }}</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="info-icon"><i class="bi bi-building"></i></div>
-                                    <div class="info-content">
-                                        <h6>Ciudad</h6>
-                                        <p>{{ usuario.ciudad or 'No registrada' }}</p>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="tab-pane fade" id="security" role="tabpanel">
-                            <h5 class="fw-bold mb-4 text-dark">Ajustes de Cuenta</h5>
-                            <div class="p-4 border border-color rounded-4 mb-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="fw-bold mb-1"><i class="bi bi-key me-2 text-primary"></i>Contraseña</h6>
-                                        <p class="text-muted small m-0">Actualizada por última vez recientemente</p>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-custom" data-bs-toggle="modal" data-bs-target="#modalCambiarPassword">Cambiar</button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
     </main>
 
-    <div class="modal fade" id="modalCambiarPassword" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="modalCambiarPassword"
+      tabindex="-1"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-dialog-centered">
-        <form id="formCambiarPassword" action="{{ url_for('profile.actualizar_password') }}" method="POST" class="modal-content modal-glass border-0">
+        <form
+          id="formCambiarPassword"
+          action="{{ url_for('profile.actualizar_password') }}"
+          method="POST"
+          class="modal-content modal-glass border-0"
+        >
           <div class="modal-header modal-header-custom border-0">
-            <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock text-primary me-2"></i>Cambiar Contraseña</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title fw-bold">
+              <i class="bi bi-shield-lock text-primary me-2"></i>Cambiar
+              Contraseña
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
 
           <div class="modal-body modal-body-custom">
             <div class="mb-3">
-                <label class="form-label small fw-semibold text-muted">Contraseña Actual</label>
-                <input type="password" name="password_actual" class="form-control input-exotic" placeholder="••••••••" required>
+              <label class="form-label small fw-semibold text-muted"
+                >Contraseña Actual</label
+              >
+              <input
+                type="password"
+                name="password_actual"
+                class="form-control input-exotic"
+                placeholder="••••••••"
+                required
+              />
             </div>
             <div class="mb-3">
-                <label class="form-label small fw-semibold text-muted">Nueva Contraseña</label>
-                <input type="password" id="nueva_password" name="nueva_password" class="form-control input-exotic" placeholder="Mínimo 6 caracteres" minlength="6" required>
+              <label class="form-label small fw-semibold text-muted"
+                >Nueva Contraseña</label
+              >
+              <input
+                type="password"
+                id="nueva_password"
+                name="nueva_password"
+                class="form-control input-exotic"
+                placeholder="Mínimo 6 caracteres"
+                minlength="6"
+                required
+              />
             </div>
             <div class="mb-3">
-                <label class="form-label small fw-semibold text-muted">Confirmar Nueva Contraseña</label>
-                <input type="password" id="confirmar_password" name="confirmar_password" class="form-control input-exotic" placeholder="Mínimo 6 caracteres" minlength="6" required>
+              <label class="form-label small fw-semibold text-muted"
+                >Confirmar Nueva Contraseña</label
+              >
+              <input
+                type="password"
+                id="confirmar_password"
+                name="confirmar_password"
+                class="form-control input-exotic"
+                placeholder="Mínimo 6 caracteres"
+                minlength="6"
+                required
+              />
             </div>
 
-            <div id="error_password" class="alert alert-danger d-none py-2 text-center small mb-0 rounded-3">
-                <i class="bi bi-exclamation-triangle me-1"></i> Las contraseñas nuevas no coinciden o tienen menos de 6 caracteres.
+            <div
+              id="error_password"
+              class="alert alert-danger d-none py-2 text-center small mb-0 rounded-3"
+            >
+              <i class="bi bi-exclamation-triangle me-1"></i> Las contraseñas
+              nuevas no coinciden o tienen menos de 6 caracteres.
             </div>
           </div>
 
-          <div class="modal-footer modal-footer-custom border-0 d-flex justify-content-between">
-            <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-gradient-modal"><i class="bi bi-check2-circle me-1"></i> Guardar cambios</button>
+          <div
+            class="modal-footer modal-footer-custom border-0 d-flex justify-content-between"
+          >
+            <button
+              type="button"
+              class="btn btn-link text-muted text-decoration-none"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-gradient-modal">
+              <i class="bi bi-check2-circle me-1"></i> Guardar cambios
+            </button>
           </div>
         </form>
       </div>
     </div>
 
-    <footer class="bg-white border-top py-4 mt-auto text-center text-muted small relative" style="z-index: 10;">
-        <div class="container">
-            <p class="mb-0 fw-medium">&copy; 2026 Dunaka. Panel de Usuario Privado.</p>
-        </div>
+    <footer
+      class="bg-white border-top py-4 mt-auto text-center text-muted small relative"
+      style="z-index: 10"
+    >
+      <div class="container">
+        <p class="mb-0 fw-medium">
+          &copy; 2026 Dunaka. Panel de Usuario Privado.
+        </p>
+      </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/perfil.js') }}"></script>
-</body>
+  </body>
 </html>

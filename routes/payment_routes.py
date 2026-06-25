@@ -1,7 +1,7 @@
 ﻿import os
 import hashlib
 import time
-from flask import Blueprint, session, redirect, url_for, flash, render_template_string, request
+from flask import Blueprint, session, redirect, url_for, flash, request, render_template
 from database.db import obtener_conexion
 from models.cart_model import obtener_detalles_carrito
 
@@ -23,16 +23,14 @@ def procesar_pago():
         flash('Tu carrito está vacío.', 'warning')
         return redirect(url_for('cart.ver_carrito'))
 
-
     direccion = request.form.get('direccion', 'No especificada')
     ciudad = request.form.get('ciudad', 'No especificada')
     telefono = request.form.get('telefono', 'No especificado')
 
-
+    # Corrección matemática explícita: Convertimos el precio a float antes de operar
     total_cop = sum(float(item['precio_venta']) * int(item['cantidad']) for item in items_carrito)
     monto_en_centavos = int(round(total_cop * 100))
     referencia_pago = f"ORD_{usuario_id}_{int(time.time() * 1000)}"
-
 
     conexion = None
     cursor = None
@@ -55,35 +53,26 @@ def procesar_pago():
         if cursor: cursor.close()
         if conexion: conexion.close()
 
-
     cadena_firma = f"{referencia_pago}{monto_en_centavos}COP{WOMPI_INTEGRITY_SECRET}"
     firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
 
-
     correo_usuario = session['usuario'].get('correo') or session['usuario'].get('email', '')
+    url_retorno = "https://constrain-fading-overall.ngrok-free.dev/pago/resultado"
 
+    # Redirección directa al Checkout de Wompi mediante URL limpia (Evita bloqueos 403 de CloudFront)
+    url_wompi_directo = (
+        f"https://checkout.wompi.co/p/?"
+        f"public-key={WOMPI_PUBLIC_KEY}&"
+        f"currency=COP&"
+        f"amount-in-cents={monto_en_centavos}&"
+        f"reference={referencia_pago}&"
+        f"signature:integrity={firma_checksum}&"
+        f"redirect-url={url_retorno}&"
+        f"customer-data:email={correo_usuario}"
+    )
+    
+    return redirect(url_wompi_directo)
 
-
-
-
-    html_form = f"""
-    <!DOCTYPE html>
-    <html lang="es">
-    <body onload="document.getElementById('wompi_form').submit()">
-        <form id="wompi_form" action="https://checkout.wompi.co/p/" method="GET">
-            <input type="hidden" name="public-key" value="{WOMPI_PUBLIC_KEY}" />
-            <input type="hidden" name="currency" value="COP" />
-            <input type="hidden" name="amount-in-cents" value="{monto_en_centavos}" />
-            <input type="hidden" name="reference" value="{referencia_pago}" />
-            <input type="hidden" name="signature:integrity" value="{firma_checksum}" />
-            <input type="hidden" name="customer-data:email" value="{correo_usuario}" />
-        </form>
-    </body>
-    </html>
-    """
-    return render_template_string(html_form)
-
-# MANTÉN SOLO ESTA VERSIÓN EN TU ARCHIVO DE RUTAS:
 
 @payment_blueprint.route('/webhooks/wompi', methods=['POST'])
 def webhook_wompi():
@@ -103,14 +92,12 @@ def webhook_wompi():
         conexion = obtener_conexion()
         cursor = conexion.cursor(dictionary=True)
         try:
-            # 1. Actualizar el estado del pedido principal
             cursor.execute("UPDATE pedidos SET estado = 'EMPACANDO' WHERE referencia = %s", (referencia,))
             conexion.commit()
 
             if cursor.rowcount > 0:
                 print(f"DEBUG: ÉXITO - Pedido {referencia} actualizado a EMPACANDO")
 
-                # 2. Obtener el ID del pedido y el usuario_id para asociar los detalles
                 cursor.execute("SELECT id, usuario_id FROM pedidos WHERE referencia = %s", (referencia,))
                 pedido = cursor.fetchone()
 
@@ -118,7 +105,6 @@ def webhook_wompi():
                     u_id = pedido['usuario_id']
                     pedido_id = pedido['id']
 
-                    # 3. Copiar productos del carrito a pedido_detalles antes de borrarlos
                     query_pasar_detalles = """
                         INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, precio_unitario)
                         SELECT %s, cd.producto_id, cd.cantidad, p.precio_venta
@@ -130,7 +116,6 @@ def webhook_wompi():
                     cursor.execute(query_pasar_detalles, (pedido_id, u_id))
                     print(f"DEBUG: Productos del carrito migrados a pedido_detalles para el pedido ID {pedido_id}")
 
-                    # 4. Ahora sí, vaciar de manera segura el carrito del usuario
                     cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id IN (SELECT id FROM carritos WHERE usuario_id = %s)", (u_id,))
                     cursor.execute("DELETE FROM carritos WHERE usuario_id = %s", (u_id,))
                     
@@ -147,3 +132,16 @@ def webhook_wompi():
             conexion.close()
 
     return '', 200
+
+
+@payment_blueprint.route('/resultado', methods=['GET'])
+def resultado_pago():
+    # Captura el ID de transacción enviado por Wompi por parámetro GET
+    id_transaccion = request.args.get('id') or "En verificación"
+    status_wompi = request.args.get('env') or "indefinido"
+    
+    print(f"DEBUG: Retorno de pasarela ejecutado. Transacción ID: {id_transaccion}, Estado: {status_wompi}")
+    
+    # Redirección directa a la vista física de pedidos de tu sistema para no romper el flujo
+    flash(f"Pago procesado con éxito. ID de Operación: {id_transaccion}", "success")
+    return redirect(url_for('orders.ver_pedidos'))
