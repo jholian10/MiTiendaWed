@@ -39,13 +39,15 @@ function mostrarNotificacion(mensaje, tipo = 'success', titulo = '') {
 
 async function inicializarEstados() {
     try {
-        const resCart = await fetch("/carrito/cantidad-api");
+        // CORREGIDO: Ruta sincronizada con el Blueprint de Flask (/carrito/api/cantidad)
+        const resCart = await fetch("/carrito/api/cantidad");
         if (resCart.ok) {
             const dataCart = await resCart.json();
             actualizarBadge('cart-count', dataCart.cantidad);
         }
 
-        const resFav = await fetch("/favoritos/cantidad-api");
+        // CORREGIDO: Ruta unificada con el script global del navbar (/favoritos/api/cantidad)
+        const resFav = await fetch("/favoritos/api/cantidad");
         if (resFav.ok) {
             const dataFav = await resFav.json();
             actualizarBadge('fav-count', dataFav.cantidad || 0);
@@ -98,7 +100,8 @@ async function agregarAlCarritoAsincrono(button, productoId) {
             const data = await response.json();
             mostrarNotificacion(data.message || "Producto añadido a tu pedido.", "success");
             
-            const resCart = await fetch("/carrito/cantidad-api");
+            // CORREGIDO: Actualización en tiempo real usando la ruta correcta
+            const resCart = await fetch("/carrito/api/cantidad");
             if (resCart.ok) {
                 const dataCart = await resCart.json();
                 actualizarBadge('cart-count', dataCart.cantidad);
@@ -145,7 +148,8 @@ async function toggleFavorito(button, productoId) {
                 mostrarNotificacion(data.message || "Eliminado de tus favoritos", "success", "Favorito Removido");
             }
             
-            const resFav = await fetch("/favoritos/cantidad-api");
+            // CORREGIDO: Actualización en tiempo real usando la ruta correcta
+            const resFav = await fetch("/favoritos/api/cantidad");
             if (resFav.ok) {
                 const dataFav = await resFav.json();
                 actualizarBadge('fav-count', dataFav.cantidad || 0);
