@@ -1,5 +1,6 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
 
+    // 1. Manejo de cantidad (Botones + y -)
     const inputCantidad = document.getElementById("input-cantidad");
     const btnMas = document.getElementById("btn-mas");
     const btnMenos = document.getElementById("btn-menos");
@@ -19,7 +20,7 @@
         });
     }
 
-
+    // 2. Sistema de Valoración por Estrellas
     const estrellas = document.querySelectorAll(".star-panel-item");
     const inputCalificacion = document.getElementById("input-calificacion");
     const labelRating = document.getElementById("label-rating");
@@ -39,8 +40,8 @@
         estrellas.forEach(est => {
             est.addEventListener("click", () => {
                 valorFijado = est.getAttribute("data-value");
-                inputCalificacion.value = valorFijado;
-                labelRating.innerText = textos[valorFijado];
+                if (inputCalificacion) inputCalificacion.value = valorFijado;
+                if (labelRating) labelRating.innerText = textos[valorFijado];
                 marcarEstrellas(valorFijado);
             });
 
@@ -65,23 +66,71 @@
         });
     }
 
+    // 3. INTERCEPTAR EL FORMULARIO DE "AÑADIR AL CARRITO" (Para actualizar el Navbar en tiempo real)
+    // Buscamos cualquier formulario cuyo action vaya hacia el carrito/agregar/
+    const formCarrito = document.querySelector("form[action*='/carrito/agregar/']");
+    if (formCarrito) {
+        formCarrito.addEventListener("submit", async (e) => {
+            // Detenemos el envío normal de HTML que recarga la página de golpe
+            e.preventDefault();
+
+            const actionUrl = formCarrito.getAttribute("action");
+            const formData = new FormData(formCarrito);
+
+            try {
+                // Hacemos la petición AJAX enviando la cabecera X-Requested-With que tu Flask espera
+                const response = await fetch(actionUrl, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401 || data.status === 'login_required') {
+                    window.location.href = "/auth/login";
+                    return;
+                }
+
+                if (data.status === "success") {
+                    actualizarContadores();
+                    
+                } else {
+                    alert(data.message || "Error al añadir el producto.");
+                }
+
+            } catch (error) {
+                console.error("Error al enviar al carrito:", error);
+            }
+        });
+    }
+
+    // Cargamos contadores iniciales al abrir la página
     actualizarContadores();
 });
 
+// 4. Función de actualización con las URLs correctas del backend de Flask
 async function actualizarContadores() {
     try {
-        const resCart = await fetch("/carrito/cantidad-api");
+        // CORRECCIÓN DE RUTAS: Se cambió de '/carrito/cantidad-api' a '/carrito/api/cantidad'
+        const resCart = await fetch("/carrito/api/cantidad");
         if (resCart.ok) {
             const data = await resCart.json();
-            document.getElementById('cart-count').innerText = data.cantidad;
+            const elCart = document.getElementById('cart-count');
+            if (elCart) elCart.innerText = data.cantidad;
         }
-        const resFav = await fetch("/favoritos/cantidad-api");
+        
+        // CORRECCIÓN DE RUTAS: Se cambió de '/favoritos/cantidad-api' a '/favoritos/api/cantidad'
+        const resFav = await fetch("/favoritos/api/cantidad");
         if (resFav.ok) {
             const data = await resFav.json();
-            document.getElementById('fav-count').innerText = data.cantidad;
+            const elFav = document.getElementById('fav-count');
+            if (elFav) elFav.innerText = data.cantidad;
         }
     } catch (e) {
-        console.error("Error contadores:", e);
+        console.error("Error actualizando contadores del navbar:", e);
     }
 }
 
@@ -97,8 +146,10 @@ async function toggleFavoritoDetalle(btn, productoId) {
             actualizarContadores();
             btn.classList.toggle('is-active');
             const icon = btn.querySelector('i');
-            icon.classList.toggle('bi-heart');
-            icon.classList.toggle('bi-heart-fill');
+            if (icon) {
+                icon.classList.toggle('bi-heart');
+                icon.classList.toggle('bi-heart-fill');
+            }
         }
     } catch (error) {
         console.error("Error favoritos:", error);
