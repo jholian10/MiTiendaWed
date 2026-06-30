@@ -55,18 +55,18 @@ def buscar_productos_por_nombre(termino):
 def verificar_compra_usuario(usuario_id, producto_id):
     """
     Consulta si el usuario ha comprado el producto, aceptando múltiples 
-    estados válidos de pedido para facilitar las pruebas del proyecto.
+    estados válidos de pedido, incluyendo respuestas exitosas de Wompi (APPROVED).
     """
     conexion = obtener_conexion() 
     cursor = conexion.cursor()
     
-    # Hemos modificado la condición de p.estado para que acepte 'completado', 'pagado' o 'pendiente'
+    # Añadimos 'APPROVED', 'approved', 'Aprobado', 'aprobado' y 'success' para asegurar compatibilidad con Wompi
     query = """
         SELECT COUNT(*) FROM pedido_detalles pd
         JOIN pedidos p ON pd.pedido_id = p.id
         WHERE p.usuario_id = %s 
           AND pd.producto_id = %s 
-          AND p.estado IN ('completado', 'pagado', 'pendiente', 'entregado')
+          AND p.estado IN ('completado', 'pagado', 'pendiente', 'entregado', 'APPROVED', 'approved', 'Aprobado', 'aprobado', 'success', 'exitoso')
     """
     
     cursor.execute(query, (usuario_id, producto_id))
