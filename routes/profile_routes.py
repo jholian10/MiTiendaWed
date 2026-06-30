@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from models.profile_model import actualizar_perfil_usuario
 from models.auth_model import obtener_usuario_por_correo, actualizar_password
 from models.auth_model import cambiar_password
+from models.direccion_model import obtener_direccion_usuario
 
 profile_blueprint = Blueprint('profile', __name__, url_prefix='/perfil')
 
@@ -25,8 +26,17 @@ def ver_perfil():
     if not usuario_datos:
         flash('Debes iniciar sesión para acceder al perfil.', 'warning')
         return redirect(url_for('auth.login'))
-    return render_template('perfil.html', usuario=usuario_datos, usuario_sesion=usuario_datos)
-
+        
+    # CONSULTA: Buscamos si ya registró una dirección en la tabla de envíos
+    direccion_envio = obtener_direccion_usuario(usuario_datos['id'])
+    
+    # Pasamos 'direccion_envio' a la plantilla perfil.html
+    return render_template(
+        'perfil.html', 
+        usuario=usuario_datos, 
+        usuario_sesion=usuario_datos, 
+        direccion_envio=direccion_envio
+    )
 @profile_blueprint.route('/editar', methods=['GET', 'POST'])
 def editar_perfil():
     usuario_datos = obtener_usuario_sesion()

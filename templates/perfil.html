@@ -179,21 +179,42 @@
                     <div class="info-icon"><i class="bi bi-telephone"></i></div>
                     <div class="info-content">
                       <h6>Teléfono de Contacto</h6>
-                      <p>{{ usuario.telefono or 'No registrado aún' }}</p>
+                      <p>
+                        {% if direccion_envio and direccion_envio.telefono_contacto and direccion_envio.telefono_contacto != 'N/A' %}
+                          {{ direccion_envio.telefono_contacto }}
+                        {% else %}
+                          No registrado aún
+                        {% endif %}
+                      </p>
                     </div>
                   </li>
                   <li>
                     <div class="info-icon"><i class="bi bi-geo-alt"></i></div>
                     <div class="info-content">
                       <h6>Dirección</h6>
-                      <p>{{ usuario.direccion or 'No registrada' }}</p>
+                      <p>
+                        {% if direccion_envio and direccion_envio.direccion_detallada %}
+                          {{ direccion_envio.direccion_detallada }} 
+                          {% if direccion_envio.barrio %}
+                            <span class="text-muted small">({{ direccion_envio.barrio }})</span>
+                          {% endif %}
+                        {% else %}
+                          No registrada
+                        {% endif %}
+                      </p>
                     </div>
                   </li>
                   <li>
                     <div class="info-icon"><i class="bi bi-building"></i></div>
                     <div class="info-content">
                       <h6>Ciudad</h6>
-                      <p>{{ usuario.ciudad or 'No registrada' }}</p>
+                      <p>
+                        {% if direccion_envio and direccion_envio.ciudad %}
+                          {{ direccion_envio.ciudad }}{% if direccion_envio.departamento %}, {{ direccion_envio.departamento }}{% endif %}
+                        {% else %}
+                          No registrada
+                        {% endif %}
+                      </p>
                     </div>
                   </li>
                 </ul>
