@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-06-2026 a las 09:12:19
+-- Tiempo de generación: 01-07-2026 a las 06:27:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -39,8 +39,11 @@ CREATE TABLE `carritos` (
 
 INSERT INTO `carritos` (`id`, `usuario_id`, `actualizado_el`) VALUES
 (6, 20, '2026-06-23 04:54:10'),
-(9, 1, '2026-06-25 05:26:53'),
-(14, 27, '2026-06-25 07:11:05');
+(14, 27, '2026-06-25 07:11:05'),
+(21, 29, '2026-06-30 06:27:02'),
+(23, 1, '2026-07-01 03:03:21'),
+(25, 30, '2026-07-01 03:41:05'),
+(26, 31, '2026-07-01 04:04:01');
 
 -- --------------------------------------------------------
 
@@ -55,6 +58,13 @@ CREATE TABLE `carrito_detalles` (
   `cantidad` int(11) NOT NULL DEFAULT 1,
   `agregado_el` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `carrito_detalles`
+--
+
+INSERT INTO `carrito_detalles` (`id`, `carrito_id`, `producto_id`, `cantidad`, `agregado_el`) VALUES
+(4, 14, 4, 3, '2026-06-25 07:17:21');
 
 -- --------------------------------------------------------
 
@@ -78,35 +88,9 @@ CREATE TABLE `direcciones_usuario` (
 --
 
 INSERT INTO `direcciones_usuario` (`id`, `usuario_id`, `departamento`, `ciudad`, `direccion_detallada`, `barrio`, `telefono_contacto`, `es_principal`) VALUES
-(1, 1, 'Cundinamarca', 'Cachipay', 'asd', 'swq', 'N/A', 1),
-(2, 1, 'Cundinamarca', 'Cachipay', 'asd', 'swq', 'N/A', 1),
-(3, 1, 'Cundinamarca', 'Cajicá', 'sda', 'sd', 'N/A', 1),
-(4, 1, 'Cundinamarca', 'Cajicá', 'klñ', 'kjlñ', 'N/A', 1),
-(5, 1, 'Cundinamarca', 'Caparrapí', 'klñ', 'swq', 'N/A', 1),
-(6, 1, 'Cundinamarca', 'Caparrapí', 'klñ', 'kjlñ', 'N/A', 1),
-(7, 20, 'Caldas', 'La Dorada', 'Hh', 'Hh', 'N/A', 1),
-(8, 1, 'Chocó', 'El Carmen del Darién', 'asd', 'kjlñ', 'N/A', 1),
-(9, 1, 'Cundinamarca', 'Cajicá', 'sda', 'swq', 'N/A', 1),
-(10, 1, 'Cundinamarca', 'Caparrapí', 'sda', 'swq', 'N/A', 1),
-(11, 1, 'Cundinamarca', 'Caparrapí', 'sda', 'swq', 'N/A', 1),
-(12, 1, 'Cundinamarca', 'Caparrapí', 'sda', 'swq', 'N/A', 1),
-(13, 1, 'Cundinamarca', 'Caparrapí', 'sda', 'swq', 'N/A', 1),
-(14, 1, 'Cundinamarca', 'Caparrapí', 'sda', 'swq', 'N/A', 1),
-(15, 1, 'Córdoba', 'Montería', 'asd', 'kjlñ', 'N/A', 1),
-(16, 1, 'Córdoba', 'Montería', 'asd', 'kjlñ', 'N/A', 1),
-(17, 27, 'Córdoba', 'Montería', 'asd', 'kjlñ', 'N/A', 1),
-(18, 1, 'Córdoba', 'Montería', 'asd', 'kjlñ', 'N/A', 1),
-(19, 1, 'Córdoba', 'Montería', 'klñ', 'kjlñ', 'N/A', 1),
-(20, 27, 'Amazonas', 'Leticia', 'asd', 'kjlñ', 'N/A', 1),
-(21, 27, 'Amazonas', 'Leticia', 'asd', 'kjlñ', 'N/A', 1),
-(22, 27, 'Amazonas', 'Leticia', 'asd', 'kjlñ', 'N/A', 1),
-(23, 27, 'Córdoba', 'Montería', 'asd', 'sd', 'N/A', 1),
-(24, 27, 'Amazonas', 'Leticia', 'asd', 'swq', 'N/A', 1),
-(25, 27, 'Amazonas', 'Leticia', 'asd', 'swq', 'N/A', 1),
-(26, 27, 'Cundinamarca', 'Cajicá', 'sda', 'swq', 'N/A', 1),
-(27, 27, 'Amazonas', 'Leticia', 'asd', 'kjlñ', 'N/A', 1),
-(28, 27, 'Amazonas', 'Leticia', 'asd', 'kjlñ', 'N/A', 1),
-(29, 27, 'Antioquia', 'Abejorral', 'asd', 'kjlñ', 'N/A', 1);
+(39, 29, 'Atlántico', 'Candelaria', 'calle 19 A', 'samiguel', 'N/A', 1),
+(40, 1, 'Cundinamarca', 'Cajicá', 'calle 19 A', 'kjlñ', 'N/A', 1),
+(41, 30, 'Atlántico', 'Candelaria', '21 A', 'samiguel', 'N/A', 1);
 
 -- --------------------------------------------------------
 
@@ -120,6 +104,15 @@ CREATE TABLE `favoritos` (
   `producto_id` int(11) NOT NULL,
   `agregado_el` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `favoritos`
+--
+
+INSERT INTO `favoritos` (`id`, `usuario_id`, `producto_id`, `agregado_el`) VALUES
+(15, 29, 4, '2026-06-30 06:02:56'),
+(17, 29, 2, '2026-06-30 06:03:10'),
+(18, 29, 3, '2026-06-30 06:03:21');
 
 -- --------------------------------------------------------
 
@@ -205,7 +198,24 @@ INSERT INTO `pedidos` (`id`, `usuario_id`, `referencia`, `total`, `estado`, `dir
 (27, 27, 'ORD_27_1782366484603', 105000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-25 05:48:04'),
 (28, 27, 'ORD_27_1782370996623', 85000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-25 07:03:16'),
 (29, 27, 'ORD_27_1782371208916', 105000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-25 07:06:48'),
-(30, 27, 'ORD_27_1782371421257', 105000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-25 07:10:21');
+(30, 27, 'ORD_27_1782371421257', 105000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-25 07:10:21'),
+(31, 1, 'ORD_1_1782796061810', 200000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:07:41'),
+(32, 29, 'ORD_29_1782796399683', 89000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:13:19'),
+(33, 29, 'ORD_29_1782797121619', 89000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:25:21'),
+(34, 29, 'ORD_29_1782797138066', 89000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:25:38'),
+(35, 29, 'ORD_29_1782797575906', 170000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:32:55'),
+(36, 29, 'ORD_29_1782797627374', 85000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:33:47'),
+(37, 29, 'ORD_29_1782797744728', 85000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:35:44'),
+(38, 29, 'ORD_29_1782798175413', 85000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:42:55'),
+(39, 29, 'ORD_29_1782798200328', 85000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:43:20'),
+(40, 29, 'ORD_29_1782798867057', 85000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:54:27'),
+(41, 29, 'ORD_29_1782798871526', 85000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:54:31'),
+(42, 29, 'ORD_29_1782798895680', 170000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 05:54:55'),
+(43, 29, 'ORD_29_1782800302997', 315000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 06:18:23'),
+(44, 29, 'ORD_29_1782800793311', 735000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-06-30 06:26:33'),
+(45, 1, 'ORD_1_1782874960282', 190000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-07-01 03:02:40'),
+(46, 1, 'ORD_1_1782875653074', 89000.00, 'PENDIENTE', 'No especificada', 'No especificada', 'No especificado', '2026-07-01 03:14:13'),
+(47, 30, 'ORD_30_1782877185636', 85000.00, 'EMPACANDO', 'No especificada', 'No especificada', 'No especificado', '2026-07-01 03:39:45');
 
 -- --------------------------------------------------------
 
@@ -228,7 +238,17 @@ CREATE TABLE `pedido_detalles` (
 INSERT INTO `pedido_detalles` (`id`, `pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) VALUES
 (1, 28, 1, 1, 85000.00),
 (2, 29, 4, 1, 105000.00),
-(3, 30, 4, 1, 105000.00);
+(3, 30, 4, 1, 105000.00),
+(4, 32, 7, 1, 89000.00),
+(5, 34, 7, 1, 89000.00),
+(6, 36, 1, 1, 85000.00),
+(7, 37, 1, 1, 85000.00),
+(8, 31, 2, 1, 95000.00),
+(9, 31, 7, 1, 89000.00),
+(11, 39, 3, 1, 85000.00),
+(12, 44, 4, 7, 105000.00),
+(13, 45, 2, 2, 95000.00),
+(14, 47, 3, 1, 85000.00);
 
 -- --------------------------------------------------------
 
@@ -364,7 +384,12 @@ CREATE TABLE `soporte` (
 
 INSERT INTO `soporte` (`id`, `usuario_id`, `remitente`, `nombre`, `correo`, `asunto`, `mensaje`, `estado`, `fecha_creacion`) VALUES
 (1, NULL, 'cliente', '', '', '', 'Hola', 'pendiente', '2026-06-23 01:03:08'),
-(2, 1, 'cliente', 'Super Admin Dunaka', 'jholianmanuel10@gmail.com', '', 'hola', 'pendiente', '2026-06-25 04:42:54');
+(2, 1, 'cliente', 'Super Admin Dunaka', 'jholianmanuel10@gmail.com', '', 'hola', 'pendiente', '2026-06-25 04:42:54'),
+(3, 1, 'admin', '', '', '', 'wq', 'pendiente', '2026-07-01 04:15:28'),
+(4, 31, 'cliente', 'LUCIANA SOFIA', 'lucianasofia2605@gmail.com', '', 'Hola', 'pendiente', '2026-07-01 04:15:45'),
+(5, 31, 'cliente', 'LUCIANA SOFIA', 'lucianasofia2605@gmail.com', '', 'Hshhshs', 'pendiente', '2026-07-01 04:15:57'),
+(6, 31, 'admin', '', '', '', 'jhggg', 'pendiente', '2026-07-01 04:16:09'),
+(7, 31, 'cliente', 'LUCIANA SOFIA', 'lucianasofia2605@gmail.com', '', 'Jdjdrttwtttwyyywyyywhhhwhhwh', 'pendiente', '2026-07-01 04:19:19');
 
 -- --------------------------------------------------------
 
@@ -398,7 +423,10 @@ INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `password_hash`, `rol`, `activ
 (20, 'Yo', 'yo@gmail.com', 'scrypt:32768:8:1$EyhzET7UXarPT5yB$3074060c353a3989acf7b2105d78d1c6bc421ac51378e38d019bcda4213eeaa3f5b486156d22cf7e959373e728bd7cd271f4c2b0ea9ea4d4dcfe390c928941a0', 'cliente', 1, '2026-06-23 04:51:56', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
 (22, 'Angie Paola Gutiérrez Reales', 'agutierrezreales@gmail.com', 'scrypt:32768:8:1$IkKyXD2mIfCjXrnR$03331f7c4aa53b507df6ef54e30e509a335f99ecfc60169e433e22d1f9dd559e5e8d9299d2a7ffb5c91baf9540ab77485feab496e074e872e00930d1cc3977f2', 'cliente', 1, '2026-06-23 05:09:16', '389608', '2026-06-23 00:23:01', NULL, NULL, NULL, 'default.png', NULL),
 (26, 'sapo', 'sapo@gmail.com', 'scrypt:32768:8:1$Zc8QpfQIjJXCgUnv$251eb4f55f2ffd3beb97f2f28e8bca8d4a7a5087585623ad6f8aabf309d201cd11abbe8fbbaf4cb8af44ee51fb7b6b2dac467363fcc3b9f383dac51b3a130d70', 'cliente', 1, '2026-06-23 05:20:43', '423789', '2026-06-23 00:30:56', NULL, NULL, NULL, 'default.png', NULL),
-(27, 'ema', 'ema@gmail.com', 'scrypt:32768:8:1$niFUg7VWl59mk0OJ$d5ad28a4295db684e0a12182c54f735e1c5f92b388beecfd5d22d9d924bb478626b7db2ed9c9dc3f9aab543bfb3f3480aca8f4c180a6aae6343c62c06ce94dfa', 'cliente', 1, '2026-06-25 05:23:19', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL);
+(27, 'ema', 'ema@gmail.com', 'scrypt:32768:8:1$niFUg7VWl59mk0OJ$d5ad28a4295db684e0a12182c54f735e1c5f92b388beecfd5d22d9d924bb478626b7db2ed9c9dc3f9aab543bfb3f3480aca8f4c180a6aae6343c62c06ce94dfa', 'cliente', 1, '2026-06-25 05:23:19', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
+(29, 'you', 'you@gmail.com', 'scrypt:32768:8:1$6aWjQwp8zm9m2Rdj$ef3297b705a0fabea29458010c1b997f2bbd2edaa4df20c6f03715434bee21c0c01167b097c31f99a5cdf2ee23c1e703bdf7ff740b89d3aaa8b08b67e8278a9f', 'cliente', 1, '2026-06-30 05:12:45', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
+(30, 'tutu', 'tutu@gmail.com', 'scrypt:32768:8:1$nc72OR3wSc8GxGjk$b96c1764b5ca2ed33d75948ec158a04bbda36ae2b8d6d3330fc87ea4e0f7491abb3f4712f35be0dae59fb3eefcf0efb526335be9d71eb1b9ddc5d6749410cac2', 'cliente', 1, '2026-07-01 03:38:26', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL),
+(31, 'LUCIANA SOFIA', 'lucianasofia2605@gmail.com', 'google_auth', 'cliente', 1, '2026-07-01 04:03:57', NULL, NULL, NULL, NULL, NULL, 'default.png', NULL);
 
 --
 -- Índices para tablas volcadas
@@ -506,25 +534,25 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `carritos`
 --
 ALTER TABLE `carritos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `carrito_detalles`
 --
 ALTER TABLE `carrito_detalles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones_usuario`
 --
 ALTER TABLE `direcciones_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT de la tabla `favoritos`
 --
 ALTER TABLE `favoritos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -536,13 +564,13 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT de la tabla `pedido_detalles`
 --
 ALTER TABLE `pedido_detalles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -572,13 +600,13 @@ ALTER TABLE `reseñas`
 -- AUTO_INCREMENT de la tabla `soporte`
 --
 ALTER TABLE `soporte`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- Restricciones para tablas volcadas
