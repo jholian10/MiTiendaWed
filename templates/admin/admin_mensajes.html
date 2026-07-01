@@ -2,7 +2,6 @@
 
 {% block content %}
 <style>
-
     :root {
         --primary-dunaka: #5840d8;
         --primary-hover: #4632b3;
@@ -13,7 +12,6 @@
         --unread-bg: #f8f6ff;
         --chat-bg: #f8fafc;
     }
-
 
     ::-webkit-scrollbar {
         width: 6px;
@@ -29,7 +27,6 @@
         background: #94a3b8;
     }
 
-
     .dunaka-chat-wrapper {
         display: flex;
         background: #ffffff;
@@ -41,7 +38,6 @@
         margin-top: 1rem;
         border: 1px solid var(--border-color);
     }
-
 
     .chat-users-panel {
         width: 360px;
@@ -72,7 +68,6 @@
         scroll-behavior: smooth;
     }
 
-
     .user-item {
         padding: 16px 24px;
         display: flex;
@@ -88,7 +83,6 @@
         background-color: #f8fafc;
         padding-left: 28px;
     }
-
 
     .user-item.unread-chat {
         background-color: var(--unread-bg);
@@ -111,7 +105,6 @@
         box-shadow: inset 0 0 20px rgba(88, 64, 216, 0.03);
     }
 
-
     .avatar-wrapper {
         position: relative;
         display: inline-block;
@@ -132,7 +125,6 @@
         border: 2px solid #fff;
         box-shadow: 0 3px 6px rgba(0,0,0,0.08);
     }
-
 
     .badge-unread {
         background-color: #ef4444;
@@ -178,7 +170,6 @@
         color: var(--primary-dunaka);
         font-weight: 600;
     }
-
 
     .chat-conversation-panel {
         flex-grow: 1;
@@ -229,12 +220,10 @@
         gap: 18px;
     }
 
-
     @keyframes slideUp {
         from { opacity: 0; transform: translateY(15px); }
         to { opacity: 1; transform: translateY(0); }
     }
-
 
     .message {
         max-width: 70%;
@@ -270,7 +259,6 @@
         color: #ffffff;
         border-radius: 20px 20px 4px 20px;
     }
-
 
     .message-meta {
         font-size: 0.75rem;
@@ -309,7 +297,6 @@
         color: var(--primary-dunaka);
         background-color: #ede9fe;
     }
-
 
     .chat-input-area {
         padding: 20px 30px;
@@ -454,9 +441,13 @@
     </div>
 </div>
 
+<!-- LIBRERÍA SOCKET.IO -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
+    const socket = io(); // Conexión WebSocket
     let usuarioSeleccionado = null;
 
+    // Función intacta para cargar el historial
     function cargarChat(id, nombre, fotoUrl, elemento) {
         usuarioSeleccionado = id;
 
@@ -465,12 +456,10 @@
         document.getElementById('chatTitle').innerText = nombre;
         document.getElementById('clientMessageCount').innerText = 'Cargando...';
 
-
         const badge = document.getElementById(`badge-${id}`);
         const contenedorUsuario = document.getElementById(`user-item-${id}`);
         if (badge) badge.remove();
         if (contenedorUsuario) contenedorUsuario.classList.remove('unread-chat');
-
 
         const avatarImg = document.getElementById('headerAvatar');
         const avatarIcon = document.getElementById('headerAvatarIcon');
@@ -483,13 +472,11 @@
             avatarIcon.style.display = 'flex';
         }
 
-
         document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
         if(elemento) elemento.classList.add('active');
 
         const box = document.getElementById('chatBox');
         box.innerHTML = '<div class="h-100 d-flex justify-content-center align-items-center"><div class="spinner-border" style="color: var(--primary-dunaka);" role="status"></div></div>';
-
 
         fetch(`/admin/soporte/historial/${id}`)
             .then(res => res.json())
@@ -507,7 +494,6 @@
                         const claseBox = esAdmin ? 'admin' : 'client';
                         const hora = m.fecha ? m.fecha.substring(11, 16) : '';
 
-
                         if(!esAdmin) {
                             cantidadMensajesCliente++;
                         }
@@ -521,7 +507,6 @@
                             }
                         }
 
-
                         const delay = index * 0.05;
 
                         box.innerHTML += `
@@ -534,10 +519,8 @@
                         `;
                     });
 
-
                     document.getElementById('clientMessageCount').innerText = `${cantidadMensajesCliente} mensaje(s) enviado(s) por el cliente`;
                 }
-
 
                 setTimeout(() => {
                     box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
@@ -545,65 +528,137 @@
             });
     }
 
+    // Función actualizada para enviar por WebSocket
     function enviarMensaje() {
-        const input = document.getElementById('adminInput');
-        const mensajeTexto = input.value.trim();
-        if (!usuarioSeleccionado || !mensajeTexto) return;
+    const input = document.getElementById('adminInput');
+    const mensajeTexto = input.value.trim();
+    if (!usuarioSeleccionado || !mensajeTexto) return;
 
-        input.value = '';
-        input.focus();
+    input.value = '';
+    input.focus();
 
-        fetch('/admin/soporte/responder', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ usuario_id: usuarioSeleccionado, mensaje: mensajeTexto })
-        })
-        .then(res => {
-            if(res.ok) {
-                const txtPreview = document.getElementById(`preview-text-${usuarioSeleccionado}`);
-                if (txtPreview) {
-                    txtPreview.innerText = "Tú: " + mensajeTexto;
-                    txtPreview.style.fontWeight = "400";
-                    txtPreview.style.color = "var(--text-muted)";
-                }
+    // 1. Guardar en la Base de Datos usando la ruta original segura
+    fetch('/admin/soporte/responder', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ usuario_id: usuarioSeleccionado, mensaje: mensajeTexto })
+    })
+    .then(res => {
+        if(res.ok) {
+            // 2. Si guardó correctamente, lanzar el aviso en vivo al Cliente
+            socket.emit('aviso_mensaje_admin', { 
+                usuario_id: usuarioSeleccionado, 
+                mensaje: mensajeTexto,
+                remitente: 'admin'
+            });
 
-
-                const filaUsuario = document.getElementById(`user-item-${usuarioSeleccionado}`);
-                const contenedorLista = document.getElementById('usersListContainer');
-
-                if (filaUsuario && contenedorLista && contenedorLista.firstChild !== filaUsuario) {
-
-                    filaUsuario.style.backgroundColor = "#e0e7ff";
-                    contenedorLista.insertBefore(filaUsuario, contenedorLista.firstChild);
-                    setTimeout(() => {
-                        filaUsuario.style.backgroundColor = "";
-                    }, 500);
-                }
-
-
-                const box = document.getElementById('chatBox');
-                const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-
-                if(box.innerHTML.includes("No hay mensajes anteriores")) {
-                    box.innerHTML = '';
-                }
-
-                box.innerHTML += `
-                    <div class="message admin">
-                        <div class="message-text">${mensajeTexto}</div>
-                        <div class="message-meta">
-                            <span>${horaActual}</span>
-                        </div>
-                    </div>
-                `;
-                box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+            // 3. Pintar en la pantalla del administrador
+            const txtPreview = document.getElementById(`preview-text-${usuarioSeleccionado}`);
+            if (txtPreview) {
+                txtPreview.innerText = "Tú: " + mensajeTexto;
+                txtPreview.style.fontWeight = "400";
+                txtPreview.style.color = "var(--text-muted)";
             }
-        });
-    }
+
+            const filaUsuario = document.getElementById(`user-item-${usuarioSeleccionado}`);
+            const contenedorLista = document.getElementById('usersListContainer');
+            if (filaUsuario && contenedorLista && contenedorLista.firstChild !== filaUsuario) {
+                filaUsuario.style.backgroundColor = "#e0e7ff";
+                contenedorLista.insertBefore(filaUsuario, contenedorLista.firstChild);
+                setTimeout(() => { filaUsuario.style.backgroundColor = ""; }, 500);
+            }
+
+            const box = document.getElementById('chatBox');
+            const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            if(box.innerHTML.includes("No hay mensajes anteriores")) { box.innerHTML = ''; }
+            box.innerHTML += `
+                <div class="message admin">
+                    <div class="message-text">${mensajeTexto}</div>
+                    <div class="message-meta"><span>${horaActual}</span></div>
+                </div>
+            `;
+            box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+        }
+    });
+}
 
     document.getElementById('adminInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') enviarMensaje();
     });
+
+    // NUEVO: Escuchar mensajes en vivo que envíen los clientes
+    socket.on('recibir_mensaje_admin', function(data) {
+        const senderId = data.usuario_id;
+        const mensaje = data.mensaje;
+        const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        // 1. Actualizar el texto previo en la barra lateral
+        const txtPreview = document.getElementById(`preview-text-${senderId}`);
+        if (txtPreview) {
+            txtPreview.innerText = mensaje;
+            txtPreview.style.fontWeight = "600";
+            txtPreview.style.color = "var(--primary-dunaka)";
+        }
+
+        // 2. Mover al usuario a la parte superior de la lista
+        const filaUsuario = document.getElementById(`user-item-${senderId}`);
+        const contenedorLista = document.getElementById('usersListContainer');
+        if (filaUsuario && contenedorLista && contenedorLista.firstChild !== filaUsuario) {
+            contenedorLista.insertBefore(filaUsuario, contenedorLista.firstChild);
+        }
+
+        // 3. Si tienes abierto el chat de esa persona, pintarlo en pantalla
+        if (String(usuarioSeleccionado) === String(senderId)) {
+            const box = document.getElementById('chatBox');
+            if(box.innerHTML.includes("No hay mensajes anteriores")) {
+                box.innerHTML = '';
+            }
+            box.innerHTML += `
+                <div class="message client">
+                    <div class="message-text">${mensaje}</div>
+                    <div class="message-meta">
+                        <span>${horaActual}</span> <span class="status-badge novisto"><i class="fas fa-check"></i> Entregado</span>
+                    </div>
+                </div>
+            `;
+            box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+        } else {
+            // 4. Si NO tienes el chat abierto, ponerle el badge de notificación roja
+            if (filaUsuario) {
+                filaUsuario.classList.add('unread-chat');
+                let badge = document.getElementById(`badge-${senderId}`);
+                if (!badge) {
+                    const avatarWrapper = filaUsuario.querySelector('.avatar-wrapper');
+                    if (avatarWrapper) {
+                        avatarWrapper.innerHTML += `<span class="badge-unread" id="badge-${senderId}">1</span>`;
+                    }
+                } else {
+                    badge.innerText = parseInt(badge.innerText) + 1;
+                }
+            }
+        }
+    });
+
+    // Detectar cuando el admin escribe
+document.getElementById('adminInput').addEventListener('input', () => {
+    socket.emit('escribiendo', { 
+        usuario_id: usuarioSeleccionado, 
+        quien: 'admin' 
+    });
+});
+
+// Escuchar cuando el cliente está escribiendo
+socket.on('usuario_escribiendo', (data) => {
+    if (String(data.usuario_id) === String(usuarioSeleccionado)) {
+        const headerMeta = document.getElementById('clientMessageCount');
+        headerMeta.innerText = 'Escribiendo...';
+        
+        // Volver al estado normal después de 3 segundos
+        clearTimeout(window.typingTimer);
+        window.typingTimer = setTimeout(() => {
+            headerMeta.innerText = 'En línea';
+        }, 3000);
+    }
+});
 </script>
 {% endblock %}

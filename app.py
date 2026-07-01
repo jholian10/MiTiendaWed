@@ -3,11 +3,7 @@ from flask_mail import Mail
 from dotenv import load_dotenv
 import os
 from werkzeug.middleware.proxy_fix import ProxyFix
-
-load_dotenv()
-
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
+from flask_socketio import SocketIO
 from routes.admin_routes import admin_blueprint
 from routes.product_routes import product_blueprint
 from routes.auth_routes import auth_blueprint, init_oauth
@@ -19,9 +15,32 @@ from routes.order_routes import order_custom_bp
 from routes.admin_routes import admin_blueprint
 from routes.support_routes import support_blueprint
 
+load_dotenv()
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 app = Flask(__name__)
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+@socketio.on('aviso_mensaje_cliente')
+def rebotar_a_admin(data):
+    """Recibe el aviso del cliente y lo empuja a la pantalla del admin"""
+    socketio.emit('recibir_mensaje_admin', data)
+
+@socketio.on('aviso_mensaje_admin')
+def rebotar_a_cliente(data):
+    """Recibe el aviso del admin y lo empuja a la pantalla del cliente"""
+    socketio.emit('recibir_mensaje_cliente', data)
+
+@socketio.on('escribiendo')
+def manejar_escribiendo(data):
+    usuario_id = data['usuario_id']
+    if data['quien'] == 'admin':
+        socketio.emit('admin_escribiendo', {'usuario_id': usuario_id})
+    else:
+        socketio.emit('usuario_escribiendo', {'usuario_id': usuario_id})
 
 print("Ruta de templates configurada:", app.template_folder)
 print("Directorio actual:", os.getcwd())
@@ -50,4 +69,4 @@ app.register_blueprint(order_custom_bp)
 app.register_blueprint(support_blueprint)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=3000, debug=True)

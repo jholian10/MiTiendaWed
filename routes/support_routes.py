@@ -97,3 +97,44 @@ def api_responder_soporte():
     if guardar_respuesta_admin(usuario_id, mensaje):
         return jsonify({"status": "success", "mensaje": "Enviado"})
     return jsonify({"status": "error", "mensaje": "Fallo al enviar"}), 500
+
+# ==========================================
+#       IMPLEMENTACIÓN DE CHAT EN VIVO
+# ==========================================
+from flask_socketio import emit
+from app import socketio
+
+@socketio.on('enviar_mensaje_cliente')
+def manejar_mensaje_cliente(data):
+    """ Escucha cuando el cliente envía un mensaje en vivo """
+    usuario_id = data.get('usuario_id')
+    nombre = data.get('nombre')
+    correo = data.get('correo')
+    mensaje = data.get('mensaje')
+
+    if usuario_id and mensaje and mensaje.strip():
+        # Lo guardamos de manera persistente usando tu función existente
+        guardar_mensaje_soporte(usuario_id, nombre, correo, mensaje)
+        
+        # Se retransmite el evento al panel del administrador de inmediato
+        emit('recibir_mensaje_admin', {
+            'usuario_id': usuario_id,
+            'mensaje': mensaje,
+            'remitente': 'cliente'
+        }, broadcast=True)
+
+@socketio.on('enviar_mensaje_admin')
+def manejar_mensaje_admin(data):
+    """ Escucha cuando el administrador responde en vivo """
+    usuario_id = data.get('usuario_id')
+    mensaje = data.get('mensaje')
+
+    if usuario_id and mensaje and mensaje.strip():
+        # Guardamos en la base de datos usando tu función existente
+        if guardar_respuesta_admin(usuario_id, mensaje):
+            # Se retransmite directamente a la ventana de chat del cliente correspondiente
+            emit('recibir_mensaje_cliente', {
+                'usuario_id': usuario_id,
+                'mensaje': mensaje,
+                'remitente': 'admin'
+            }, broadcast=True)

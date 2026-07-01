@@ -44,11 +44,85 @@
           type="text"
           id="user-input"
           placeholder="Escribe tu mensaje..."
+          onkeydown="if(event.key === 'Enter') sendMessage()"
         />
         <button onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
       </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/support.js') }}"></script>
+    <!-- Se añade la librería cliente de Socket.IO -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+      // Detectar cuando el cliente escribe
+document.getElementById('userInput').addEventListener('input', () => {
+    socket.emit('escribiendo', { 
+        usuario_id: "{{ session.get('usuario', {}).get('id') }}", 
+        quien: 'cliente' 
+    });
+});
+
+// Escuchar cuando el admin está escribiendo
+socket.on('admin_escribiendo', (data) => {
+    const statusDiv = document.getElementById('statusElement'); // Ajusta al ID de tu elemento de estado
+    statusDiv.innerText = 'El administrador está escribiendo...';
+    
+    clearTimeout(window.typingTimer);
+    window.typingTimer = setTimeout(() => {
+        statusDiv.innerText = 'En línea';
+    }, 3000);
+});
+      // Conexión WebSocket en tiempo real
+      const socket = io();
+      const chatMessages = document.getElementById('chat-messages');
+      const userInput = document.getElementById('user-input');
+
+      // Auto-scroll al fondo al cargar el chat
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Envío de mensaje en vivo por WebSockets
+      function sendMessage() {
+    const mensaje = userInput.value.trim();
+    if (mensaje === "") return;
+
+    // 1. Mostrarlo en la pantalla del cliente al instante
+    const miMensajeDiv = document.createElement('div');
+    miMensajeDiv.className = 'message user';
+    miMensajeDiv.textContent = mensaje;
+    chatMessages.appendChild(miMensajeDiv);
+    
+    userInput.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    const miUsuarioId = "{{ session.get('usuario', {}).get('id') }}";
+
+    // 2. Guardarlo seguro en la Base de Datos usando la ruta original
+    fetch('/support/api', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ mensaje: mensaje })
+    })
+    .then(res => {
+        // 3. Cuando la BD confirma que guardó, le avisamos al Admin por Socket
+        socket.emit('aviso_mensaje_cliente', {
+            usuario_id: miUsuarioId,
+            mensaje: mensaje
+        });
+    });
+}
+
+      // Escuchar las respuestas en vivo provenientes del administrador
+      socket.on('recibir_mensaje_cliente', function(data) {
+        const miUsuarioId = "{{ session.get('usuario', {}).get('id') }}";
+        
+        // Verificamos que la respuesta del admin pertenezca a este cliente en específico
+        if (String(data.usuario_id) === String(miUsuarioId) && data.remitente === 'admin') {
+          const mensajeAdminDiv = document.createElement('div');
+          mensajeAdminDiv.className = 'message bot';
+          mensajeAdminDiv.textContent = data.mensaje;
+          chatMessages.appendChild(mensajeAdminDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+    </script>
   </body>
 </html>
