@@ -55,7 +55,7 @@
 
                                 <div class="col-12 col-sm-2 mb-3 mb-sm-0 d-flex justify-content-center justify-content-sm-start align-items-center">
                                     {% if item.imagen_url %}
-                                        <img src="{{ item.imagen_url }}" class="product-img-thumb" alt="{{ item.nombre }}">
+                                        <img src="{{ url_for('static', filename='img/' + item.imagen_url) }}" class="product-img-thumb" alt="{{ item.nombre }}">
                                     {% else %}
                                         <div class="product-img-placeholder d-flex align-items-center justify-content-center text-muted">
                                             <i class="bi bi-image opacity-25 fs-2"></i>

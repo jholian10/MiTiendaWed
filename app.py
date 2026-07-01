@@ -2,8 +2,11 @@
 from flask_mail import Mail
 from dotenv import load_dotenv
 import os
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 load_dotenv()
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 from routes.admin_routes import admin_blueprint
 from routes.product_routes import product_blueprint
@@ -17,6 +20,9 @@ from routes.admin_routes import admin_blueprint
 from routes.support_routes import support_blueprint
 
 app = Flask(__name__)
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
 print("Ruta de templates configurada:", app.template_folder)
 print("Directorio actual:", os.getcwd())
 app.secret_key = os.getenv('SECRET_KEY', 'clave_secreta_para_sesiones')
