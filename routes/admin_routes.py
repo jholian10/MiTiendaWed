@@ -1,20 +1,17 @@
 ﻿import os
+import smtplib
+from email.mime.text import MIMEText 
+from email.mime.multipart import MIMEMultipart
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.db import obtener_conexion
 from models.product_model import listar_productos, obtener_producto_por_id
 from models.support_model import obtener_todos_los_mensajes
-
-
 from models.notificaciones_service import enviar_alerta_stock_email
-
-
 from models.admin_product_model import insertar_producto, actualizar_producto, eliminar_producto as eliminar_producto_db
 
 admin_blueprint = Blueprint('admin', __name__, url_prefix='/admin')
-
-
 
 
 def es_admin():
@@ -362,3 +359,126 @@ def ver_reportes():
     }
     
     return render_template('admin/reportes.html', reportes=reportes_data)
+
+@admin_blueprint.route('/pedidos')
+def gestion_pedidos():
+    if not es_admin():
+        return redirect(url_for('auth.login'))
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    
+    # Traemos los pedidos con la referencia y el nombre del cliente
+    query = """
+        SELECT p.id, p.referencia, p.total, p.estado, p.fecha_creacion, u.nombre as cliente 
+        FROM pedidos p
+        INNER JOIN usuarios u ON p.usuario_id = u.id
+        ORDER BY p.fecha_creacion DESC
+    """
+    cursor.execute(query)
+    lista_pedidos = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+
+    return render_template('admin/pedidos.html', pedidos=lista_pedidos)
+
+
+@admin_blueprint.route('/pedidos/actualizar/<int:id_pedido>', methods=['POST'])
+def actualizar_estado_pedido(id_pedido):
+    if not es_admin():
+        return redirect(url_for('auth.login'))
+
+    nuevo_estado = request.form.get('estado')
+
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True) # Usamos dictionary=True para facilitar las lecturas
+    try:
+        # 1. Primero obtenemos los datos del cliente y su pedido para el correo (Cambiado u.email por u.correo)
+        query_cliente = """
+            SELECT u.correo, u.nombre, p.referencia 
+            FROM pedidos p
+            INNER JOIN usuarios u ON p.usuario_id = u.id
+            WHERE p.id = %s
+        """
+        cursor.execute(query_cliente, (id_pedido,))
+        datos_pedido = cursor.fetchone()
+
+        # 2. Actualizamos el estado del pedido en la base de datos
+        cursor.execute("UPDATE pedidos SET estado = %s WHERE id = %s", (nuevo_estado, id_pedido))
+        
+        # 3. Insertamos la notificación interna del sistema
+        mensaje_notificacion = f'El pedido #{id_pedido} ha sido actualizado a: "{nuevo_estado}".'
+        cursor.execute("INSERT INTO notificaciones (mensaje, fecha_creacion) VALUES (%s, NOW())", (mensaje_notificacion,))
+        
+        conexion.commit()
+
+        # 4. Enviamos el correo electrónico si encontramos los datos del cliente (Cambiado ['email'] por ['correo'])
+        if datos_pedido and datos_pedido['correo']:
+            ref = datos_pedido['referencia'] if datos_pedido['referencia'] else id_pedido
+            enviar_correo_estado(
+                email_destino=datos_pedido['correo'],
+                nombre_cliente=datos_pedido['nombre'],
+                referencia_pedido=ref,
+                nuevo_estado=nuevo_estado
+            )
+
+        flash(f'Pedido actualizado a "{nuevo_estado}" y cliente notificado.', 'success')
+    except Exception as e:
+        flash(f'Error al actualizar el pedido o enviar el correo: {e}', 'danger')
+    finally:
+        cursor.close()
+        conexion.close()
+
+    return redirect(url_for('admin.gestion_pedidos'))
+def enviar_correo_estado(email_destino, nombre_cliente, referencia_pedido, nuevo_estado):
+    remitente = os.getenv('MAIL_USERNAME', 'jholianmanuel10@gmail.com')
+    password = os.getenv('MAIL_PASSWORD', 'tbffjihlqxwtgxkh')
+    server_smtp = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+    
+    puerto_smtp = 465 
+
+    msg = MIMEMultipart()
+    msg['From'] = remitente
+    msg['To'] = email_destino
+    # Aseguramos que el asunto también soporte caracteres especiales en español
+    msg['Subject'] = f"🛍️ Actualización de tu pedido en Dunaka - #{referencia_pedido}"
+
+    cuerpo_html = f"""
+    <html>
+    <body style="font-family: 'Poppins', Arial, sans-serif; background-color: #f7fafc; padding: 20px; color: #2d3748;">
+        <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+            <h2 style="color: #6f42c1; text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 20px;">¡Hola, {nombre_cliente}! 👋</h2>
+            <p style="font-size: 16px; line-height: 1.6; text-align: center;">
+                Queremos informarte que el estado de tu pedido con referencia <strong style="color: #2b6cb0;">#{referencia_pedido}</strong> ha cambiado.
+            </p>
+            
+            <div style="background: #edf2f7; border-radius: 12px; padding: 20px; text-align: center; margin: 25px 0;">
+                <p style="margin: 0; font-size: 14px; text-uppercase; color: #718096; font-weight: 600; letter-spacing: 0.5px;">Nuevo Estado:</p>
+                <p style="margin: 5px 0 0 0; font-size: 22px; color: #1a202c; font-weight: 700; text-transform: capitalize;">✨ {nuevo_estado} ✨</p>
+            </div>
+
+            <p style="font-size: 15px; line-height: 1.6; text-align: center; color: #4a5568;">
+                Estamos trabajando para que disfrutes de tu producto lo antes posible. Si tienes dudas, puedes ingresar a tu panel de usuario o escribirnos a soporte.
+            </p>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+            <p style="font-size: 12px; text-align: center; color: #a0aec0; margin: 0;">
+                Este es un correo automático de Dunaka. Por favor no respondas directamente a este mensaje.
+            </p>
+        </div>
+    </body>
+    </html>
+    """
+    
+    # Forzamos a que el texto interno MIME use codificación utf-8 de forma estricta
+    msg.attach(MIMEText(cuerpo_html, 'html', 'utf-8'))
+
+    try:
+        server = smtplib.SMTP_SSL(server_smtp, puerto_smtp)
+        server.login(remitente, password)
+        # SOLUCIÓN CRÍTICA: Usamos as_bytes() en lugar de as_string() para evitar fallos de codificación ASCII
+        server.sendmail(remitente, email_destino, msg.as_bytes())
+        server.quit()
+        print(f"📩 Correo enviado con éxito a {email_destino}")
+    except Exception as e:
+        print(f"❌ Error crítico al enviar correo: {e}")
+        raise e

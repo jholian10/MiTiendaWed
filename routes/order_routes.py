@@ -20,16 +20,17 @@ def ver_pedidos():
 
     mis_pedidos = obtener_pedidos_usuario(usuario_sesion['id'])
 
+    # Corregimos las llaves para que coincidan exactamente con la base de datos y el admin
     mapeo_estados = {
-        'PENDIENTE': {'texto': 'Pendiente de Pago', 'clase': 'badge-pendiente'},
-        'PAGADO': {'texto': 'Pago Aprobado', 'clase': 'badge-pagado'},
-        'EMPACANDO': {'texto': 'Empacando tu bolso artesanal', 'clase': 'badge-empacando'},
-        'EN_TRANSITO': {'texto': 'En camino / Tránsito', 'clase': 'badge-transito'},
-        'ENTREGADO': {'texto': '¡Entregado con éxito!', 'clase': 'badge-entregado'}
+        'pendiente': {'texto': 'Pendiente de Pago', 'clase': 'badge-pendiente'},
+        'pagado': {'texto': 'Pago Aprobado', 'clase': 'badge-pagado'},
+        'empacando': {'texto': 'Empacando tu bolso artesanal 🎒', 'clase': 'badge-empacando'},
+        'en transito': {'texto': 'En camino / Tránsito 🚚', 'clase': 'badge-transito'},
+        'entregado': {'texto': '¡Entregado con éxito! 🎉', 'clase': 'badge-entregado'},
+        'cancelado': {'texto': 'Pedido Cancelado ❌', 'clase': 'badge-cancelado'}
     }
 
     return render_template('pedidos.html', pedidos=mis_pedidos, usuario_sesion=usuario_sesion, mapa_estados=mapeo_estados)
-
 @order_custom_bp.route('/crear', methods=['POST'])
 def crear_pedido():
     usuario_sesion = session.get('usuario')

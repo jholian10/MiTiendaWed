@@ -39,11 +39,17 @@
                         <div class="d-flex gap-5 flex-wrap">
                             <div>
                                 <span class="text-uppercase d-block meta-label">Fecha</span>
-                                <span class="meta-value">{{ pedido.fecha_creacion.strftime('%d/%m/%Y') }}</span>
+                                <span class="meta-value">
+                                    {% if pedido.fecha_creacion.strftime %}
+                                        {{ pedido.fecha_creacion.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        {{ pedido.fecha_creacion }}
+                                    {% endif %}
+                                </span>
                             </div>
                             <div>
                                 <span class="text-uppercase d-block meta-label">Referencia</span>
-                                <span class="meta-value">#{{ pedido.referencia }}</span>
+                                <span class="meta-value">#{{ pedido.referencia if pedido.referencia else pedido.id }}</span>
                             </div>
                             <div>
                                 <span class="text-uppercase d-block meta-label">Total</span>
@@ -51,7 +57,8 @@
                             </div>
                         </div>
                         <div>
-                            {% set estado_info = mapa_estados.get(pedido.estado, {'texto': pedido.estado, 'clase': 'badge-pendiente'}) %}
+                            {% set estado_actual = pedido.estado.lower() if pedido.estado else 'pendiente' %}
+                            {% set estado_info = mapa_estados.get(estado_actual, {'texto': pedido.estado, 'clase': 'badge-pendiente'}) %}
                             <span class="status-badge {{ estado_info.clase }}">
                                 {{ estado_info.texto }}
                             </span>
@@ -73,7 +80,7 @@
                         </div>
                         {% endfor %}
                     </div>
-                </div> <!-- <-- AQUÍ ESTABA EL DIENTECITO FALTANTE QUE SE SOLUCIONÓ -->
+                </div> 
                 {% else %}
                 <div class="text-center py-5 rounded-4 shadow-sm my-4 order-card d-flex flex-column justify-content-center align-items-center" style="min-height: 350px;">
                     <div style="background: #f8f6ff; padding: 30px; border-radius: 50%; margin-bottom: 25px;">
