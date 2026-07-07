@@ -6,7 +6,8 @@
 -- Tiempo de generación: 01-07-2026 a las 06:27:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
-
+CREATE DATABASE mitiendaweb_db;
+use mitiendaweb_db;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";

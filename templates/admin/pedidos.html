@@ -41,6 +41,7 @@
       </thead>
       <tbody>
         {% for pedido in pedidos %}
+        {% set estado_actual = pedido.estado.lower() if pedido.estado else 'pendiente' %}
         <tr>
           <td><strong style="color: #2b6cb0;">#{{ pedido.referencia if pedido.referencia else pedido.id }}</strong></td>
           <td>{{ pedido.cliente }}</td>
@@ -53,26 +54,26 @@
           </td>
           <td><strong>${{ "{:,.0f}".format(pedido.total | float) }}</strong></td>
           <td>
-            <!-- Visualización limpia con dobles igual == -->
-            {% if pedido.estado == 'empacando' %}
+            <!-- Visualización limpia con dobles igual == (comparando en minúsculas) -->
+            {% if estado_actual == 'empacando' %}
                 <span class="badge bg-warning text-dark px-3 py-2" style="border-radius: 30px; font-weight: 500;">Empacando</span>
-            {% elif pedido.estado == 'en transito' %}
-                <span class="badge bg-info text-dark px-3 py-2" style="border-radius: 30px; font-weight: 500;">En tránsito</span>
-            {% elif pedido.estado == 'entregado' %}
+            {% elif estado_actual == 'en transito' %}
+                <span class="badge bg-info text-dark px-3 py-2" style="border-radius: 30px; font-weight: 500;">EN_TRANSITO</span>
+            {% elif estado_actual == 'entregado' %}
                 <span class="badge bg-success text-white px-3 py-2" style="border-radius: 30px; font-weight: 500;">Entregado</span>
-            {% elif pedido.estado == 'cancelado' %}
-                <span class="badge bg-danger text-white px-3 py-2" style="border-radius: 30px; font-weight: 500;">Cancelado</span>
+            {% elif estado_actual == 'cancelado' %}
+                <span class="badge bg-danger text-white px-3 py-2" style="border-radius: 30px; font-weight: 500;">CANCELADO</span>
             {% else %}
-                <span class="badge bg-secondary text-white px-3 py-2" style="border-radius: 30px; font-weight: 500;">{{ pedido.estado | capitalize }}</span>
+                <span class="badge bg-secondary text-white px-3 py-2" style="border-radius: 30px; font-weight: 500;">{{ estado_actual | capitalize }}</span>
             {% endif %}
           </td>
           <td class="text-center">
             <form action="{{ url_for('admin.actualizar_estado_pedido', id_pedido=pedido.id) }}" method="POST" class="d-inline-flex align-items-center gap-2">
               <select name="estado" class="form-select form-select-sm" style="border-radius: 8px; font-size: 0.85rem; width: 140px;">
-                <option value="empacando" {% if pedido.estado == 'empacando' %}selected{% endif %}>Empacando</option>
-                <option value="en transito" {% if pedido.estado == 'en transito' %}selected{% endif %}>En tránsito</option>
-                <option value="entregado" {% if pedido.estado == 'entregado' %}selected{% endif %}>Entregado</option>
-                <option value="cancelado" {% if pedido.estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                <option value="EMPACANDO" {% if estado_actual == 'EMPACANDO' %}selected{% endif %}>EMPACANDO</option>
+                <option value="EN_TRANSITO" {% if estado_actual == 'EN_TRANSITO' %}selected{% endif %}>EN_TRANSITO</option>
+                <option value="ENTREGADO" {% if estado_actual == 'ENTREGADO' %}selected{% endif %}>ENTREGADO</option>
+                <option value="cancelado" {% if estado_actual == 'cancelado' %}selected{% endif %}>Cancelado</option>
               </select>
               <button type="submit" class="btn btn-sm btn-dark" style="border-radius: 8px; padding: 5px 10px;" title="Guardar Cambios">
                 <i class="fas fa-save"></i>

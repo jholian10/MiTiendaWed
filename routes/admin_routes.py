@@ -390,6 +390,9 @@ def actualizar_estado_pedido(id_pedido):
 
     nuevo_estado = request.form.get('estado')
 
+    print("ID Pedido:", id_pedido)
+    print("Nuevo estado:", nuevo_estado)
+
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True) # Usamos dictionary=True para facilitar las lecturas
     try:
