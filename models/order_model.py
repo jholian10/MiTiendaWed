@@ -32,5 +32,4 @@ def obtener_pedidos_usuario(usuario_id):
     finally:
         cursor.close()
         conexion.close()
-
     return pedidos

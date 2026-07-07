@@ -95,6 +95,7 @@ def crear_pedido():
                 enviar_alerta_stock_email(item['nombre'], nuevo_stock)
 
             # Insertar el producto en los detalles del pedido
+                print("Producto del carrito:", item)
             cursor.execute(sql_detalle, (pedido_id, item['producto_id'], item['cantidad'], item['precio_venta']))
 
         # Confirmar todos los cambios en la base de datos

@@ -41,9 +41,32 @@ def procesar_pago():
         sql = """INSERT INTO pedidos (usuario_id, referencia, total, estado, direccion_envio, ciudad_envio, telefono_contacto, fecha_creacion)
                  VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())"""
 
-        cursor.execute(sql, (usuario_id, referencia_pago, total_cop, 'PENDIENTE', direccion, ciudad, telefono))
-        conexion.commit()
+        cursor.execute(sql, (
+        usuario_id,
+        referencia_pago,
+        total_cop,
+        'PENDIENTE',
+        direccion,
+        ciudad,
+        telefono
+        ))
+        pedido_id = cursor.lastrowid
         print(f"DEBUG: Pedido {referencia_pago} guardado correctamente.")
+        # Guardar detalles del pedido inmediatamente
+        sql_detalles = """
+        INSERT INTO pedido_detalles 
+        (pedido_id, producto_id, cantidad, precio_unitario)
+        VALUES (%s, %s, %s, %s)
+        """
+        for item in items_carrito:
+            cursor.execute(sql_detalles, (
+            pedido_id,
+            item['producto_id'],
+            item['cantidad'],
+            item['precio_venta']
+            ))
+        conexion.commit()
+        print(f"DEBUG: Pedido {referencia_pago} guardado con detalles.")
 
     except Exception as e:
         print(f"❌ ERROR CRÍTICO AL GUARDAR PEDIDO: {e}")
@@ -57,7 +80,7 @@ def procesar_pago():
     firma_checksum = hashlib.sha256(cadena_firma.encode('utf-8')).hexdigest()
 
     correo_usuario = session['usuario'].get('correo') or session['usuario'].get('email', '')
-    url_retorno = "https://constrain-fading-overall.ngrok-free.dev/pago/resultado"
+    url_retorno = "https://thrower-blend-observer.ngrok-free.dev/pago/resultado"
 
     # Redirección directa al Checkout de Wompi mediante URL limpia (Evita bloqueos 403 de CloudFront)
     url_wompi_directo = (
@@ -104,18 +127,6 @@ def webhook_wompi():
                 if pedido:
                     u_id = pedido['usuario_id']
                     pedido_id = pedido['id']
-
-                    query_pasar_detalles = """
-                        INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, precio_unitario)
-                        SELECT %s, cd.producto_id, cd.cantidad, p.precio_venta
-                        FROM carrito_detalles cd
-                        INNER JOIN carritos c ON cd.carrito_id = c.id
-                        INNER JOIN productos p ON cd.producto_id = p.id
-                        WHERE c.usuario_id = %s
-                    """
-                    cursor.execute(query_pasar_detalles, (pedido_id, u_id))
-                    print(f"DEBUG: Productos del carrito migrados a pedido_detalles para el pedido ID {pedido_id}")
-
                     cursor.execute("DELETE FROM carrito_detalles WHERE carrito_id IN (SELECT id FROM carritos WHERE usuario_id = %s)", (u_id,))
                     cursor.execute("DELETE FROM carritos WHERE usuario_id = %s", (u_id,))
                     
@@ -144,4 +155,5 @@ def resultado_pago():
     
     # Redirección directa a la vista física de pedidos de tu sistema para no romper el flujo
     flash(f"Pago procesado con éxito. ID de Operación: {id_transaccion}", "success")
+    
     return redirect(url_for('orders.ver_pedidos'))
